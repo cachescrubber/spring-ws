@@ -248,7 +248,7 @@ public class XmlRootElementPayloadMethodProcessorTest {
 	}
 
 	@Test
-	public void handleXmltypeReturnValue() throws Exception {
+	public void handleXmlTypeReturnValue() throws Exception {
 		MessageContext messageContext = new DefaultMessageContext(new MockWebServiceMessageFactory());
 		MyType xmlType = new MyType();
 		xmlType.setString("Foo");
