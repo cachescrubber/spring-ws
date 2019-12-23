@@ -16,13 +16,23 @@
 
 package org.springframework.ws.server.endpoint;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.SynthesizingMethodParameter;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.method.HandlerMethod;
 
 /**
  * Represents a bean method that will be invoked as part of an incoming Web service message.
@@ -40,6 +50,11 @@ public final class MethodEndpoint {
 
 	private final BeanFactory beanFactory;
 
+	private final MethodParameter[] parameters;
+
+	@Nullable
+	private volatile List<Annotation[][]> interfaceParameterAnnotations;
+
 	/**
 	 * Constructs a new method endpoint with the given bean and method.
 	 *
@@ -52,6 +67,7 @@ public final class MethodEndpoint {
 		this.bean = bean;
 		this.method = method;
 		this.beanFactory = null;
+		this.parameters = initMethodParameters();
 	}
 
 	/**
@@ -68,6 +84,7 @@ public final class MethodEndpoint {
 		this.bean = bean;
 		this.method = bean.getClass().getMethod(methodName, parameterTypes);
 		this.beanFactory = null;
+		this.parameters = initMethodParameters();
 	}
 
 	/**
@@ -87,6 +104,7 @@ public final class MethodEndpoint {
 		this.bean = beanName;
 		this.beanFactory = beanFactory;
 		this.method = method;
+		this.parameters = initMethodParameters();
 	}
 
 	/** Returns the object bean for this method endpoint. */
@@ -107,18 +125,154 @@ public final class MethodEndpoint {
 
 	/** Returns the method parameters for this method endpoint. */
 	public MethodParameter[] getMethodParameters() {
+		return parameters;
+	}
+
+	/** Returns the method parameters for this method endpoint. */
+	protected MethodParameter[] initMethodParameters() {
 		int parameterCount = getMethod().getParameterTypes().length;
 		MethodParameter[] parameters = new MethodParameter[parameterCount];
 		for (int i = 0; i < parameterCount; i++) {
-			parameters[i] = new MethodParameter(getMethod(), i);
+			parameters[i] = new EndpointMethodParameter(i);
 		}
 		return parameters;
 	}
 
 	/** Returns the method return type, as {@code MethodParameter}. */
 	public MethodParameter getReturnType() {
-		return new MethodParameter(method, -1);
+		return new EndpointMethodParameter(-1);
 	}
+
+	private List<Annotation[][]> getInterfaceParameterAnnotations() {
+		List<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
+		if (parameterAnnotations == null) {
+			parameterAnnotations = new ArrayList<>();
+			for (Class<?> ifc : this.method.getDeclaringClass().getInterfaces()) {
+				for (Method candidate : ifc.getMethods()) {
+					if (isOverrideFor(candidate)) {
+						parameterAnnotations.add(candidate.getParameterAnnotations());
+					}
+				}
+			}
+			this.interfaceParameterAnnotations = parameterAnnotations;
+		}
+		return parameterAnnotations;
+	}
+
+	private boolean isOverrideFor(Method candidate) {
+		if (!candidate.getName().equals(this.method.getName()) ||
+				candidate.getParameterCount() != this.method.getParameterCount()) {
+			return false;
+		}
+		Class<?>[] paramTypes = this.method.getParameterTypes();
+		if (Arrays.equals(candidate.getParameterTypes(), paramTypes)) {
+			return true;
+		}
+		for (int i = 0; i < paramTypes.length; i++) {
+			if (paramTypes[i] !=
+					ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).resolve()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Return a single annotation on the underlying method traversing its super methods
+	 * if no annotation can be found on the given method itself.
+	 * <p>Also supports <em>merged</em> composed annotations with attribute
+	 * overrides as of Spring Framework 4.2.2.
+	 * @param annotationType the type of annotation to introspect the method for
+	 * @return the annotation, or {@code null} if none found
+	 * @see AnnotatedElementUtils#findMergedAnnotation
+	 */
+	@Nullable
+	public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+		return AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
+	}
+
+	/**
+	 * Return whether the parameter is declared with the given annotation type.
+	 * @param annotationType the annotation type to look for
+	 * @since 4.3
+	 * @see AnnotatedElementUtils#hasAnnotation
+	 */
+	public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+		return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
+	}
+
+	/**
+	 * A MethodParameter with EndpointMethod-specific behavior.
+	 */
+	protected class EndpointMethodParameter extends SynthesizingMethodParameter {
+
+		@Nullable
+		private volatile Annotation[] combinedAnnotations;
+
+		public EndpointMethodParameter(int index) {
+			super(MethodEndpoint.this.getMethod(), index);
+		}
+
+		protected EndpointMethodParameter(MethodEndpoint.EndpointMethodParameter original) {
+			super(original);
+		}
+
+		@Override
+		public Class<?> getContainingClass() {
+			return ClassUtils.getUserClass(MethodEndpoint.this.getBean());
+		}
+
+		@Override
+		public <T extends Annotation> T getMethodAnnotation(Class<T> annotationType) {
+			return MethodEndpoint.this.getMethodAnnotation(annotationType);
+		}
+
+		@Override
+		public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
+			return MethodEndpoint.this.hasMethodAnnotation(annotationType);
+		}
+
+		@Override
+		public Annotation[] getParameterAnnotations() {
+			Annotation[] anns = this.combinedAnnotations;
+			if (anns == null) {
+				anns = super.getParameterAnnotations();
+				int index = getParameterIndex();
+				if (index >= 0) {
+					for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
+						if (index < ifcAnns.length) {
+							Annotation[] paramAnns = ifcAnns[index];
+							if (paramAnns.length > 0) {
+								List<Annotation> merged = new ArrayList<>(anns.length + paramAnns.length);
+								merged.addAll(Arrays.asList(anns));
+								for (Annotation paramAnn : paramAnns) {
+									boolean existingType = false;
+									for (Annotation ann : anns) {
+										if (ann.annotationType() == paramAnn.annotationType()) {
+											existingType = true;
+											break;
+										}
+									}
+									if (!existingType) {
+										merged.add(adaptAnnotation(paramAnn));
+									}
+								}
+								anns = merged.toArray(new Annotation[0]);
+							}
+						}
+					}
+				}
+				this.combinedAnnotations = anns;
+			}
+			return anns;
+		}
+
+		@Override
+		public MethodEndpoint.EndpointMethodParameter clone() {
+			return new MethodEndpoint.EndpointMethodParameter(this);
+		}
+	}
+
 
 	/**
 	 * Invokes this method endpoint with the given arguments.
