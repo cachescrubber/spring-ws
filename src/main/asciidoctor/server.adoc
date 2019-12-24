@@ -409,9 +409,17 @@ https://en.wikipedia.org/wiki/Message_Transmission_Optimization_Mechanism[MTOM] 
 [[server-endpoints]]
 == Endpoints
 
-Endpoints are the central concept in Spring-WS's server-side support. Endpoints provide access to the application behavior which is typically defined by a business service interface. An endpoint interprets the XML request message and uses that input to invoke a method on the business service (typically). The result of that service invocation is represented as a response message. Spring-WS has a wide variety of endpoints, using various ways to handle the XML message, and to create a response.
+Endpoints are the central concept in Spring-WS's server-side support.
+Endpoints provide access to the application behavior which is typically defined by a business service interface.
+An endpoint interprets the XML request message and uses that input to invoke a method on the business service (typically).
+The result of that service invocation is represented as a response message.
+Spring-WS has a wide variety of endpoints, using various ways to handle the XML message, and to create a response.
 
-You create an endpoint by annotating a class with the `@Endpoint` annotation. In the class, you define one or more methods that handle the incoming XML request, by using a wide variety of parameter types (such as DOM elements, JAXB2 objects, etc). You indicate the sort of messages a method can handle by using another annotation (typically `@PayloadRoot`).
+You create an endpoint by annotating a class with the `@Endpoint` annotation.
+In the class, you define one or more methods that handle the incoming XML request, by using a wide variety of parameter types (such as DOM elements, JAXB2 objects, etc).
+You indicate the sort of messages a method can handle by using another annotation (typically `@PayloadRoot`).
+
+=== Simple Endpoint
 
 Consider the following sample endpoint:
 
@@ -464,6 +472,71 @@ For more information about endpoint methods, refer to <<server-atEndpoint-method
 For more information about `@PayloadRoot`, refer to <<server-endpoint-mapping>>.
 
 To enable the support for `@Endpoint` and related Spring-WS annotations, you will need to add the following to your Spring application context:
+
+
+=== Endpoint Interface Annotation Support
+
+Starting with version *3.0.9* it is possible to annotate an Interface as described above. It is no longer necessary
+to copy the annotations to the implementing class. The same feature has been introduced to spring-web rest
+controllers starting with spring-framework 5.1. The implementation in spring-ws is basically the same.
+
+[source,java]
+----
+
+@Endpoint                                                                          // <1>
+public class AnnotationOrderEndpointImpl implements AnnotationOrderEndpoint {      
+                                                                                   
+  private final OrderService orderService;                                         
+                                                                                   
+  @Autowired                                                                       // <2>
+  public AnnotationOrderEndpoint(OrderService orderService) {                      
+      this.orderService = orderService;                                            
+  }                                                                                
+                                                                                   
+  @Override                                                                        
+  public void orderElement orderElement) {                                         // <3>
+    Order order = createOrder(orderElement);                                       
+    orderService.createOrder(order);                                               
+  }                                                                                
+                                                                                   
+  @Override                                                                        
+  public Order getOrder(OrderRequest orderRequest, SoapHeader header) {            // <4>
+    checkSoapHeaderForSomething(header);                                           
+    return orderService.getOrder(orderRequest.getId());                            
+  }                                                                                
+}                                                                                  
+                                                                                   
+public interface AnnotationOrderEndpoint {                                         
+                                                                                   
+  @PayloadRoot(localPart = "order", namespace = "http://samples")                  // <5>
+  void order(@RequestPayload Element orderElement);                                // <3>
+                                                                                   
+  @PayloadRoot(localPart = "orderRequest", namespace = "http://samples")           // <5>
+  @ResponsePayload
+  Order getOrder(@RequestPayload OrderRequest orderRequest, SoapHeader header);    // <4>
+}
+
+
+----
+
+<1> The class is annotated with `@Endpoint`, marking it as a Spring-WS endpoint. The StereoType annotation must be on
+the implementing class. TODO: verify this.
+<2> The constructor is marked with `@Autowired`, so that the `OrderService` business service is injected into this
+endpoint.
+<3> The `order` method takes an `Element` as a parameter, the interface is annotated with `@RequestPayload`. This
+means that the payload of the message is passed on this method as a DOM element. The method has a `void` return type,
+indicating that no response message is sent. For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
+<4> The `getOrder` method takes a `OrderRequest` as a parameter, the interface is annotated with `@RequestPayload` as
+well. This parameter is a JAXB2-supported object (it is annotated with `@XmlRootElement`). This means that the payload
+of the message is passed on to this method as a unmarshalled object. The `SoapHeader` type is also given as a parameter.
+On invocation, this parameter will contain the SOAP header of the request message. The interface method is also
+annotated with `@ResponsePayload`, indicating that the return value (the `Order`) is used as the payload of the response
+message. For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
+<5> The two handler methods of this endpoint interface are marked with `@PayloadRoot`, indicating what sort of request
+messages can be handled by the method: the `getOrder` method will be invoked for requests with a `orderRequest`
+local name and a `http://samples` namespace URI; the order method for requests with a `order` local name. For more
+information about `@PayloadRoot`, refer to <<server-endpoint-mapping>>.
+
 
 [source,xml,subs="verbatim,quotes"]
 ----
