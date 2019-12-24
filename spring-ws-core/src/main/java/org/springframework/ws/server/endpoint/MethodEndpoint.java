@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
@@ -51,6 +53,8 @@ public final class MethodEndpoint {
 	private final BeanFactory beanFactory;
 
 	private final MethodParameter[] parameters;
+
+	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
@@ -211,6 +215,7 @@ public final class MethodEndpoint {
 
 		public EndpointMethodParameter(int index) {
 			super(MethodEndpoint.this.getMethod(), index);
+			initParameterNameDiscovery(parameterNameDiscoverer);
 		}
 
 		protected EndpointMethodParameter(MethodEndpoint.EndpointMethodParameter original) {

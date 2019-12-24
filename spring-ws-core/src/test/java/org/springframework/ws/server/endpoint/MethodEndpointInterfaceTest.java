@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.stereotype.Service;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -109,8 +110,14 @@ public class MethodEndpointInterfaceTest {
 
 		RequestPayload requestPayload = param0.getParameterAnnotation(RequestPayload.class);
 		Assert.assertNotNull(requestPayload);
+
+		// test parameter name discovery
+		String parameterName = param0.getParameterName();
+		Assert.assertEquals("parameter name could not be discovered", "orderRequest", parameterName);
+
 	}
 
+	@Service
 	class OrderResponse {
 	}
 
@@ -126,6 +133,7 @@ public class MethodEndpointInterfaceTest {
 		}
 	}
 
+	@Endpoint
 	interface MyEndpoit {
 
 
