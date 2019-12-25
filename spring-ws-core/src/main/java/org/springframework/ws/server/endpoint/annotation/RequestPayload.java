@@ -22,12 +22,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.xml.XMLConstants;
+
 /**
  * Annotation which indicates that a method parameter should be bound to the {@linkplain
  * org.springframework.ws.WebServiceMessage#getPayloadSource() request payload}. Supported for annotated endpoint
  * methods.
  *
  * @author Arjen Poutsma
+ * @author Lars Uffmann
  * @see ResponsePayload
  * @since 2.0
  */
@@ -35,5 +38,24 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequestPayload {
+	/**
+	 * Signifies the local part of the request payload root element expected by the annotated parameter.
+	 * <p>
+	 * If localPart starts with a plus sign (+), the remaining string is appended to the annotated
+	 * methods name.
+	 * <p>
+	 * Defaults to "+Request".
+	 *
+	 * @see #namespace()
+	 */
+	String localPart() default "+Request";
+
+	/**
+	 * Signifies the namespace of the payload root element expected by the annotated parameter.
+	 *
+	 * @see #localPart()
+	 */
+	String namespace() default XMLConstants.NULL_NS_URI;
+
 
 }
