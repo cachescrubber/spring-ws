@@ -483,13 +483,12 @@ controllers starting with spring-framework 5.1. The implementation in spring-ws 
 [source,java]
 ----
 
-@Endpoint                                                                          // <1>
+@Service                                                                           // <1>
 public class AnnotationOrderEndpointImpl implements AnnotationOrderEndpoint {      
                                                                                    
   private final OrderService orderService;                                         
                                                                                    
-  @Autowired                                                                       // <2>
-  public AnnotationOrderEndpoint(OrderService orderService) {                      
+  public AnnotationOrderEndpoint(OrderService orderService) {                      // <2>
       this.orderService = orderService;                                            
   }                                                                                
                                                                                    
@@ -506,7 +505,8 @@ public class AnnotationOrderEndpointImpl implements AnnotationOrderEndpoint {
   }                                                                                
 }                                                                                  
                                                                                    
-public interface AnnotationOrderEndpoint {                                         
+@Endpoint                                                                          // <1>
+public interface AnnotationOrderEndpoint {
                                                                                    
   @PayloadRoot(localPart = "order", namespace = "http://samples")                  // <5>
   void order(@RequestPayload Element orderElement);                                // <3>
@@ -519,24 +519,25 @@ public interface AnnotationOrderEndpoint {
 
 ----
 
-<1> The class is annotated with `@Endpoint`, marking it as a Spring-WS endpoint. The StereoType annotation must be on
-the implementing class. TODO: verify this.
-<2> The constructor is marked with `@Autowired`, so that the `OrderService` business service is injected into this
-endpoint.
-<3> The `order` method takes an `Element` as a parameter, the interface is annotated with `@RequestPayload`. This
-means that the payload of the message is passed on this method as a DOM element. The method has a `void` return type,
-indicating that no response message is sent. For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
-<4> The `getOrder` method takes a `OrderRequest` as a parameter, the interface is annotated with `@RequestPayload` as
-well. This parameter is a JAXB2-supported object (it is annotated with `@XmlRootElement`). This means that the payload
-of the message is passed on to this method as a unmarshalled object. The `SoapHeader` type is also given as a parameter.
-On invocation, this parameter will contain the SOAP header of the request message. The interface method is also
-annotated with `@ResponsePayload`, indicating that the return value (the `Order`) is used as the payload of the response
-message. For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
-<5> The two handler methods of this endpoint interface are marked with `@PayloadRoot`, indicating what sort of request
-messages can be handled by the method: the `getOrder` method will be invoked for requests with a `orderRequest`
-local name and a `http://samples` namespace URI; the order method for requests with a `order` local name. For more
-information about `@PayloadRoot`, refer to <<server-endpoint-mapping>>.
-
+<1> The class is annotated with `@Service` in order to be picked up by the spring component-scan.
+The interface is annotated as `@Endpoint` marking it as a Spring-WS endpoint.
+It is still possible to place the `@Endpoint` annotation on the implementing class.
+Also note that there cold be only one Endpoint bean in the application context implementing the interface.
+<2> The `OrderService` business service is injected into this endpoint.
+<3> The `order` method takes an `Element` as a parameter, the interface is annotated with `@RequestPayload`.
+This means that the payload of the message is passed on this method as a DOM element.
+The method has a `void` return type, indicating that no response message is sent.
+For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
+<4> The `getOrder` method takes a `OrderRequest` as a parameter, the interface is annotated with `@RequestPayload` as well.
+This parameter is a JAXB2-supported object (it is annotated with `@XmlRootElement`).
+This means that the payload of the message is passed on to this method as a unmarshalled object.
+The `SoapHeader` type is also given as a parameter.
+On invocation, this parameter will contain the SOAP header of the request message.
+The interface method is also annotated with `@ResponsePayload`, indicating that the return value (the `Order`) is used as the payload of the response message.
+For more information about endpoint methods, refer to <<server-atEndpoint-methods>>.
+<5> The two handler methods of this endpoint interface are marked with `@PayloadRoot`, indicating what sort of request messages can be handled by the method: the `getOrder` method will be invoked for requests with a `orderRequest`
+local name and a `http://samples` namespace URI; the order method for requests with a `order` local name.
+For more information about `@PayloadRoot`, refer to <<server-endpoint-mapping>>.
 
 [source,xml,subs="verbatim,quotes"]
 ----
