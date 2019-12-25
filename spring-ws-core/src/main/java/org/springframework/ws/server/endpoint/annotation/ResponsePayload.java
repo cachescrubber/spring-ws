@@ -27,7 +27,8 @@ import javax.xml.XMLConstants;
 /**
  * Annotation which indicates that a method return value should be bound to the {@linkplain
  * org.springframework.ws.WebServiceMessage#getPayloadSource() response payload}. Supported for annotated endpoint
- * methods.
+ * methods. The namespace and localPart properties are only relevant when the return value is a JAXB2 object annotated
+ * with @XmlType.
  *
  * @author Arjen Poutsma
  * @author Lars Uffmann
