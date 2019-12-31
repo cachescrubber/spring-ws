@@ -23,16 +23,16 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.util.Assert;
 import org.springframework.ws.context.MessageContext;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+import org.springframework.ws.server.endpoint.support.PayloadRootUtils;
 
 /**
  * Implementation of {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
  * MethodArgumentResolver} and {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
  * MethodReturnValueHandler} that supports parameters annotated with {@link XmlRootElement @XmlRootElement} or {@link
  * XmlType @XmlType}, and return values annotated with {@link XmlRootElement @XmlRootElement}.
- *
+ * <p>
  * Since version 3.0.9 return values annotated with {@link XmlType @XmlType} are supported. In order to marshall the
  * response message, the {@link ResponsePayload @ResponsePayload} annotation has been extended with the namespace and
  * localPart properties.
@@ -78,24 +78,9 @@ public class XmlRootElementPayloadMethodProcessor extends AbstractJaxb2PayloadMe
 			marshalToResponsePayload(messageContext, parameterType, returnValue);
 		}
 		else {
-			QName returnQname = returnQname(returnType);
+			QName returnQname = PayloadRootUtils.getResponsePayloadQName(returnType);
 			JAXBElement<?> element = new JAXBElement(returnQname, parameterType, returnValue);
 			marshalToResponsePayload(messageContext, parameterType, element);
 		}
 	}
-
-	protected QName returnQname(MethodParameter returnType) {
-		ResponsePayload responsePayload = returnType.getMethodAnnotation(ResponsePayload.class);
-		Assert.notNull(responsePayload, "could not resolve @ResponsePayload annotation from returnType");
-		Assert.hasText(responsePayload.localPart(), "localPart must not be empty");
-		final String localPart;
-		if (responsePayload.localPart().startsWith("+")) {
-			localPart = returnType.getMethod().getName() + responsePayload.localPart().substring(1);
-		}
-		else {
-			localPart = responsePayload.localPart();
-		}
-		return new QName(responsePayload.namespace(), localPart);
-	}
-
 }
