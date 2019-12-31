@@ -38,6 +38,7 @@ import org.springframework.ws.client.WebServiceMarshallingException;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.support.PayloadRootUtils;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
 import org.springframework.ws.soap.server.endpoint.annotation.SoapAction;
 
@@ -333,45 +334,18 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 		 * @param parameter the parameter to extract
 		 * @param args      array of method arguments
 		 * @return the extracted argument value - possibly wrapped inside a JAXBElement
-		 * @see #requestQname(MethodParameter)
+		 * @see PayloadRootUtils
 		 */
 		protected Object extractRequestPayload(MethodParameter parameter, Object[] args) {
 			Object payload = args[parameter.getParameterIndex()];
 			if (payload.getClass().getAnnotation(XmlType.class) != null) {
-				QName requestQname = requestQname(parameter);
+				QName requestQname = PayloadRootUtils.getRequestPayloadQName(parameter);
 				JAXBElement<?> element = new JAXBElement(requestQname, payload.getClass(), payload);
 				return element;
 			}
 			else {
 				return payload;
 			}
-		}
-
-		/**
-		 * Use metadata available via the given method parameter to construct a {@link QName}. To construct the QName,
-		 * the methods name, the parameter name and parameter annotations are used.
-		 *
-		 * @param parameter the method parameter used to construct the QName
-		 * @return the resolved QName
-		 * @see RequestPayload
-		 */
-		protected QName requestQname(MethodParameter parameter) {
-			RequestPayload requestPayload = parameter.getParameterAnnotation(RequestPayload.class);
-			Assert.notNull(requestPayload, "could not resolve @RequestPayload annotation from parameter");
-			if (!StringUtils.hasText(requestPayload.namespace())) {
-				logger.warn("@RequestPayload annotation with empty namespace attribute detected");
-			}
-			final String localPart;
-			if (!StringUtils.hasText(requestPayload.localPart())) {
-				localPart = parameter.getParameterName();
-			}
-			else if (requestPayload.localPart().startsWith("+")) {
-				localPart = parameter.getMethod().getName() + requestPayload.localPart().substring(1);
-			}
-			else {
-				localPart = requestPayload.localPart();
-			}
-			return new QName(requestPayload.namespace(), localPart);
 		}
 
 		protected Object unwrapJaxbElement(Object returnValue) {
