@@ -18,6 +18,8 @@ package org.springframework.ws.server.endpoint.support;
 
 import java.io.InputStream;
 import java.io.Reader;
+
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamConstants;
@@ -34,6 +36,12 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import org.springframework.core.MethodParameter;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import org.springframework.xml.namespace.QNameUtils;
 import org.springframework.xml.transform.TransformerHelper;
 import org.springframework.xml.transform.TraxUtils;
@@ -42,6 +50,7 @@ import org.springframework.xml.transform.TraxUtils;
  * Helper class for determining the root qualified name of a Web Service payload.
  *
  * @author Arjen Poutsma
+ * @author Lars Uffmann
  * @since 1.0.0
  */
 public abstract class PayloadRootUtils {
@@ -50,9 +59,94 @@ public abstract class PayloadRootUtils {
 	}
 
 	/**
+	 * Returns the qualified name annotated to a method parameter using the {@link RequestPayload} annotation.
+	 * <p>
+	 * Useful to marshall a request payload using java types which do not contain a qualified name, in particular
+	 * a JAXB {@link XmlType}.
+	 *
+	 * @param parameter a method parameter annotated with {@link RequestPayload}
+	 * @return the QName of the request payload, as annotated
+	 * @throws IllegalArgumentException when the method parameter is not annotated or annotation attributes are empty
+	 * @since 3.0.9
+	 */
+	public static QName getRequestPayloadQName(MethodParameter parameter) {
+		RequestPayload requestPayload = parameter.getParameterAnnotation(RequestPayload.class);
+		Assert.notNull(requestPayload, "could not resolve @RequestPayload annotation from parameter");
+
+		PayloadRoot payloadRoot = parameter.getMethodAnnotation(PayloadRoot.class);
+		// PayloadRoot is optional (may be @SoapAction)
+
+		String localPart;
+		if (requestPayload.localPart().startsWith("+")) {
+			localPart = parameter.getMethod().getName() + requestPayload.localPart().substring(1);
+		}
+		else {
+			localPart = requestPayload.localPart();
+		}
+
+		String namespace = requestPayload.namespace();
+		if (!StringUtils.hasText(namespace)) {
+			if (null != payloadRoot) {
+				namespace = payloadRoot.namespace();
+			}
+		}
+
+		if (!StringUtils.hasText(localPart)) {
+			if (null != payloadRoot) {
+				localPart = payloadRoot.localPart();
+			}
+			// could use parameterName
+		}
+
+		Assert.hasText(namespace, "namespace attribute must be annotated");
+		// could use parameter.getParameterName() as fallback
+		Assert.hasText(localPart, "localPart attribute must be annotated");
+		return new QName(namespace, localPart);
+	}
+
+	/**
+	 * Returns the qualified name annotated to a methods return type using the {@link ResponsePayload} annotation.
+	 * <p>
+	 * Useful to marshall a response payload using java types which do not contain a qualified name, in particular
+	 * a JAXB {@link XmlType}.
+	 *
+	 * @param parameter a method parameter representing the return type of a method.
+	 * @return the QName of the response payload, as annotated
+	 * @throws IllegalArgumentException when the method is not annotated or required annotation attributes are empty.
+	 * @since 3.0.9
+	 */
+	public static QName getResponsePayloadQName(MethodParameter parameter) {
+		ResponsePayload responsePayload = parameter.getMethodAnnotation(ResponsePayload.class);
+		Assert.notNull(responsePayload, "could not resolve @ResponsePayload annotation from method");
+
+		PayloadRoot payloadRoot = parameter.getMethodAnnotation(PayloadRoot.class);
+		// PayloadRoot is optional (may be @SoapAction)
+
+		String localPart;
+		if (responsePayload.localPart().startsWith("+")) {
+			localPart = parameter.getMethod().getName() + responsePayload.localPart().substring(1);
+		}
+		else {
+			localPart = responsePayload.localPart();
+		}
+
+		String namespace = responsePayload.namespace();
+		if (!StringUtils.hasText(namespace)) {
+			if (null != payloadRoot) {
+				namespace = payloadRoot.namespace();
+			}
+		}
+
+		Assert.hasText(namespace, "namespace attribute must be annotated");
+		// could use parameter.getParameterName() as fallback
+		Assert.hasText(localPart, "localPart attribute must be annotated");
+		return new QName(namespace, localPart);
+	}
+
+	/**
 	 * Returns the root qualified name of the given source, transforming it if necessary.
 	 *
-	 * @param source			 the source to get the root element from
+	 * @param source             the source to get the root element from
 	 * @param transformerFactory a transformer factory, necessary if the given source is not a {@code DOMSource}
 	 * @return the root element, or {@code null} if {@code source} is {@code null}
 	 */

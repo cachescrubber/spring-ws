@@ -69,8 +69,6 @@ public class XmlRootElementPayloadMethodProcessorTest {
 
 	private MethodParameter xmlTypeReturnType;
 
-	private MethodParameter xmlTypeOrderReturnType;
-
 	@Before
 	public void setUp() throws Exception {
 		processor = new XmlRootElementPayloadMethodProcessor();
@@ -78,7 +76,6 @@ public class XmlRootElementPayloadMethodProcessorTest {
 		typeParameter = new MethodParameter(getClass().getMethod("type", MyType.class), 0);
 		rootElementReturnType = new MethodParameter(getClass().getMethod("rootElement", MyRootElement.class), -1);
 		xmlTypeReturnType = new MethodParameter(getClass().getMethod("xmlType", MyType.class), -1);
-		xmlTypeOrderReturnType = new MethodParameter(getClass().getMethod("xmlTypeOrder", MyType.class), -1);
 	}
 
 	@Test
@@ -258,20 +255,6 @@ public class XmlRootElementPayloadMethodProcessorTest {
 		assertXMLEqual("<root xmlns='http://springframework.org'><string>Foo</string></root>", response.getPayloadAsString());
 	}
 
-	@Test
-	public void testReturnQname_Explicit() {
-		QName returnQname = processor.returnQname(xmlTypeReturnType);
-		assertEquals("root", returnQname.getLocalPart());
-		assertEquals("http://springframework.org", returnQname.getNamespaceURI());
-	}
-
-	@Test
-	public void testReturnQname_Default() {
-		QName returnQname = processor.returnQname(xmlTypeOrderReturnType);
-		assertEquals("xmlTypeOrderResponse", returnQname.getLocalPart());
-		assertEquals(XMLConstants.NULL_NS_URI, returnQname.getNamespaceURI());
-	}
-
 	@ResponsePayload
 	public MyRootElement rootElement(@RequestPayload MyRootElement rootElement) {
 		return rootElement;
@@ -280,11 +263,6 @@ public class XmlRootElementPayloadMethodProcessorTest {
 	@ResponsePayload(namespace = "http://springframework.org", localPart = "root")
 	public MyType xmlType(@RequestPayload MyType xmlType) {
 		return xmlType;
-	}
-
-	@ResponsePayload
-	public MyType xmlTypeOrder(@RequestPayload MyType xmlTypeOrderRequest) {
-		return xmlTypeOrderRequest;
 	}
 
 	public void type(@RequestPayload MyType type) {
