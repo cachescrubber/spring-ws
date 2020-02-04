@@ -76,7 +76,8 @@
 		<module>spring-ws-support</module>
 		<module>spring-ws-test</module>
 		<module>spring-xml</module>
-	</modules>
+        <module>spring-ws-maven-plugin</module>
+    </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

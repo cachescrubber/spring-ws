@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.springframework.org/spring-ws/single/schema"
+            xmlns="http://www.springframework.org/spring-ws/single/schema" elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:simpleType name="customType">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+
+    <xsd:element name="GetOrderRequest" type="GetOrderRequestType"/>
+
+    <xsd:complexType name="GetOrderRequestType">
+        <xsd:sequence>
+            <xsd:element name="child" type="xsd:string" nillable="true" minOccurs="2"
+                         maxOccurs="4"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="GetOrderResponse" type="GetOrderResponseType"/>
+
+    <xsd:complexType name="GetOrderResponseType">
+        <xsd:sequence>
+            <xsd:element name="child" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="GetOrderFault" type="GetOrderFaultType"/>
+
+    <xsd:complexType name="GetOrderFaultType">
+        <xsd:sequence>
+            <xsd:element name="child" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>

@@ -187,4 +187,8 @@ public class DefaultWsdl11Definition implements Wsdl11Definition, InitializingBe
 	public Source getSource() {
 		return delegate.getSource();
 	}
+
+	public ProviderBasedWsdl4jDefinition getDelegate() {
+		return delegate;
+	}
 }
