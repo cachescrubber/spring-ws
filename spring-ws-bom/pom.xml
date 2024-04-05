@@ -6,7 +6,7 @@
 
     <groupId>org.springframework.ws</groupId>
     <artifactId>spring-ws-bom</artifactId>
-    <version>4.0.7-SNAPSHOT</version>
+    <version>4.0.10</version>
     <packaging>pom</packaging>
 
     <name>Spring Web Services - BOM</name>
@@ -71,27 +71,27 @@
             <dependency>
                 <groupId>org.springframework.ws</groupId>
                 <artifactId>spring-ws-core</artifactId>
-                <version>4.0.7-SNAPSHOT</version>
+                <version>4.0.10</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
                 <artifactId>spring-ws-security</artifactId>
-                <version>4.0.7-SNAPSHOT</version>
+                <version>4.0.10</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
                 <artifactId>spring-ws-support</artifactId>
-                <version>4.0.7-SNAPSHOT</version>
+                <version>4.0.10</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
                 <artifactId>spring-ws-test</artifactId>
-                <version>4.0.7-SNAPSHOT</version>
+                <version>4.0.10</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
                 <artifactId>spring-xml</artifactId>
-                <version>4.0.7-SNAPSHOT</version>
+                <version>4.0.10</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -134,7 +134,7 @@
                     <plugin>
                         <groupId>org.jfrog.buildinfo</groupId>
                         <artifactId>artifactory-maven-plugin</artifactId>
-                        <version>3.2.3</version>
+                        <version>3.6.2</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
@@ -170,7 +170,7 @@
                     <plugin>
                         <groupId>org.jfrog.buildinfo</groupId>
                         <artifactId>artifactory-maven-plugin</artifactId>
-                        <version>3.2.3</version>
+                        <version>3.6.2</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
