@@ -16,14 +16,14 @@
 
 package org.springframework.ws.soap.security.x509.cache;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-
 import java.security.cert.X509Certificate;
+
+import javax.cache.CacheException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ehcache.core.Ehcache;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,7 +49,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
 
 	// ~ Instance fields ================================================================================================
 
-	private Ehcache cache;
+	private Ehcache<X509Certificate, UserDetails> cache;
 
 	// ~ Methods ========================================================================================================
 
@@ -60,10 +60,9 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
 
 	@Override
 	public UserDetails getUserFromCache(X509Certificate userCert) {
-		Element element = null;
-
+		UserDetails userDetails;
 		try {
-			element = cache.get(userCert);
+			userDetails = cache.get(userCert);
 		} catch (CacheException cacheException) {
 			throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
 		}
@@ -77,23 +76,16 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
 
 			logger.debug("X.509 Cache hit. SubjectDN: " + subjectDN);
 		}
-
-		if (element == null) {
-			return null;
-		} else {
-			return (UserDetails) element.getObjectValue();
-		}
+		return userDetails;
 	}
 
 	@Override
 	public void putUserInCache(X509Certificate userCert, UserDetails user) {
-		Element element = new Element(userCert, user);
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache put: " + userCert.getSubjectDN());
 		}
 
-		cache.put(element);
+		cache.put(userCert, user);
 	}
 
 	@Override
@@ -105,7 +97,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
 		cache.remove(userCert);
 	}
 
-	public void setCache(Ehcache cache) {
+	public void setCache(Ehcache<X509Certificate, UserDetails> cache) {
 		this.cache = cache;
 	}
 }
