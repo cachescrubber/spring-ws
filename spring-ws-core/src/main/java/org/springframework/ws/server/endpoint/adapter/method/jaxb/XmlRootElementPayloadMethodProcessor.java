@@ -16,11 +16,12 @@
 
 package org.springframework.ws.server.endpoint.adapter.method.jaxb;
 
+import javax.xml.namespace.QName;
+
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import javax.xml.namespace.QName;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.ws.context.MessageContext;
@@ -28,14 +29,18 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import org.springframework.ws.server.endpoint.support.PayloadRootUtils;
 
 /**
- * Implementation of {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
- * MethodArgumentResolver} and {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
- * MethodReturnValueHandler} that supports parameters annotated with {@link XmlRootElement @XmlRootElement} or {@link
- * XmlType @XmlType}, and return values annotated with {@link XmlRootElement @XmlRootElement}.
+ * Implementation of
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
+ * MethodArgumentResolver} and
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
+ * MethodReturnValueHandler} that supports parameters annotated with
+ * {@link XmlRootElement @XmlRootElement} or {@link XmlType @XmlType}, and return values
+ * annotated with {@link XmlRootElement @XmlRootElement}.
  * <p>
- * Since version 3.0.9 return values annotated with {@link XmlType @XmlType} are supported. In order to marshall the
- * response message, the {@link ResponsePayload @ResponsePayload} annotation has been extended with the namespace and
- * localPart properties.
+ * Since version 3.0.9 return values annotated with {@link XmlType @XmlType} are
+ * supported. In order to marshall the response message, the
+ * {@link ResponsePayload @ResponsePayload} annotation has been extended with the
+ * namespace and localPart properties.
  *
  * @author Arjen Poutsma
  * @author Lars Uffmann
@@ -66,8 +71,8 @@ public class XmlRootElementPayloadMethodProcessor extends AbstractJaxb2PayloadMe
 	@Override
 	protected boolean supportsResponsePayloadReturnType(MethodParameter returnType) {
 		Class<?> parameterType = returnType.getParameterType();
-		return parameterType.isAnnotationPresent(XmlRootElement.class) ||
-				parameterType.isAnnotationPresent(XmlType.class);
+		return parameterType.isAnnotationPresent(XmlRootElement.class)
+				|| parameterType.isAnnotationPresent(XmlType.class);
 	}
 
 	@Override

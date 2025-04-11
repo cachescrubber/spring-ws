@@ -14,22 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.ws.client.proxy;
-
-import java.lang.reflect.Method;
-
 /**
- * Method invocation adapter interface.
- *
- * @author Lars Uffmann
- * @since 3.0.9
+ * Contains classes for client-side Spring-WS support, allowing for Spring-style Web
+ * service access.
  */
-public interface MethodInvocationAdapter {
-
-	boolean supportsInterface(Class serviceEndpointInterface);
-
-	boolean isWebServiceInvocation(Method method);
-
-	Object invoke(Method method, Object[] args);
-
-}
+package org.springframework.ws.client.proxy;

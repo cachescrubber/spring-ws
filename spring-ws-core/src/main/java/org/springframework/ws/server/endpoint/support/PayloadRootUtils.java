@@ -19,8 +19,6 @@ package org.springframework.ws.server.endpoint.support;
 import java.io.InputStream;
 import java.io.Reader;
 
-import javax.xml.bind.annotation.XmlType;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamConstants;
@@ -32,6 +30,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 
+import jakarta.xml.bind.annotation.XmlType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -60,14 +59,15 @@ public abstract class PayloadRootUtils {
 	}
 
 	/**
-	 * Returns the qualified name annotated to a method parameter using the {@link RequestPayload} annotation.
+	 * Returns the qualified name annotated to a method parameter using the
+	 * {@link RequestPayload} annotation.
 	 * <p>
-	 * Useful to marshall a request payload using java types which do not contain a qualified name, in particular
-	 * a JAXB {@link XmlType}.
-	 *
+	 * Useful to marshall a request payload using java types which do not contain a
+	 * qualified name, in particular a JAXB {@link XmlType}.
 	 * @param parameter a method parameter annotated with {@link RequestPayload}
 	 * @return the QName of the request payload, as annotated
-	 * @throws IllegalArgumentException when the method parameter is not annotated or annotation attributes are empty
+	 * @throws IllegalArgumentException when the method parameter is not annotated or
+	 * annotation attributes are empty
 	 * @since 3.0.9
 	 */
 	public static QName getRequestPayloadQName(MethodParameter parameter) {
@@ -106,14 +106,15 @@ public abstract class PayloadRootUtils {
 	}
 
 	/**
-	 * Returns the qualified name annotated to a methods return type using the {@link ResponsePayload} annotation.
+	 * Returns the qualified name annotated to a methods return type using the
+	 * {@link ResponsePayload} annotation.
 	 * <p>
-	 * Useful to marshall a response payload using java types which do not contain a qualified name, in particular
-	 * a JAXB {@link XmlType}.
-	 *
+	 * Useful to marshall a response payload using java types which do not contain a
+	 * qualified name, in particular a JAXB {@link XmlType}.
 	 * @param parameter a method parameter representing the return type of a method.
 	 * @return the QName of the response payload, as annotated
-	 * @throws IllegalArgumentException when the method is not annotated or required annotation attributes are empty.
+	 * @throws IllegalArgumentException when the method is not annotated or required
+	 * annotation attributes are empty.
 	 * @since 3.0.9
 	 */
 	public static QName getResponsePayloadQName(MethodParameter parameter) {

@@ -34,7 +34,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.method.HandlerMethod;
 
 /**
  * Represents a bean method that will be invoked as part of an incoming Web service
@@ -126,7 +125,7 @@ public final class MethodEndpoint {
 
 	/** Returns the method parameters for this method endpoint. */
 	public MethodParameter[] getMethodParameters() {
-		return parameters;
+		return this.parameters;
 	}
 
 	/** Returns the method parameters for this method endpoint. */
@@ -161,8 +160,8 @@ public final class MethodEndpoint {
 	}
 
 	private boolean isOverrideFor(Method candidate) {
-		if (!candidate.getName().equals(this.method.getName()) ||
-				candidate.getParameterCount() != this.method.getParameterCount()) {
+		if (!candidate.getName().equals(this.method.getName())
+				|| candidate.getParameterCount() != this.method.getParameterCount()) {
 			return false;
 		}
 		Class<?>[] paramTypes = this.method.getParameterTypes();
@@ -170,8 +169,8 @@ public final class MethodEndpoint {
 			return true;
 		}
 		for (int i = 0; i < paramTypes.length; i++) {
-			if (paramTypes[i] !=
-					ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).resolve()) {
+			if (paramTypes[i] != ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass())
+				.resolve()) {
 				return false;
 			}
 		}
@@ -179,10 +178,11 @@ public final class MethodEndpoint {
 	}
 
 	/**
-	 * Return a single annotation on the underlying method traversing its super methods
-	 * if no annotation can be found on the given method itself.
-	 * <p>Also supports <em>merged</em> composed annotations with attribute
-	 * overrides as of Spring Framework 4.2.2.
+	 * Return a single annotation on the underlying method traversing its super methods if
+	 * no annotation can be found on the given method itself.
+	 * <p>
+	 * Also supports <em>merged</em> composed annotations with attribute overrides as of
+	 * Spring Framework 4.2.2.
 	 * @param annotationType the type of annotation to introspect the method for
 	 * @return the annotation, or {@code null} if none found
 	 * @see AnnotatedElementUtils#findMergedAnnotation
@@ -203,6 +203,57 @@ public final class MethodEndpoint {
 	}
 
 	/**
+	 * Invokes this method endpoint with the given arguments.
+	 * @param args the arguments
+	 * @return the invocation result
+	 * @throws Exception when the method invocation results in an exception
+	 */
+	public Object invoke(Object... args) throws Exception {
+		Object endpoint = getBean();
+		ReflectionUtils.makeAccessible(this.method);
+		try {
+			return this.method.invoke(endpoint, args);
+		}
+		catch (InvocationTargetException ex) {
+			handleInvocationTargetException(ex);
+			throw new IllegalStateException("Unexpected exception thrown by method - "
+					+ ex.getTargetException().getClass().getName() + ": " + ex.getTargetException().getMessage());
+		}
+	}
+
+	private void handleInvocationTargetException(InvocationTargetException ex) throws Exception {
+		Throwable targetException = ex.getTargetException();
+		if (targetException instanceof RuntimeException) {
+			throw (RuntimeException) targetException;
+		}
+		if (targetException instanceof Error) {
+			throw (Error) targetException;
+		}
+		if (targetException instanceof Exception) {
+			throw (Exception) targetException;
+		}
+
+	}
+
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o instanceof MethodEndpoint other) {
+			return this.bean.equals(other.bean) && this.method.equals(other.method);
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		return 31 * this.bean.hashCode() + this.method.hashCode();
+	}
+
+	public String toString() {
+		return this.method.toGenericString();
+	}
+
+	/**
 	 * A MethodParameter with EndpointMethod-specific behavior.
 	 */
 	protected class EndpointMethodParameter extends SynthesizingMethodParameter {
@@ -212,7 +263,7 @@ public final class MethodEndpoint {
 
 		public EndpointMethodParameter(int index) {
 			super(MethodEndpoint.this.getMethod(), index);
-			initParameterNameDiscovery(parameterNameDiscoverer);
+			initParameterNameDiscovery(MethodEndpoint.this.parameterNameDiscoverer);
 		}
 
 		protected EndpointMethodParameter(MethodEndpoint.EndpointMethodParameter original) {
@@ -269,62 +320,12 @@ public final class MethodEndpoint {
 			return anns;
 		}
 
+
 		@Override
 		public MethodEndpoint.EndpointMethodParameter clone() {
 			return new MethodEndpoint.EndpointMethodParameter(this);
 		}
-	}
 
-
-	/**
-	 * Invokes this method endpoint with the given arguments.
-	 * @param args the arguments
-	 * @return the invocation result
-	 * @throws Exception when the method invocation results in an exception
-	 */
-	public Object invoke(Object... args) throws Exception {
-		Object endpoint = getBean();
-		ReflectionUtils.makeAccessible(this.method);
-		try {
-			return this.method.invoke(endpoint, args);
-		}
-		catch (InvocationTargetException ex) {
-			handleInvocationTargetException(ex);
-			throw new IllegalStateException("Unexpected exception thrown by method - "
-					+ ex.getTargetException().getClass().getName() + ": " + ex.getTargetException().getMessage());
-		}
-	}
-
-	private void handleInvocationTargetException(InvocationTargetException ex) throws Exception {
-		Throwable targetException = ex.getTargetException();
-		if (targetException instanceof RuntimeException) {
-			throw (RuntimeException) targetException;
-		}
-		if (targetException instanceof Error) {
-			throw (Error) targetException;
-		}
-		if (targetException instanceof Exception) {
-			throw (Exception) targetException;
-		}
-
-	}
-
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o instanceof MethodEndpoint other) {
-			return this.bean.equals(other.bean) && this.method.equals(other.method);
-		}
-		return false;
-	}
-
-	public int hashCode() {
-		return 31 * this.bean.hashCode() + this.method.hashCode();
-	}
-
-	public String toString() {
-		return this.method.toGenericString();
 	}
 
 }

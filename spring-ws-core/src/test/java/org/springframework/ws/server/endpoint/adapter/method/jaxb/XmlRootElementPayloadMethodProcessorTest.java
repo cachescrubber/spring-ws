@@ -19,9 +19,6 @@ package org.springframework.ws.server.endpoint.adapter.method.jaxb;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -53,9 +50,10 @@ import org.springframework.ws.soap.axiom.AxiomSoapMessageFactory;
 import org.springframework.xml.sax.AbstractXmlReader;
 import org.springframework.xml.transform.StringResult;
 import org.springframework.xml.transform.TransformerFactoryUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlRootElementPayloadMethodProcessorTest {
+class XmlRootElementPayloadMethodProcessorTest {
 
 	private XmlRootElementPayloadMethodProcessor processor;
 
@@ -285,14 +283,17 @@ public class XmlRootElementPayloadMethodProcessorTest {
 	}
 
 	@Test
-	public void handleXmlTypeReturnValue() throws Exception {
+	void handleXmlTypeReturnValue() throws Exception {
 		MessageContext messageContext = new DefaultMessageContext(new MockWebServiceMessageFactory());
 		MyType xmlType = new MyType();
 		xmlType.setString("Foo");
 		processor.handleReturnValue(messageContext, xmlTypeReturnType, xmlType);
-		assertTrue("context has no response", messageContext.hasResponse());
+		assertThat(messageContext.hasResponse()).isTrue();
 		MockWebServiceMessage response = (MockWebServiceMessage) messageContext.getResponse();
-		assertXMLEqual("<root xmlns='http://springframework.org'><string>Foo</string></root>", response.getPayloadAsString());
+		XmlAssert.assertThat(response.getPayloadAsString())
+			.and("<root xmlns='http://springframework.org'><string>Foo</string></root>")
+			.ignoreWhitespace()
+			.areIdentical();
 	}
 
 	@ResponsePayload

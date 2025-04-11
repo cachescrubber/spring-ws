@@ -27,10 +27,11 @@ import javax.xml.XMLConstants;
 /**
  * Annotation which indicates that a method return value should be bound to the
  * {@linkplain org.springframework.ws.WebServiceMessage#getPayloadSource() response
- * payload}. Supported for annotated endpoint methods.
- * Annotation which indicates that a method return value should be bound to the {@linkplain
- * org.springframework.ws.WebServiceMessage#getPayloadSource() response payload}. Supported for annotated endpoint
- * methods. The namespace and localPart properties are only relevant when the return value is a JAXB2 object annotated
+ * payload}. Supported for annotated endpoint methods. Annotation which indicates that a
+ * method return value should be bound to the
+ * {@linkplain org.springframework.ws.WebServiceMessage#getPayloadSource() response
+ * payload}. Supported for annotated endpoint methods. The namespace and localPart
+ * properties are only relevant when the return value is a JAXB2 object annotated
  * with @XmlType.
  *
  * @author Arjen Poutsma
@@ -42,11 +43,13 @@ import javax.xml.XMLConstants;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ResponsePayload {
+
 	/**
-	 * Signifies the local part of the response payload root element returned by the annotated method.
+	 * Signifies the local part of the response payload root element returned by the
+	 * annotated method.
 	 * <p>
-	 * If localPart starts with a plus sign (+), the remaining string is appended to the annotated
-	 * methods name.
+	 * If localPart starts with a plus sign (+), the remaining string is appended to the
+	 * annotated methods name.
 	 * <p>
 	 * Defaults to "+Response".
 	 *
@@ -55,7 +58,8 @@ public @interface ResponsePayload {
 	String localPart() default "+Response";
 
 	/**
-	 * Signifies the namespace of the payload root element handled by the annotated method.
+	 * Signifies the namespace of the payload root element handled by the annotated
+	 * method.
 	 *
 	 * @see #localPart()
 	 */

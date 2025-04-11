@@ -31,7 +31,6 @@ import javax.xml.XMLConstants;
  *
  * @author Arjen Poutsma
  * @author Lars Uffmann
- *
  * @since 2.0
  * @see ResponsePayload
  */
@@ -39,11 +38,13 @@ import javax.xml.XMLConstants;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequestPayload {
+
 	/**
-	 * Signifies the local part of the request payload root element expected by the annotated parameter.
+	 * Signifies the local part of the request payload root element expected by the
+	 * annotated parameter.
 	 * <p>
-	 * If localPart starts with a plus sign (+), the remaining string is appended to the annotated
-	 * methods name.
+	 * If localPart starts with a plus sign (+), the remaining string is appended to the
+	 * annotated methods name.
 	 * <p>
 	 * Defaults to "+Request".
 	 *
@@ -52,11 +53,11 @@ public @interface RequestPayload {
 	String localPart() default "+Request";
 
 	/**
-	 * Signifies the namespace of the payload root element expected by the annotated parameter.
+	 * Signifies the namespace of the payload root element expected by the annotated
+	 * parameter.
 	 *
 	 * @see #localPart()
 	 */
 	String namespace() default XMLConstants.NULL_NS_URI;
-
 
 }

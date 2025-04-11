@@ -1,3 +1,19 @@
+/*
+ * Copyright 2005-2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.ws.client.proxy;
 
 import java.lang.reflect.InvocationHandler;
@@ -17,9 +33,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * A FactoryBean that generates a dynamic web service proxy. The dynamic proxy could invoke the web service operations
- * defined by a service endpoint interface.
+ * A FactoryBean that generates a dynamic web service proxy. The dynamic proxy could
+ * invoke the web service operations defined by a service endpoint interface.
  *
+ * @param <SEI> the service endpoint interface
  * @author Lars Uffmann
  * @since 3.0.9
  */
@@ -33,7 +50,8 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 
 	private final List<Method> webServiceMethods;
 
-	public WebServiceClientProxyFactoryBean(Class<SEI> serviceEndpointInterface, MethodInvocationAdapter methodInvocationAdapter) {
+	public WebServiceClientProxyFactoryBean(Class<SEI> serviceEndpointInterface,
+			MethodInvocationAdapter methodInvocationAdapter) {
 		this.serviceEndpointInterface = serviceEndpointInterface;
 		this.methodInvocationAdapter = methodInvocationAdapter;
 		this.webServiceMethods = initWebServiceMethods();
@@ -43,13 +61,13 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 
 	@Override
 	public SEI getObject() throws Exception {
-		Class[] interfaces = new Class[] {serviceEndpointInterface};
-		return (SEI) Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(), interfaces, this);
+		Class[] interfaces = new Class[] { this.serviceEndpointInterface };
+		return (SEI) Proxy.newProxyInstance(this.serviceEndpointInterface.getClassLoader(), interfaces, this);
 	}
 
 	@Override
 	public Class<?> getObjectType() {
-		return serviceEndpointInterface;
+		return this.serviceEndpointInterface;
 	}
 
 	@Override
@@ -61,25 +79,26 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (!methodInvocationAdapter.supportsInterface(serviceEndpointInterface)) {
-			throw new BeanInitializationException("The invocation adapter does not support this service endpoint interface.");
+		if (!this.methodInvocationAdapter.supportsInterface(this.serviceEndpointInterface)) {
+			throw new BeanInitializationException(
+					"The invocation adapter does not support this service endpoint interface.");
 		}
 		List<String> invocations = getWebServiceMethods().stream().map(m -> m.getName()).collect(Collectors.toList());
 		if (invocations.size() < 1) {
-			throw new BeanInitializationException("no web service invocations found on interface " +
-					serviceEndpointInterface);
+			throw new BeanInitializationException(
+					"no web service invocations found on interface " + this.serviceEndpointInterface);
 		}
-		logger.info("detected web service methods declared on SEI " +
-				serviceEndpointInterface.getCanonicalName() + ": " +
-				StringUtils.collectionToCommaDelimitedString(invocations));
+		this.logger
+			.info("detected web service methods declared on SEI " + this.serviceEndpointInterface.getCanonicalName()
+					+ ": " + StringUtils.collectionToCommaDelimitedString(invocations));
 	}
 
 	// InvocationHandler
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (methodInvocationAdapter.isWebServiceInvocation(method)) {
-			return methodInvocationAdapter.invoke(method, args);
+		if (this.methodInvocationAdapter.isWebServiceInvocation(method)) {
+			return this.methodInvocationAdapter.invoke(method, args);
 		}
 		else if (ReflectionUtils.isEqualsMethod(method)) {
 			return proxyEquals(proxy, args[0]);
@@ -100,21 +119,22 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 	}
 
 	private Integer proxyHashCode(Object proxy) {
-		return 31 * System.identityHashCode(proxy) + serviceEndpointInterface.hashCode();
+		return 31 * System.identityHashCode(proxy) + this.serviceEndpointInterface.hashCode();
 	}
 
 	private String proxyToString(Object proxy) {
-		return "WebServiceClientProxy[" + serviceEndpointInterface.getSimpleName() + "]@" + System.identityHashCode(proxy);
+		return "WebServiceClientProxy[" + this.serviceEndpointInterface.getSimpleName() + "]@"
+				+ System.identityHashCode(proxy);
 	}
 
 	public List<Method> getWebServiceMethods() {
-		return webServiceMethods;
+		return this.webServiceMethods;
 	}
 
 	private List<Method> initWebServiceMethods() {
-		return Arrays.stream(serviceEndpointInterface.getMethods())
-				.filter(methodInvocationAdapter::isWebServiceInvocation)
-				.collect(Collectors.toList());
+		return Arrays.stream(this.serviceEndpointInterface.getMethods())
+			.filter(this.methodInvocationAdapter::isWebServiceInvocation)
+			.collect(Collectors.toList());
 	}
 
 }
