@@ -60,4 +60,5 @@ dependencies {
 	testImplementation("org.springframework:spring-test")
 	testImplementation("org.springframework:spring-webflux")
 	testImplementation("org.xmlunit:xmlunit-assertj")
+	testImplementation "org.wiremock:wiremock-standalone:3.12.1"
 }

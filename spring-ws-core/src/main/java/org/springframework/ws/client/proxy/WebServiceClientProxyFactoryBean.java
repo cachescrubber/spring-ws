@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,8 +82,8 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 			throw new BeanInitializationException(
 					"The invocation adapter does not support this service endpoint interface.");
 		}
-		List<String> invocations = getWebServiceMethods().stream().map(m -> m.getName()).collect(Collectors.toList());
-		if (invocations.size() < 1) {
+		List<String> invocations = getWebServiceMethods().stream().map(Method::getName).toList();
+		if (invocations.isEmpty()) {
 			throw new BeanInitializationException(
 					"no web service invocations found on interface " + this.serviceEndpointInterface);
 		}
@@ -134,7 +133,7 @@ public class WebServiceClientProxyFactoryBean<SEI> implements FactoryBean<SEI>, 
 	private List<Method> initWebServiceMethods() {
 		return Arrays.stream(this.serviceEndpointInterface.getMethods())
 			.filter(this.methodInvocationAdapter::isWebServiceInvocation)
-			.collect(Collectors.toList());
+			.toList();
 	}
 
 }

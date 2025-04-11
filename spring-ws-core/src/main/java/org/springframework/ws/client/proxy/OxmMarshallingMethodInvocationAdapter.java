@@ -53,8 +53,7 @@ public class OxmMarshallingMethodInvocationAdapter extends AbstractMarshallingMe
 		if (marshaller == null) {
 			return false;
 		}
-		else if (marshaller instanceof GenericMarshaller) {
-			GenericMarshaller genericMarshaller = (GenericMarshaller) marshaller;
+		else if (marshaller instanceof GenericMarshaller genericMarshaller) {
 			return genericMarshaller.supports(parameter.getGenericParameterType());
 		}
 		else {
@@ -68,8 +67,8 @@ public class OxmMarshallingMethodInvocationAdapter extends AbstractMarshallingMe
 		if (unmarshaller == null) {
 			return false;
 		}
-		else if (unmarshaller instanceof GenericUnmarshaller) {
-			return ((GenericUnmarshaller) unmarshaller).supports(returnType.getGenericParameterType());
+		else if (unmarshaller instanceof GenericUnmarshaller genericUnmarshaller) {
+			return genericUnmarshaller.supports(returnType.getGenericParameterType());
 		}
 		else {
 			return unmarshaller.supports(returnType.getParameterType());

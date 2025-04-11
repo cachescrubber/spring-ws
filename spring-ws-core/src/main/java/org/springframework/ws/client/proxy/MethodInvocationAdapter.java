@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
  */
 public interface MethodInvocationAdapter {
 
-	boolean supportsInterface(Class serviceEndpointInterface);
+	boolean supportsInterface(Class<?> serviceEndpointInterface);
 
 	boolean isWebServiceInvocation(Method method);
 

@@ -48,7 +48,7 @@ public abstract class AbstractMarshallingMethodInvocationAdapter implements Meth
 	protected abstract boolean supportsResponsePayloadReturnType(MethodParameter returnType);
 
 	@Override
-	public boolean supportsInterface(Class serviceEndpointInterface) {
+	public boolean supportsInterface(Class<?> serviceEndpointInterface) {
 		return true;
 	}
 
