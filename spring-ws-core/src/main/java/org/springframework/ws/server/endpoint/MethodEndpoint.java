@@ -287,39 +287,41 @@ public final class MethodEndpoint {
 
 		@Override
 		public Annotation[] getParameterAnnotations() {
-			Annotation[] anns = this.combinedAnnotations;
-			if (anns == null) {
-				anns = super.getParameterAnnotations();
+			if (this.combinedAnnotations == null) {
+				Annotation[] anns = super.getParameterAnnotations();
 				int index = getParameterIndex();
 				if (index >= 0) {
-					for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
-						if (index < ifcAnns.length) {
-							Annotation[] paramAnns = ifcAnns[index];
-							if (paramAnns.length > 0) {
-								List<Annotation> merged = new ArrayList<>(anns.length + paramAnns.length);
-								merged.addAll(Arrays.asList(anns));
-								for (Annotation paramAnn : paramAnns) {
-									boolean existingType = false;
-									for (Annotation ann : anns) {
-										if (ann.annotationType() == paramAnn.annotationType()) {
-											existingType = true;
-											break;
-										}
-									}
-									if (!existingType) {
-										merged.add(adaptAnnotation(paramAnn));
-									}
+					this.combinedAnnotations = getParameterAnnotations(anns, index);
+				}
+			}
+			return this.combinedAnnotations;
+		}
+
+		private Annotation[] getParameterAnnotations(Annotation[] anns, int index) {
+			for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
+				if (index < ifcAnns.length) {
+					Annotation[] paramAnns = ifcAnns[index];
+					if (paramAnns.length > 0) {
+						List<Annotation> merged = new ArrayList<>(anns.length + paramAnns.length);
+						merged.addAll(Arrays.asList(anns));
+						for (Annotation paramAnn : paramAnns) {
+							boolean existingType = false;
+							for (Annotation ann : anns) {
+								if (ann.annotationType() == paramAnn.annotationType()) {
+									existingType = true;
+									break;
 								}
-								anns = merged.toArray(new Annotation[0]);
+							}
+							if (!existingType) {
+								merged.add(adaptAnnotation(paramAnn));
 							}
 						}
+						anns = merged.toArray(new Annotation[0]);
 					}
 				}
-				this.combinedAnnotations = anns;
 			}
 			return anns;
 		}
-
 
 		@Override
 		public MethodEndpoint.EndpointMethodParameter clone() {

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.stereotype.Service;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -119,12 +118,11 @@ class MethodEndpointInterfaceTest {
 		// assertThat(parameterName).isEqualTo("orderRequest");
 	}
 
-	@Service
-	class OrderResponse {
+	static class OrderResponse {
 
 	}
 
-	class OrderRequest {
+	static class OrderRequest {
 
 		private final String orderId;
 
@@ -139,7 +137,7 @@ class MethodEndpointInterfaceTest {
 	}
 
 	@Endpoint
-	interface MyEndpoit {
+	interface MyEndpoint {
 
 		@PayloadRoot(namespace = "ns", localPart = "orderRequest")
 		@ResponsePayload
@@ -147,7 +145,7 @@ class MethodEndpointInterfaceTest {
 
 	}
 
-	class MyEndpointImpl implements MyEndpoit {
+	class MyEndpointImpl implements MyEndpoint {
 
 		@Override
 		public OrderResponse order(OrderRequest orderRequest) {
