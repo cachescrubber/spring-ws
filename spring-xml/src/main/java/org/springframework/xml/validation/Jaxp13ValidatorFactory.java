@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.xml.validation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
@@ -47,11 +48,11 @@ abstract class Jaxp13ValidatorFactory {
 		}
 	}
 
-	private static class Jaxp13Validator implements XmlValidator {
+	private static final class Jaxp13Validator implements XmlValidator {
 
 		private Schema schema;
 
-		public Jaxp13Validator(Schema schema) {
+		Jaxp13Validator(Schema schema) {
 			this.schema = schema;
 		}
 
@@ -65,7 +66,7 @@ abstract class Jaxp13ValidatorFactory {
 			if (errorHandler == null) {
 				errorHandler = new DefaultValidationErrorHandler();
 			}
-			Validator validator = schema.newValidator();
+			Validator validator = this.schema.newValidator();
 			validator.setErrorHandler(errorHandler);
 			try {
 				validator.validate(source);
@@ -75,16 +76,19 @@ abstract class Jaxp13ValidatorFactory {
 				throw new XmlValidationException("Could not validate source: " + ex.getMessage(), ex);
 			}
 		}
+
 	}
 
-	/** {@code ErrorHandler} implementation that stores errors and fatal errors in a list. */
-	private static class DefaultValidationErrorHandler implements ValidationErrorHandler {
+	/**
+	 * {@code ErrorHandler} implementation that stores errors and fatal errors in a list.
+	 */
+	private static final class DefaultValidationErrorHandler implements ValidationErrorHandler {
 
-		private List<SAXParseException> errors = new ArrayList<SAXParseException>();
+		private List<SAXParseException> errors = new ArrayList<>();
 
 		@Override
 		public SAXParseException[] getErrors() {
-			return errors.toArray(new SAXParseException[errors.size()]);
+			return this.errors.toArray(new SAXParseException[0]);
 		}
 
 		@Override
@@ -93,12 +97,14 @@ abstract class Jaxp13ValidatorFactory {
 
 		@Override
 		public void error(SAXParseException ex) throws SAXException {
-			errors.add(ex);
+			this.errors.add(ex);
 		}
 
 		@Override
 		public void fatalError(SAXParseException ex) throws SAXException {
-			errors.add(ex);
+			this.errors.add(ex);
 		}
+
 	}
+
 }

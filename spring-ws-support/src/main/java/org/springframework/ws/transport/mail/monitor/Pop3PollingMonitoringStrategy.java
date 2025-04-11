@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,22 @@
 
 package org.springframework.ws.transport.mail.monitor;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 import org.springframework.ws.transport.mail.support.MailTransportUtils;
 
 /**
- * Implementation of the {@link MonitoringStrategy} interface that uses a simple polling mechanism suitable for POP3
- * servers. Since POP3 does not have a native mechanism to determine which messages are "new", this implementation
- * simply retrieves all messages in the {@link Folder}, and delete them afterwards. All messages in the POP3 mailbox are
+ * Implementation of the {@link MonitoringStrategy} interface that uses a simple polling
+ * mechanism suitable for POP3 servers. Since POP3 does not have a native mechanism to
+ * determine which messages are "new", this implementation simply retrieves all messages
+ * in the {@link Folder}, and delete them afterwards. All messages in the POP3 mailbox are
  * therefore, by definition, new.
- *
- * <p>Setting the {@link #setDeleteMessages(boolean) deleteMessages} property is therefore ignored: messages are always
- * deleted.
+ * <p>
+ * Setting the {@link #setDeleteMessages(boolean) deleteMessages} property is therefore
+ * ignored: messages are always deleted.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
@@ -64,19 +65,21 @@ public class Pop3PollingMonitoringStrategy extends PollingMonitoringStrategy {
 	}
 
 	/**
-	 * Deletes the given messages from the given folder, and closes it to expunge deleted messages.
-	 *
-	 * @param folder   the folder to delete messages from
+	 * Deletes the given messages from the given folder, and closes it to expunge deleted
+	 * messages.
+	 * @param folder the folder to delete messages from
 	 * @param messages the messages to delete
 	 * @throws MessagingException in case of JavaMail errors
 	 */
 	@Override
 	protected void deleteMessages(Folder folder, Message[] messages) throws MessagingException {
 		super.deleteMessages(folder, messages);
-		// expunge deleted mails, and make sure we've retrieved them before closing the folder
+		// expunge deleted mails, and make sure we've retrieved them before closing the
+		// folder
 		for (Message message : messages) {
 			new MimeMessage((MimeMessage) message);
 		}
 		MailTransportUtils.closeFolder(folder, true);
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.ws.MockWebServiceMessage;
@@ -34,7 +32,19 @@ import org.springframework.ws.server.endpoint.MethodEndpoint;
 import org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver;
 import org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler;
 
-/** @author Arjen Poutsma */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.isNull;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
+/**
+ * @author Arjen Poutsma
+ */
 public class DefaultMethodEndpointAdapterTest {
 
 	private DefaultMethodEndpointAdapter adapter;
@@ -55,71 +65,76 @@ public class DefaultMethodEndpointAdapterTest {
 
 	private String supportedArgument;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		adapter = new DefaultMethodEndpointAdapter();
-		argumentResolver1 = createMock("stringResolver", MethodArgumentResolver.class);
-		argumentResolver2 = createMock("intResolver", MethodArgumentResolver.class);
-		returnValueHandler = createMock(MethodReturnValueHandler.class);
-		adapter.setMethodArgumentResolvers(Arrays.asList(argumentResolver1, argumentResolver2));
-		adapter.setMethodReturnValueHandlers(
-				Collections.singletonList(returnValueHandler));
-		supportedEndpoint = new MethodEndpoint(this, "supported", String.class, Integer.class);
-		nullReturnValue = new MethodEndpoint(this, "nullReturnValue", String.class);
-		unsupportedEndpoint = new MethodEndpoint(this, "unsupported", String.class);
-		exceptionEndpoint = new MethodEndpoint(this, "exception", String.class);
+
+		this.adapter = new DefaultMethodEndpointAdapter();
+		this.argumentResolver1 = createMock("stringResolver", MethodArgumentResolver.class);
+		this.argumentResolver2 = createMock("intResolver", MethodArgumentResolver.class);
+		this.returnValueHandler = createMock(MethodReturnValueHandler.class);
+		this.adapter.setMethodArgumentResolvers(Arrays.asList(this.argumentResolver1, this.argumentResolver2));
+		this.adapter.setMethodReturnValueHandlers(Collections.singletonList(this.returnValueHandler));
+		this.supportedEndpoint = new MethodEndpoint(this, "supported", String.class, Integer.class);
+		this.nullReturnValue = new MethodEndpoint(this, "nullReturnValue", String.class);
+		this.unsupportedEndpoint = new MethodEndpoint(this, "unsupported", String.class);
+		this.exceptionEndpoint = new MethodEndpoint(this, "exception", String.class);
 	}
 
 	@Test
 	public void initDefaultStrategies() throws Exception {
-		adapter = new DefaultMethodEndpointAdapter();
-		adapter.setBeanClassLoader(DefaultMethodEndpointAdapterTest.class.getClassLoader());
-		adapter.afterPropertiesSet();
 
-		assertFalse("No default MethodArgumentResolvers loaded", adapter.getMethodArgumentResolvers().isEmpty());
-		assertFalse("No default MethodReturnValueHandlers loaded", adapter.getMethodReturnValueHandlers().isEmpty());
+		this.adapter = new DefaultMethodEndpointAdapter();
+		this.adapter.setBeanClassLoader(DefaultMethodEndpointAdapterTest.class.getClassLoader());
+		this.adapter.afterPropertiesSet();
+
+		assertThat(this.adapter.getMethodArgumentResolvers()).isNotEmpty();
+		assertThat(this.adapter.getMethodReturnValueHandlers()).isNotEmpty();
 	}
 
 	@Test
-	public void supportsSupported() throws Exception {
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
-		expect(argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
+	public void supportsSupported() {
 
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
+		expect(this.argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
 
-		boolean result = adapter.supports(supportedEndpoint);
-		assertTrue("adapter does not support method", result);
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		boolean result = this.adapter.supports(this.supportedEndpoint);
+
+		assertThat(result).isTrue();
+
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	@Test
-	public void supportsUnsupportedParameter() throws Exception {
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
-		expect(argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(false);
+	public void supportsUnsupportedParameter() {
 
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
+		expect(this.argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(false);
 
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
-		boolean result = adapter.supports(unsupportedEndpoint);
-		assertFalse("adapter does not support method", result);
+		boolean result = this.adapter.supports(this.unsupportedEndpoint);
+		assertThat(result).isFalse();
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	@Test
-	public void supportsUnsupportedReturnType() throws Exception {
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(false);
+	public void supportsUnsupportedReturnType() {
 
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(false);
 
-		boolean result = adapter.supports(unsupportedEndpoint);
-		assertFalse("adapter does not support method", result);
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		boolean result = this.adapter.supports(this.unsupportedEndpoint);
+
+		assertThat(result).isFalse();
+
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	@Test
@@ -130,79 +145,85 @@ public class DefaultMethodEndpointAdapterTest {
 		String value = "Foo";
 
 		// arg 0
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
 
 		// arg 1
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
-		expect(argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(argumentResolver2.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(new Integer(42));
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(false);
+		expect(this.argumentResolver2.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.argumentResolver2.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(42);
 
-		expect(returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
-		returnValueHandler.handleReturnValue(eq(messageContext), isA(MethodParameter.class), eq(value));
+		expect(this.returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
+		this.returnValueHandler.handleReturnValue(eq(messageContext), isA(MethodParameter.class), eq(value));
 
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
-		adapter.invoke(messageContext, supportedEndpoint);
-		assertEquals("Invalid argument passed", value, supportedArgument);
+		this.adapter.invoke(messageContext, this.supportedEndpoint);
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		assertThat(this.supportedArgument).isEqualTo(value);
+
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	@Test
 	public void invokeNullReturnValue() throws Exception {
+
 		MockWebServiceMessage request = new MockWebServiceMessage("<root xmlns='http://springframework.org'/>");
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
 
 		String value = "Foo";
 
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
 
-		expect(returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
-		returnValueHandler.handleReturnValue(eq(messageContext), isA(MethodParameter.class), isNull());
+		expect(this.returnValueHandler.supportsReturnType(isA(MethodParameter.class))).andReturn(true);
+		this.returnValueHandler.handleReturnValue(eq(messageContext), isA(MethodParameter.class), isNull());
 
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
-		adapter.invoke(messageContext, nullReturnValue);
-		assertEquals("Invalid argument passed", value, supportedArgument);
+		this.adapter.invoke(messageContext, this.nullReturnValue);
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		assertThat(this.supportedArgument).isEqualTo(value);
+
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	@Test
 	public void invokeException() throws Exception {
+
 		MockWebServiceMessage request = new MockWebServiceMessage("<root xmlns='http://springframework.org'/>");
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
 
 		String value = "Foo";
 
-		expect(argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
-		expect(argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
+		expect(this.argumentResolver1.supportsParameter(isA(MethodParameter.class))).andReturn(true);
+		expect(this.argumentResolver1.resolveArgument(eq(messageContext), isA(MethodParameter.class))).andReturn(value);
 
-
-		replay(argumentResolver1, argumentResolver2, returnValueHandler);
+		replay(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 
 		try {
-			adapter.invoke(messageContext, exceptionEndpoint);
+			this.adapter.invoke(messageContext, this.exceptionEndpoint);
 			fail("IOException expected");
 		}
 		catch (IOException expected) {
 			// expected
 		}
-		assertEquals("Invalid argument passed", value, supportedArgument);
 
-		verify(argumentResolver1, argumentResolver2, returnValueHandler);
+		assertThat(this.supportedArgument).isEqualTo(value);
+
+		verify(this.argumentResolver1, this.argumentResolver2, this.returnValueHandler);
 	}
 
 	public String supported(String s, Integer i) {
-		supportedArgument = s;
+
+		this.supportedArgument = s;
 		return s;
 
 	}
 
 	public String nullReturnValue(String s) {
-		supportedArgument = s;
+
+		this.supportedArgument = s;
 		return null;
 	}
 
@@ -211,7 +232,9 @@ public class DefaultMethodEndpointAdapterTest {
 	}
 
 	public String exception(String s) throws IOException {
-		supportedArgument = s;
+
+		this.supportedArgument = s;
 		throw new IOException(s);
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,25 +26,25 @@ import org.springframework.cache.Cache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
-
 /**
  * Caches {@code User} objects using a Spring Framework-based {@link Cache}.
- * 
- * <p>Migrated from Spring Security 2 since it has been removed in Spring Security 3.</p>
+ * <p>
+ * Migrated from Spring Security 2 since it has been removed in Spring Security 3.
+ * </p>
  *
  * @author Luke Taylor
  * @author Ben Alex
  * @author Greg Turnquist
  */
 public class SpringBasedX509UserCache implements X509UserCache, InitializingBean {
-	
+
 	private static final Log logger = LogFactory.getLog(SpringBasedX509UserCache.class);
 
 	private Cache cache;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(cache, "cache is mandatory");
+		Assert.notNull(this.cache, "cache is mandatory");
 	}
 
 	@Override
@@ -54,37 +54,38 @@ public class SpringBasedX509UserCache implements X509UserCache, InitializingBean
 
 			String subjectDN = "unknown";
 
-			if ((userCert != null) && (userCert.getSubjectDN() != null)) {
-				subjectDN = userCert.getSubjectDN().toString();
+			if ((userCert != null) && (userCert.getSubjectX500Principal() != null)) {
+				subjectDN = userCert.getSubjectX500Principal().toString();
 			}
 
 			logger.debug("X.509 Cache hit. SubjectDN: " + subjectDN);
 		}
 
-		return cache.get(userCert, UserDetails.class);
+		return this.cache.get(userCert, UserDetails.class);
 	}
 
 	@Override
 	public void putUserInCache(X509Certificate userCert, UserDetails user) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Cache put: " + userCert.getSubjectDN());
+			logger.debug("Cache put: " + userCert.getSubjectX500Principal());
 		}
 
-		cache.put(userCert, user);
+		this.cache.put(userCert, user);
 	}
 
 	@Override
 	public void removeUserFromCache(X509Certificate userCert) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Cache remove: " + userCert.getSubjectDN());
+			logger.debug("Cache remove: " + userCert.getSubjectX500Principal());
 		}
 
-		cache.evict(userCert);
+		this.cache.evict(userCert);
 	}
 
 	public void setCache(Cache cache) {
 		this.cache = cache;
 	}
+
 }

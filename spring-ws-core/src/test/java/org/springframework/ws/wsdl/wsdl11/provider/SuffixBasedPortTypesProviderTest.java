@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,9 +23,10 @@ import javax.wsdl.PortType;
 import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SuffixBasedPortTypesProviderTest {
 
@@ -33,41 +34,47 @@ public class SuffixBasedPortTypesProviderTest {
 
 	private Definition definition;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		provider = new SuffixBasedPortTypesProvider();
+
+		this.provider = new SuffixBasedPortTypesProvider();
 		WSDLFactory factory = WSDLFactory.newInstance();
-		definition = factory.newDefinition();
+		this.definition = factory.newDefinition();
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testAddPortTypes() throws Exception {
+
 		String namespace = "http://springframework.org/spring-ws";
-		definition.addNamespace("tns", namespace);
-		definition.setTargetNamespace(namespace);
+		this.definition.addNamespace("tns", namespace);
+		this.definition.setTargetNamespace(namespace);
 
-		Message message = definition.createMessage();
+		Message message = this.definition.createMessage();
 		message.setQName(new QName(namespace, "OperationRequest"));
-		definition.addMessage(message);
+		this.definition.addMessage(message);
 
-		message = definition.createMessage();
+		message = this.definition.createMessage();
 		message.setQName(new QName(namespace, "OperationResponse"));
-		definition.addMessage(message);
+		this.definition.addMessage(message);
 
-		message = definition.createMessage();
+		message = this.definition.createMessage();
 		message.setQName(new QName(namespace, "OperationFault"));
-		definition.addMessage(message);
+		this.definition.addMessage(message);
 
-		provider.setPortTypeName("PortType");
-		provider.addPortTypes(definition);
+		this.provider.setPortTypeName("PortType");
+		this.provider.addPortTypes(this.definition);
 
-		PortType portType = definition.getPortType(new QName(namespace, "PortType"));
-		Assert.assertNotNull("No port type created", portType);
+		PortType portType = this.definition.getPortType(new QName(namespace, "PortType"));
+
+		assertThat(portType).isNotNull();
 
 		Operation operation = portType.getOperation("Operation", "OperationRequest", "OperationResponse");
-		Assert.assertNotNull("No operation created", operation);
-		Assert.assertNotNull("No input created", operation.getInput());
-		Assert.assertNotNull("No output created", operation.getOutput());
-		Assert.assertFalse("No fault created", operation.getFaults().isEmpty());
+
+		assertThat(operation).isNotNull();
+		assertThat(operation.getInput()).isNotNull();
+		assertThat(operation.getOutput()).isNotNull();
+		assertThat(operation.getFaults()).isNotEmpty();
 	}
+
 }

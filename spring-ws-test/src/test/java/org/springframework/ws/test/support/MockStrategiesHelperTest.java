@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,52 +16,58 @@
 
 package org.springframework.ws.test.support;
 
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.support.StaticApplicationContext;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class MockStrategiesHelperTest {
 
 	@Test
 	public void none() {
+
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
 
 		MockStrategiesHelper helper = new MockStrategiesHelper(applicationContext);
-		assertNull(helper.getStrategy(IMyBean.class));
+
+		assertThat(helper.getStrategy(IMyBean.class)).isNull();
 	}
 
 	@Test
 	public void one() {
+
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
 		applicationContext.registerSingleton("myBean", MyBean.class);
 
 		MockStrategiesHelper helper = new MockStrategiesHelper(applicationContext);
-		assertNotNull(helper.getStrategy(IMyBean.class));
+		assertThat(helper.getStrategy(IMyBean.class)).isNotNull();
 	}
 
-	@Test(expected = BeanInitializationException.class)
+	@Test
 	public void many() {
-		StaticApplicationContext applicationContext = new StaticApplicationContext();
-		applicationContext.registerSingleton("myBean1", MyBean.class);
-		applicationContext.registerSingleton("myBean2", MyBean.class);
 
-		MockStrategiesHelper helper = new MockStrategiesHelper(applicationContext);
-		helper.getStrategy(IMyBean.class);
+		assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(() -> {
+
+			StaticApplicationContext applicationContext = new StaticApplicationContext();
+			applicationContext.registerSingleton("myBean1", MyBean.class);
+			applicationContext.registerSingleton("myBean2", MyBean.class);
+
+			MockStrategiesHelper helper = new MockStrategiesHelper(applicationContext);
+			helper.getStrategy(IMyBean.class);
+		});
 	}
-	
+
 	@Test
 	public void noneWithDefault() {
+
 		StaticApplicationContext applicationContext = new StaticApplicationContext();
 
-
 		MockStrategiesHelper helper = new MockStrategiesHelper(applicationContext);
-		assertNotNull(helper.getStrategy(IMyBean.class, MyBean.class));
+		assertThat(helper.getStrategy(IMyBean.class, MyBean.class)).isNotNull();
 	}
-
 
 	public interface IMyBean {
 

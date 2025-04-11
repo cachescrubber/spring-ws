@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,22 +19,25 @@ package org.springframework.ws.soap.security.wss4j2.support;
 import java.util.Properties;
 
 import org.apache.wss4j.common.crypto.Merlin;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.core.io.ClassPathResource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CryptoFactoryBeanTest {
 
 	private CryptoFactoryBean factoryBean;
 
-	@Before
-	public void setUp() throws Exception {
-		factoryBean = new CryptoFactoryBean();
+	@BeforeEach
+	public void setUp() {
+		this.factoryBean = new CryptoFactoryBean();
 	}
 
 	@Test
 	public void testSetConfiguration() throws Exception {
+
 		Properties configuration = new Properties();
 		configuration.setProperty("org.apache.ws.security.crypto.provider",
 				"org.apache.ws.security.components.crypto.Merlin");
@@ -42,22 +45,26 @@ public class CryptoFactoryBeanTest {
 		configuration.setProperty("org.apache.ws.security.crypto.merlin.keystore.password", "123456");
 		configuration.setProperty("org.apache.ws.security.crypto.merlin.file", "private.jks");
 
-		factoryBean.setConfiguration(configuration);
-		factoryBean.afterPropertiesSet();
+		this.factoryBean.setConfiguration(configuration);
+		this.factoryBean.afterPropertiesSet();
 
-		Object result = factoryBean.getObject();
-		Assert.assertNotNull("No result", result);
-		Assert.assertTrue("Not a Merlin instance", result instanceof Merlin);
+		Object result = this.factoryBean.getObject();
+
+		assertThat(result).isNotNull();
+		assertThat(result).isInstanceOf(Merlin.class);
 	}
 
 	@Test
 	public void testProperties() throws Exception {
-		factoryBean.setKeyStoreType("jceks");
-		factoryBean.setKeyStorePassword("123456");
-		factoryBean.setKeyStoreLocation(new ClassPathResource("private.jks"));
-		factoryBean.afterPropertiesSet();
-		Object result = factoryBean.getObject();
-		Assert.assertNotNull("No result", result);
-		Assert.assertTrue("Not a Merlin instance", result instanceof Merlin);
+
+		this.factoryBean.setKeyStoreType("jceks");
+		this.factoryBean.setKeyStorePassword("123456");
+		this.factoryBean.setKeyStoreLocation(new ClassPathResource("private.jks"));
+		this.factoryBean.afterPropertiesSet();
+		Object result = this.factoryBean.getObject();
+
+		assertThat(result).isNotNull();
+		assertThat(result).isInstanceOf(Merlin.class);
 	}
+
 }

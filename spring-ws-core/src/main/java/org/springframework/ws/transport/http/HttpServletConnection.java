@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,10 +22,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPConstants;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.soap.SOAPConstants;
 
 import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.transport.AbstractReceiverConnection;
@@ -61,18 +63,18 @@ public class HttpServletConnection extends AbstractReceiverConnection
 
 	/** Returns the {@code HttpServletRequest} for this connection. */
 	public HttpServletRequest getHttpServletRequest() {
-		return httpServletRequest;
+		return this.httpServletRequest;
 	}
 
 	/** Returns the {@code HttpServletResponse} for this connection. */
 	public HttpServletResponse getHttpServletResponse() {
-		return httpServletResponse;
+		return this.httpServletResponse;
 	}
 
 	@Override
 	public void endpointNotFound() {
 		getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_NOT_FOUND);
-		statusCodeSet = true;
+		this.statusCodeSet = true;
 	}
 
 	/*
@@ -95,23 +97,23 @@ public class HttpServletConnection extends AbstractReceiverConnection
 
 	@Override
 	public URI getUri() throws URISyntaxException {
-		return new URI(httpServletRequest.getScheme(), null, httpServletRequest.getServerName(),
-				httpServletRequest.getServerPort(), httpServletRequest.getRequestURI(),
-				httpServletRequest.getQueryString(), null);
+		return new URI(this.httpServletRequest.getScheme(), null, this.httpServletRequest.getServerName(),
+				this.httpServletRequest.getServerPort(), this.httpServletRequest.getRequestURI(),
+				this.httpServletRequest.getQueryString(), null);
 	}
 
 	/*
-	* Receiving request
-	*/
+	 * Receiving request
+	 */
 
 	@Override
 	public Iterator<String> getRequestHeaderNames() throws IOException {
-		return new EnumerationIterator<String>(getHttpServletRequest().getHeaderNames());
+		return new EnumerationIterator<>(getHttpServletRequest().getHeaderNames());
 	}
 
 	@Override
 	public Iterator<String> getRequestHeaders(String name) throws IOException {
-		return new EnumerationIterator<String>(getHttpServletRequest().getHeaders(name));
+		return new EnumerationIterator<>(getHttpServletRequest().getHeaders(name));
 	}
 
 	@Override
@@ -120,8 +122,8 @@ public class HttpServletConnection extends AbstractReceiverConnection
 	}
 
 	/*
-	* Sending response
-	*/
+	 * Sending response
+	 */
 
 	@Override
 	public void addResponseHeader(String name, String value) throws IOException {
@@ -135,12 +137,12 @@ public class HttpServletConnection extends AbstractReceiverConnection
 
 	@Override
 	protected void onSendAfterWrite(WebServiceMessage message) throws IOException {
-		statusCodeSet = true;
+		this.statusCodeSet = true;
 	}
 
 	@Override
 	public void onClose() throws IOException {
-		if (!statusCodeSet) {
+		if (!this.statusCodeSet) {
 			getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_ACCEPTED);
 		}
 	}
@@ -155,32 +157,19 @@ public class HttpServletConnection extends AbstractReceiverConnection
 	}
 
 	@Override
-	@Deprecated
-	public void setFault(boolean fault) throws IOException {
-		if (fault) {
-			getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_INTERNAL_SERVER_ERROR);
-		}
-		else {
-			getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_OK);
-		}
-		statusCodeSet = true;
-	}
-
-	@Override
 	public void setFaultCode(QName faultCode) throws IOException {
 		if (faultCode != null) {
 			if (SOAPConstants.SOAP_SENDER_FAULT.equals(faultCode)) {
-				getHttpServletResponse()
-						.setStatus(HttpTransportConstants.STATUS_BAD_REQUEST);
+				getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_BAD_REQUEST);
 			}
 			else {
-				getHttpServletResponse()
-						.setStatus(HttpTransportConstants.STATUS_INTERNAL_SERVER_ERROR);
+				getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_INTERNAL_SERVER_ERROR);
 			}
 		}
 		else {
 			getHttpServletResponse().setStatus(HttpTransportConstants.STATUS_OK);
 		}
-		statusCodeSet = true;
+		this.statusCodeSet = true;
 	}
+
 }

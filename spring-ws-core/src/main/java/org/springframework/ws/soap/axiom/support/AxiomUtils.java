@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 import java.util.Locale;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -37,26 +38,26 @@ import org.springframework.util.StringUtils;
 import org.springframework.xml.DocumentBuilderFactoryUtils;
 
 /**
- * Collection of generic utility methods to work with Axiom. Includes conversion from {@code OMNamespace}s to
- * {@code QName}s.
+ * Collection of generic utility methods to work with Axiom. Includes conversion from
+ * {@code OMNamespace}s to {@code QName}s.
  *
  * @author Arjen Poutsma
  * @author Tareq Abed Rabbo
+ * @since 1.0.0
  * @see org.apache.axiom.om.OMNamespace
  * @see javax.xml.namespace.QName
- * @since 1.0.0
  */
 @SuppressWarnings("Since15")
 public abstract class AxiomUtils {
 
 	/**
-	 * Converts a {@code javax.xml.namespace.QName} to a {@code org.apache.axiom.om.OMNamespace}. A
-	 * {@code OMElement} is used to resolve the namespace, or to declare a new one.
-	 *
-	 * @param qName			 the {@code QName} to convert
+	 * Converts a {@code javax.xml.namespace.QName} to a
+	 * {@code org.apache.axiom.om.OMNamespace}. A {@code OMElement} is used to resolve the
+	 * namespace, or to declare a new one.
+	 * @param qName the {@code QName} to convert
 	 * @param resolveElement the element used to resolve the Q
 	 * @return the converted SAAJ Name
-	 * @throws OMException				if conversion is unsuccessful
+	 * @throws OMException if conversion is unsuccessful
 	 * @throws IllegalArgumentException if {@code qName} is not fully qualified
 	 */
 	public static OMNamespace toNamespace(QName qName, OMElement resolveElement) throws OMException {
@@ -75,7 +76,6 @@ public abstract class AxiomUtils {
 
 	/**
 	 * Converts the given locale to a {@code xml:lang} string, as used in Axiom Faults.
-	 *
 	 * @param locale the locale
 	 * @return the language string
 	 */
@@ -85,7 +85,6 @@ public abstract class AxiomUtils {
 
 	/**
 	 * Converts the given locale to a {@code xml:lang} string, as used in Axiom Faults.
-	 *
 	 * @param language the language string
 	 * @return the locale
 	 */
@@ -103,8 +102,8 @@ public abstract class AxiomUtils {
 	}
 
 	/**
-	 * Converts a given AXIOM {@link org.apache.axiom.soap.SOAPEnvelope} to a {@link Document}.
-	 *
+	 * Converts a given AXIOM {@link org.apache.axiom.soap.SOAPEnvelope} to a
+	 * {@link Document}.
 	 * @param envelope the SOAP envelope to be converted
 	 * @return the converted document
 	 * @throws IllegalArgumentException in case of errors
@@ -131,8 +130,8 @@ public abstract class AxiomUtils {
 	}
 
 	/**
-	 * Converts a given {@link Document} to an AXIOM {@link org.apache.axiom.soap.SOAPEnvelope}.
-	 *
+	 * Converts a given {@link Document} to an AXIOM
+	 * {@link org.apache.axiom.soap.SOAPEnvelope}.
 	 * @param document the document to be converted
 	 * @return the converted envelope
 	 * @throws IllegalArgumentException in case of errors

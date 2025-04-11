@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,9 +18,8 @@ package org.springframework.ws.transport.support;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.MockWebServiceMessage;
 import org.springframework.ws.MockWebServiceMessageFactory;
@@ -30,7 +29,11 @@ import org.springframework.ws.soap.SoapVersion;
 import org.springframework.ws.transport.FaultAwareWebServiceConnection;
 import org.springframework.ws.transport.WebServiceMessageReceiver;
 
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class WebServiceMessageReceiverObjectSupportTest {
 
@@ -42,88 +45,85 @@ public class WebServiceMessageReceiverObjectSupportTest {
 
 	private MockWebServiceMessage request;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	public void setUp() {
 
-		receiverSupport = new MyReceiverSupport();
-		messageFactory = new MockWebServiceMessageFactory();
-		receiverSupport.setMessageFactory(messageFactory);
-		connectionMock = createStrictMock(FaultAwareWebServiceConnection.class);
-		request = new MockWebServiceMessage();
+		this.receiverSupport = new MyReceiverSupport();
+		this.messageFactory = new MockWebServiceMessageFactory();
+		this.receiverSupport.setMessageFactory(this.messageFactory);
+		this.connectionMock = mock(FaultAwareWebServiceConnection.class);
+		this.request = new MockWebServiceMessage();
 	}
 
 	@Test
 	public void handleConnectionResponse() throws Exception {
 
-		expect(connectionMock.receive(messageFactory)).andReturn(request);
-		connectionMock.setFaultCode(null);
-		connectionMock.send(isA(WebServiceMessage.class));
-		connectionMock.close();
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(this.request);
 
-		replay(connectionMock);
+		this.connectionMock.setFaultCode(null);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		this.connectionMock.close();
 
 		WebServiceMessageReceiver receiver = new WebServiceMessageReceiver() {
 
 			@Override
-			public void receive(MessageContext messageContext) throws Exception {
-				Assert.assertNotNull("No message context", messageContext);
+			public void receive(MessageContext messageContext) {
+				assertThat(messageContext).isNotNull();
 				messageContext.getResponse();
 			}
 		};
 
-		receiverSupport.handleConnection(connectionMock, receiver);
+		this.receiverSupport.handleConnection(this.connectionMock, receiver);
 
-		verify(connectionMock);
+		verify(this.connectionMock).receive(this.messageFactory);
 	}
 
 	@Test
 	public void handleConnectionFaultResponse() throws Exception {
+
 		final QName faultCode = SoapVersion.SOAP_11.getClientOrSenderFaultName();
 
-		expect(connectionMock.receive(messageFactory)).andReturn(request);
-		connectionMock.setFaultCode(faultCode);
-		connectionMock.send(isA(WebServiceMessage.class));
-		connectionMock.close();
-
-		replay(connectionMock);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(this.request);
+		this.connectionMock.setFaultCode(faultCode);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		this.connectionMock.close();
 
 		WebServiceMessageReceiver receiver = new WebServiceMessageReceiver() {
 
 			@Override
-			public void receive(MessageContext messageContext) throws Exception {
-				Assert.assertNotNull("No message context", messageContext);
-				MockWebServiceMessage response =
-						(MockWebServiceMessage) messageContext.getResponse();
+			public void receive(MessageContext messageContext) {
+
+				assertThat(messageContext).isNotNull();
+				MockWebServiceMessage response = (MockWebServiceMessage) messageContext.getResponse();
 				response.setFaultCode(faultCode);
 			}
 		};
 
-		receiverSupport.handleConnection(connectionMock, receiver);
+		this.receiverSupport.handleConnection(this.connectionMock, receiver);
 
-		verify(connectionMock);
+		verify(this.connectionMock).receive(this.messageFactory);
 	}
 
 	@Test
 	public void handleConnectionNoResponse() throws Exception {
 
-		expect(connectionMock.receive(messageFactory)).andReturn(request);
-		connectionMock.close();
-
-		replay(connectionMock);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(this.request);
+		this.connectionMock.close();
 
 		WebServiceMessageReceiver receiver = new WebServiceMessageReceiver() {
 
-			public void receive(MessageContext messageContext) throws Exception {
-				Assert.assertNotNull("No message context", messageContext);
+			public void receive(MessageContext messageContext) {
+				assertThat(messageContext).isNotNull();
 			}
 		};
 
-		receiverSupport.handleConnection(connectionMock, receiver);
+		this.receiverSupport.handleConnection(this.connectionMock, receiver);
 
-		verify(connectionMock);
+		verify(this.connectionMock).receive(this.messageFactory);
 	}
 
-	private static class MyReceiverSupport extends WebServiceMessageReceiverObjectSupport {
+	private static final class MyReceiverSupport extends WebServiceMessageReceiverObjectSupport {
 
 	}
+
 }

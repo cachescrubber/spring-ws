@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2018 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,26 +29,26 @@ import org.springframework.ws.transport.WebServiceConnection;
  * {@code WebServiceMessageSender} implementation that uses standard J2SE facilities to
  * execute POST requests, without support for HTTP authentication or advanced
  * configuration options.
- *
- * <p>Consider {@link HttpComponentsMessageSender} for more sophisticated needs: this class
+ * <p>
+ * Consider {@link HttpComponents5MessageSender} for more sophisticated needs: this class
  * is rather limited in its capabilities.
  *
  * @author Arjen Poutsma
  * @author Kazuki Shimizu
- * @see java.net.HttpURLConnection
  * @since 1.0.0
+ * @see java.net.HttpURLConnection
  */
 public class HttpUrlConnectionMessageSender extends AbstractHttpWebServiceMessageSender {
 
 	private Duration connectionTimeout = Duration.ofSeconds(60);
+
 	private Duration readTimeout = Duration.ofSeconds(60);
 
 	/**
 	 * Sets the timeout until a connection is established.
-	 *
 	 * @param connectTimeout the timeout value
-	 * @see URLConnection#setConnectTimeout(int)
 	 * @since 3.0.1
+	 * @see URLConnection#setConnectTimeout(int)
 	 */
 	public void setConnectionTimeout(Duration connectTimeout) {
 		this.connectionTimeout = connectTimeout;
@@ -56,10 +56,9 @@ public class HttpUrlConnectionMessageSender extends AbstractHttpWebServiceMessag
 
 	/**
 	 * Set the socket read timeout.
-	 *
 	 * @param readTimeout the timeout value
-	 * @see URLConnection#setReadTimeout(int)
 	 * @since 3.0.1
+	 * @see URLConnection#setReadTimeout(int)
 	 */
 	public void setReadTimeout(Duration readTimeout) {
 		this.readTimeout = readTimeout;
@@ -69,11 +68,10 @@ public class HttpUrlConnectionMessageSender extends AbstractHttpWebServiceMessag
 	public WebServiceConnection createConnection(URI uri) throws IOException {
 		URL url = uri.toURL();
 		URLConnection connection = url.openConnection();
-		if (!(connection instanceof HttpURLConnection)) {
+		if (!(connection instanceof HttpURLConnection httpURLConnection)) {
 			throw new HttpTransportException("URI [" + uri + "] is not an HTTP URL");
 		}
 		else {
-			HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
 			prepareConnection(httpURLConnection);
 			return new HttpUrlConnection(httpURLConnection);
 		}
@@ -81,11 +79,10 @@ public class HttpUrlConnectionMessageSender extends AbstractHttpWebServiceMessag
 
 	/**
 	 * Template method for preparing the given {@link java.net.HttpURLConnection}.
-	 *
-	 * <p>The default implementation prepares the connection for input and output, sets the HTTP method to POST, disables
-	 * caching, and sets the {@code Accept-Encoding} header to gzip, if {@linkplain #setAcceptGzipEncoding(boolean)
-	 * applicable}.
-	 *
+	 * <p>
+	 * The default implementation prepares the connection for input and output, sets the
+	 * HTTP method to POST, disables caching, and sets the {@code Accept-Encoding} header
+	 * to gzip, if {@linkplain #setAcceptGzipEncoding(boolean) applicable}.
 	 * @param connection the connection to prepare
 	 * @throws IOException in case of I/O errors
 	 */

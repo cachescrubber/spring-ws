@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.ws.soap.axiom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
@@ -55,7 +56,7 @@ class AxiomSoapElement implements SoapElement {
 	@Override
 	public final QName getName() {
 		try {
-			return axiomElement.getQName();
+			return this.axiomElement.getQName();
 		}
 		catch (OMException ex) {
 			throw new AxiomSoapElementException(ex);
@@ -65,7 +66,7 @@ class AxiomSoapElement implements SoapElement {
 	@Override
 	public final Source getSource() {
 		try {
-			return StaxUtils.createCustomStaxSource(axiomElement.getXMLStreamReader());
+			return StaxUtils.createCustomStaxSource(this.axiomElement.getXMLStreamReader());
 		}
 		catch (OMException ex) {
 			throw new AxiomSoapElementException(ex);
@@ -80,8 +81,7 @@ class AxiomSoapElement implements SoapElement {
 			if (StringUtils.hasLength(namespaceUri) && !StringUtils.hasLength(prefix)) {
 				prefix = null;
 			}
-			OMNamespace namespace =
-					getAxiomFactory().createOMNamespace(namespaceUri, prefix);
+			OMNamespace namespace = getAxiomFactory().createOMNamespace(namespaceUri, prefix);
 			OMAttribute attribute = getAxiomFactory().createOMAttribute(name.getLocalPart(), namespace, value);
 			getAxiomElement().addAttribute(attribute);
 		}
@@ -145,10 +145,11 @@ class AxiomSoapElement implements SoapElement {
 	}
 
 	protected final OMElement getAxiomElement() {
-		return axiomElement;
+		return this.axiomElement;
 	}
 
 	protected final SOAPFactory getAxiomFactory() {
-		return axiomFactory;
+		return this.axiomFactory;
 	}
+
 }

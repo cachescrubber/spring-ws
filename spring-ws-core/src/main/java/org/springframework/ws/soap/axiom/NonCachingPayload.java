@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.soap.axiom;
 
 import java.io.ByteArrayOutputStream;
+
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -24,10 +25,11 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.apache.axiom.blob.Blobs;
 import org.apache.axiom.om.OMDataSource;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.ds.ByteArrayDataSource;
+import org.apache.axiom.om.ds.BlobOMDataSource;
 import org.apache.axiom.om.util.StAXUtils;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPFactory;
@@ -59,7 +61,7 @@ class NonCachingPayload extends AbstractPayload {
 		return payloadElement.getXMLStreamReaderWithoutCaching();
 	}
 
-	private class DelegatingStreamWriter implements XMLStreamWriter {
+	private final class DelegatingStreamWriter implements XMLStreamWriter {
 
 		private final ByteArrayOutputStream baos = new ByteArrayOutputStream(BUF_SIZE);
 
@@ -75,7 +77,7 @@ class NonCachingPayload extends AbstractPayload {
 
 		private DelegatingStreamWriter() {
 			try {
-				this.delegate = StAXUtils.createXMLStreamWriter(baos);
+				this.delegate = StAXUtils.createXMLStreamWriter(this.baos);
 			}
 			catch (XMLStreamException ex) {
 				throw new AxiomSoapBodyException("Could not determine payload root element", ex);
@@ -99,85 +101,85 @@ class NonCachingPayload extends AbstractPayload {
 
 		@Override
 		public void writeStartElement(String localName) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(localName);
+			if (this.name == null) {
+				this.name = new QName(localName);
 			}
-			elementDepth++;
-			delegate.writeStartElement(localName);
+			this.elementDepth++;
+			this.delegate.writeStartElement(localName);
 		}
 
 		@Override
 		public void writeStartElement(String namespaceURI, String localName) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(namespaceURI, localName);
+			if (this.name == null) {
+				this.name = new QName(namespaceURI, localName);
 			}
-			elementDepth++;
-			delegate.writeStartElement(namespaceURI, localName);
+			this.elementDepth++;
+			this.delegate.writeStartElement(namespaceURI, localName);
 		}
 
 		@Override
 		public void writeStartElement(String prefix, String localName, String namespaceURI) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(namespaceURI, localName, prefix);
+			if (this.name == null) {
+				this.name = new QName(namespaceURI, localName, prefix);
 			}
-			elementDepth++;
-			delegate.writeStartElement(prefix, localName, namespaceURI);
+			this.elementDepth++;
+			this.delegate.writeStartElement(prefix, localName, namespaceURI);
 		}
 
 		@Override
 		public void writeEndElement() throws XMLStreamException {
-			elementDepth--;
-			delegate.writeEndElement();
+			this.elementDepth--;
+			this.delegate.writeEndElement();
 			addPayload();
 		}
 
 		private void addPayload() throws XMLStreamException {
-			if (elementDepth <= 0 && !payloadAdded) {
-				delegate.flush();
-				if (baos.size() > 0) {
-					byte[] buf = baos.toByteArray();
-					OMDataSource dataSource = new ByteArrayDataSource(buf, encoding);
-					OMNamespace namespace =
-							getAxiomFactory().createOMNamespace(name.getNamespaceURI(), name.getPrefix());
-					OMElement payloadElement =
-							getAxiomFactory().createOMElement(dataSource, name.getLocalPart(), namespace);
+			if (this.elementDepth <= 0 && !this.payloadAdded) {
+				this.delegate.flush();
+				if (this.baos.size() > 0) {
+					byte[] buf = this.baos.toByteArray();
+					OMDataSource dataSource = new BlobOMDataSource(Blobs.createBlob(buf), this.encoding);
+					OMNamespace namespace = getAxiomFactory().createOMNamespace(this.name.getNamespaceURI(),
+							this.name.getPrefix());
+					OMElement payloadElement = getAxiomFactory().createOMElement(dataSource, this.name.getLocalPart(),
+							namespace);
 					getAxiomBody().addChild(payloadElement);
-					payloadAdded = true;
+					this.payloadAdded = true;
 				}
 			}
 		}
 
 		@Override
 		public void writeEmptyElement(String localName) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(localName);
+			if (this.name == null) {
+				this.name = new QName(localName);
 			}
-			delegate.writeEmptyElement(localName);
+			this.delegate.writeEmptyElement(localName);
 			addPayload();
 		}
 
 		@Override
 		public void writeEmptyElement(String namespaceURI, String localName) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(namespaceURI, localName);
+			if (this.name == null) {
+				this.name = new QName(namespaceURI, localName);
 			}
-			delegate.writeEmptyElement(namespaceURI, localName);
+			this.delegate.writeEmptyElement(namespaceURI, localName);
 			addPayload();
 		}
 
 		@Override
 		public void writeEmptyElement(String prefix, String localName, String namespaceURI) throws XMLStreamException {
-			if (name == null) {
-				name = new QName(namespaceURI, localName, prefix);
+			if (this.name == null) {
+				this.name = new QName(namespaceURI, localName, prefix);
 			}
-			delegate.writeEmptyElement(prefix, localName, namespaceURI);
+			this.delegate.writeEmptyElement(prefix, localName, namespaceURI);
 			addPayload();
 		}
 
 		@Override
 		public void writeEndDocument() throws XMLStreamException {
-			elementDepth = 0;
-			delegate.writeEndDocument();
+			this.elementDepth = 0;
+			this.delegate.writeEndDocument();
 			addPayload();
 		}
 
@@ -186,109 +188,110 @@ class NonCachingPayload extends AbstractPayload {
 		@Override
 		public void close() throws XMLStreamException {
 			addPayload();
-			delegate.close();
+			this.delegate.close();
 		}
 
 		@Override
 		public void flush() throws XMLStreamException {
-			delegate.flush();
+			this.delegate.flush();
 		}
 
 		@Override
 		public NamespaceContext getNamespaceContext() {
-			return delegate.getNamespaceContext();
+			return this.delegate.getNamespaceContext();
 		}
 
 		@Override
 		public String getPrefix(String uri) throws XMLStreamException {
-			return delegate.getPrefix(uri);
+			return this.delegate.getPrefix(uri);
 		}
 
 		@Override
 		public Object getProperty(String name) throws IllegalArgumentException {
-			return delegate.getProperty(name);
+			return this.delegate.getProperty(name);
 		}
 
 		@Override
 		public void setDefaultNamespace(String uri) throws XMLStreamException {
-			delegate.setDefaultNamespace(uri);
+			this.delegate.setDefaultNamespace(uri);
 		}
 
 		@Override
 		public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-			delegate.setNamespaceContext(context);
+			this.delegate.setNamespaceContext(context);
 		}
 
 		@Override
 		public void setPrefix(String prefix, String uri) throws XMLStreamException {
-			delegate.setPrefix(prefix, uri);
+			this.delegate.setPrefix(prefix, uri);
 		}
 
 		@Override
 		public void writeAttribute(String localName, String value) throws XMLStreamException {
-			delegate.writeAttribute(localName, value);
+			this.delegate.writeAttribute(localName, value);
 		}
 
 		@Override
 		public void writeAttribute(String namespaceURI, String localName, String value) throws XMLStreamException {
-			delegate.writeAttribute(namespaceURI, localName, value);
+			this.delegate.writeAttribute(namespaceURI, localName, value);
 		}
 
 		@Override
 		public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
 				throws XMLStreamException {
-			delegate.writeAttribute(prefix, namespaceURI, localName, value);
+			this.delegate.writeAttribute(prefix, namespaceURI, localName, value);
 		}
 
 		@Override
 		public void writeCData(String data) throws XMLStreamException {
-			delegate.writeCData(data);
+			this.delegate.writeCData(data);
 		}
 
 		@Override
 		public void writeCharacters(char[] text, int start, int len) throws XMLStreamException {
-			delegate.writeCharacters(text, start, len);
+			this.delegate.writeCharacters(text, start, len);
 		}
 
 		@Override
 		public void writeCharacters(String text) throws XMLStreamException {
-			delegate.writeCharacters(text);
+			this.delegate.writeCharacters(text);
 		}
 
 		@Override
 		public void writeComment(String data) throws XMLStreamException {
-			delegate.writeComment(data);
+			this.delegate.writeComment(data);
 		}
 
 		@Override
 		public void writeDefaultNamespace(String namespaceURI) throws XMLStreamException {
-			delegate.writeDefaultNamespace(namespaceURI);
+			this.delegate.writeDefaultNamespace(namespaceURI);
 		}
 
 		@Override
 		public void writeDTD(String dtd) throws XMLStreamException {
-			delegate.writeDTD(dtd);
+			this.delegate.writeDTD(dtd);
 		}
 
 		@Override
 		public void writeEntityRef(String name) throws XMLStreamException {
-			delegate.writeEntityRef(name);
+			this.delegate.writeEntityRef(name);
 		}
 
 		@Override
 		public void writeNamespace(String prefix, String namespaceURI) throws XMLStreamException {
-			delegate.writeNamespace(prefix, namespaceURI);
+			this.delegate.writeNamespace(prefix, namespaceURI);
 		}
 
 		@Override
 		public void writeProcessingInstruction(String target) throws XMLStreamException {
-			delegate.writeProcessingInstruction(target);
+			this.delegate.writeProcessingInstruction(target);
 		}
 
 		@Override
 		public void writeProcessingInstruction(String target, String data) throws XMLStreamException {
-			delegate.writeProcessingInstruction(target, data);
+			this.delegate.writeProcessingInstruction(target, data);
 		}
 
 	}
+
 }

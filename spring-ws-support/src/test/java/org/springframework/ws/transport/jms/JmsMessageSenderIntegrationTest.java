@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,33 +18,30 @@ package org.springframework.ws.transport.jms;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConstants;
+import java.nio.charset.StandardCharsets;
+
+import jakarta.jms.BytesMessage;
+import jakarta.jms.TextMessage;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConstants;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.SoapVersion;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 import org.springframework.ws.transport.WebServiceConnection;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.Assert.*;
-
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("jms-sender-applicationContext.xml")
 public class JmsMessageSenderIntegrationTest {
 
@@ -58,180 +55,172 @@ public class JmsMessageSenderIntegrationTest {
 
 	private static final String SOAP_ACTION = "\"http://springframework.org/DoIt\"";
 
-	@Before
+	@BeforeEach
 	public void createMessageFactory() throws Exception {
-		messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+		this.messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
 	}
 
 	@Test
 	public void testSendAndReceiveQueueBytesMessageTemporaryQueue() throws Exception {
-		WebServiceConnection connection = null;
-		try {
-			URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
-			connection = messageSender.createConnection(uri);
-			SoapMessage soapRequest = new SaajSoapMessage(messageFactory.createMessage());
+
+		URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
+
+		try (WebServiceConnection connection = this.messageSender.createConnection(uri)) {
+
+			SoapMessage soapRequest = new SaajSoapMessage(this.messageFactory.createMessage());
 			soapRequest.setSoapAction(SOAP_ACTION);
 			connection.send(soapRequest);
 
-			BytesMessage request = (BytesMessage) jmsTemplate.receive();
-			assertNotNull("No message received", request);
-			assertTrue("No message content received", request.readByte() != -1);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			messageFactory.createMessage().writeTo(bos);
-			final byte[] buf = bos.toByteArray();
-			jmsTemplate.send(request.getJMSReplyTo(), new MessageCreator() {
+			BytesMessage request = (BytesMessage) this.jmsTemplate.receive();
 
-				public Message createMessage(Session session) throws JMSException {
-					BytesMessage response = session.createBytesMessage();
-					response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
-					response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
-							SoapVersion.SOAP_11.getContentType());
-					response.writeBytes(buf);
-					return response;
-				}
+			assertThat(request).isNotNull();
+			assertThat(request.readByte()).isNotEqualTo(-1);
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			this.messageFactory.createMessage().writeTo(bos);
+			final byte[] buf = bos.toByteArray();
+
+			this.jmsTemplate.send(request.getJMSReplyTo(), session -> {
+
+				BytesMessage response = session.createBytesMessage();
+				response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
+				response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
+						SoapVersion.SOAP_11.getContentType());
+				response.writeBytes(buf);
+				return response;
 			});
-			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(messageFactory));
-			assertNotNull("No response received", response);
-			assertEquals("Invalid SOAPAction", SOAP_ACTION, response.getSoapAction());
-			assertFalse("Message is fault", response.hasFault());
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
+
+			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(this.messageFactory));
+
+			assertThat(response).isNotNull();
+			assertThat(response.getSoapAction()).isEqualTo(SOAP_ACTION);
+			assertThat(response.hasFault()).isFalse();
 		}
 	}
 
 	@Test
 	public void testSendAndReceiveQueueBytesMessagePermanentQueue() throws Exception {
-		WebServiceConnection connection = null;
-		try {
-			String responseQueueName = "SenderResponseQueue";
-			URI uri = new URI(
-					"jms:SenderRequestQueue?replyToName=" + responseQueueName + "&deliveryMode=NON_PERSISTENT");
-			connection = messageSender.createConnection(uri);
-			SoapMessage soapRequest = new SaajSoapMessage(messageFactory.createMessage());
+
+		String responseQueueName = "SenderResponseQueue";
+		URI uri = new URI("jms:SenderRequestQueue?replyToName=" + responseQueueName + "&deliveryMode=NON_PERSISTENT");
+
+		try (WebServiceConnection connection = this.messageSender.createConnection(uri)) {
+
+			SoapMessage soapRequest = new SaajSoapMessage(this.messageFactory.createMessage());
 			soapRequest.setSoapAction(SOAP_ACTION);
 			connection.send(soapRequest);
 
-			final BytesMessage request = (BytesMessage) jmsTemplate.receive();
-			assertNotNull("No message received", request);
-			assertTrue("No message content received", request.readByte() != -1);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			messageFactory.createMessage().writeTo(bos);
-			final byte[] buf = bos.toByteArray();
-			jmsTemplate.send(responseQueueName, new MessageCreator() {
+			final BytesMessage request = (BytesMessage) this.jmsTemplate.receive();
 
-				public Message createMessage(Session session) throws JMSException {
-					BytesMessage response = session.createBytesMessage();
-					response.setJMSCorrelationID(request.getJMSMessageID());
-					response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
-					response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
-							SoapVersion.SOAP_11.getContentType());
-					response.writeBytes(buf);
-					return response;
-				}
+			assertThat(request).isNotNull();
+			assertThat(request.readByte()).isNotEqualTo(-1);
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			this.messageFactory.createMessage().writeTo(bos);
+			final byte[] buf = bos.toByteArray();
+
+			this.jmsTemplate.send(responseQueueName, session -> {
+
+				BytesMessage response = session.createBytesMessage();
+				response.setJMSCorrelationID(request.getJMSMessageID());
+				response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
+				response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
+						SoapVersion.SOAP_11.getContentType());
+				response.writeBytes(buf);
+				return response;
 			});
-			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(messageFactory));
-			assertNotNull("No response received", response);
-			assertEquals("Invalid SOAPAction", SOAP_ACTION, response.getSoapAction());
-			assertFalse("Message is fault", response.hasFault());
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
+
+			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(this.messageFactory));
+
+			assertThat(response).isNotNull();
+			assertThat(response.getSoapAction()).isEqualTo(SOAP_ACTION);
+			assertThat(response.hasFault()).isFalse();
 		}
 	}
 
 	@Test
 	public void testSendAndReceiveQueueTextMessage() throws Exception {
-		WebServiceConnection connection = null;
-		try {
-			URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT&messageType=TEXT_MESSAGE");
-			connection = messageSender.createConnection(uri);
-			SoapMessage soapRequest = new SaajSoapMessage(messageFactory.createMessage());
+
+		URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT&messageType=TEXT_MESSAGE");
+
+		try (WebServiceConnection connection = this.messageSender.createConnection(uri)) {
+
+			SoapMessage soapRequest = new SaajSoapMessage(this.messageFactory.createMessage());
 			soapRequest.setSoapAction(SOAP_ACTION);
 			connection.send(soapRequest);
 
-			TextMessage request = (TextMessage) jmsTemplate.receive();
-			assertNotNull("No message received", request);
-			assertNotNull("No message content received", request.getText());
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			messageFactory.createMessage().writeTo(bos);
-			final String text = new String(bos.toByteArray(), "UTF-8");
-			jmsTemplate.send(request.getJMSReplyTo(), new MessageCreator() {
+			TextMessage request = (TextMessage) this.jmsTemplate.receive();
 
-				public Message createMessage(Session session) throws JMSException {
-					TextMessage response = session.createTextMessage();
-					response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
-					response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
-							SoapVersion.SOAP_11.getContentType());
-					response.setText(text);
-					return response;
-				}
+			assertThat(request).isNotNull();
+			assertThat(request.getText()).isNotNull();
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			this.messageFactory.createMessage().writeTo(bos);
+			final String text = bos.toString(StandardCharsets.UTF_8);
+
+			this.jmsTemplate.send(request.getJMSReplyTo(), session -> {
+
+				TextMessage response = session.createTextMessage();
+				response.setStringProperty(JmsTransportConstants.PROPERTY_SOAP_ACTION, SOAP_ACTION);
+				response.setStringProperty(JmsTransportConstants.PROPERTY_CONTENT_TYPE,
+						SoapVersion.SOAP_11.getContentType());
+				response.setText(text);
+				return response;
 			});
-			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(messageFactory));
-			assertNotNull("No response received", response);
-			assertEquals("Invalid SOAPAction", SOAP_ACTION, response.getSoapAction());
-			assertFalse("Message is fault", response.hasFault());
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
+
+			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(this.messageFactory));
+
+			assertThat(response).isNotNull();
+			assertThat(response.getSoapAction()).isEqualTo(SOAP_ACTION);
+			assertThat(response.hasFault()).isFalse();
 		}
 	}
 
 	@Test
 	public void testSendNoResponse() throws Exception {
-		WebServiceConnection connection = null;
-		try {
-			URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
-			connection = messageSender.createConnection(uri);
-			SoapMessage soapRequest = new SaajSoapMessage(messageFactory.createMessage());
+
+		URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
+
+		try (WebServiceConnection connection = this.messageSender.createConnection(uri)) {
+
+			SoapMessage soapRequest = new SaajSoapMessage(this.messageFactory.createMessage());
 			soapRequest.setSoapAction(SOAP_ACTION);
 			connection.send(soapRequest);
 
-			BytesMessage request = (BytesMessage) jmsTemplate.receive();
-			assertNotNull("No message received", request);
+			BytesMessage request = (BytesMessage) this.jmsTemplate.receive();
+
+			assertThat(request).isNotNull();
+
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			messageFactory.createMessage().writeTo(bos);
-			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(messageFactory));
-			assertNull("Response received", response);
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
+			this.messageFactory.createMessage().writeTo(bos);
+			SoapMessage response = (SoapMessage) connection.receive(new SaajSoapMessageFactory(this.messageFactory));
+
+			assertThat(response).isNull();
 		}
 	}
 
 	@Test
 	public void testPostProcessor() throws Exception {
-		MessagePostProcessor processor = new MessagePostProcessor() {
-			public Message postProcessMessage(Message message) throws JMSException {
-				message.setBooleanProperty("processed", true);
-				return message;
-			}
+
+		MessagePostProcessor processor = message -> {
+
+			message.setBooleanProperty("processed", true);
+			return message;
 		};
-		JmsSenderConnection connection = null;
-		try {
-			URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
-			connection = (JmsSenderConnection) messageSender.createConnection(uri);
+
+		URI uri = new URI("jms:SenderRequestQueue?deliveryMode=NON_PERSISTENT");
+
+		try (JmsSenderConnection connection = (JmsSenderConnection) this.messageSender.createConnection(uri)) {
+
 			connection.setPostProcessor(processor);
-			SoapMessage soapRequest = new SaajSoapMessage(messageFactory.createMessage());
+			SoapMessage soapRequest = new SaajSoapMessage(this.messageFactory.createMessage());
 			connection.send(soapRequest);
 
-			BytesMessage request = (BytesMessage) jmsTemplate.receive();
-			assertNotNull("No message received", request);
-			assertTrue("Message not processed", request.getBooleanProperty("processed"));
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
-		}
+			BytesMessage request = (BytesMessage) this.jmsTemplate.receive();
 
+			assertThat(request).isNotNull();
+			assertThat(request.getBooleanProperty("processed")).isTrue();
+		}
 	}
+
 }

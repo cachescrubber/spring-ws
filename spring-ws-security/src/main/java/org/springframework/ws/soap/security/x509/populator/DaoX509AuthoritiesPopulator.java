@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,40 +34,48 @@ import org.springframework.util.Assert;
 import org.springframework.ws.soap.security.x509.X509AuthoritiesPopulator;
 
 /**
- * Populates the X509 authorities via an {@link org.springframework.security.core.userdetails.UserDetailsService}.
- * <p>Migrated from Spring Security 2 since it has been removed in Spring Security 3.</p>
+ * Populates the X509 authorities via an
+ * {@link org.springframework.security.core.userdetails.UserDetailsService}.
+ * <p>
+ * Migrated from Spring Security 2 since it has been removed in Spring Security 3.
+ * </p>
  *
  * @author Luke Taylor
  * @version $Id: DaoX509AuthoritiesPopulator.java 2544 2008-01-29 11:50:33Z luke_t $
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, InitializingBean, MessageSourceAware {
 
-	//~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private Pattern subjectDNPattern;
+
 	private String subjectDNRegex = "CN=(.*?),";
+
 	private UserDetailsService userDetailsService;
 
-	//~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(userDetailsService, "An authenticationDao must be set");
+		Assert.notNull(this.userDetailsService, "An authenticationDao must be set");
 		Assert.notNull(this.messages, "A message source must be set");
 
-		subjectDNPattern = Pattern.compile(subjectDNRegex, Pattern.CASE_INSENSITIVE);
+		this.subjectDNPattern = Pattern.compile(this.subjectDNRegex, Pattern.CASE_INSENSITIVE);
 	}
 
 	@Override
 	public UserDetails getUserDetails(X509Certificate clientCert) throws AuthenticationException {
-		String subjectDN = clientCert.getSubjectDN().getName();
+		String subjectDN = clientCert.getSubjectX500Principal().getName();
 
-		Matcher matcher = subjectDNPattern.matcher(subjectDN);
+		Matcher matcher = this.subjectDNPattern.matcher(subjectDN);
 
 		if (!matcher.find()) {
-			throw new BadCredentialsException(messages.getMessage("DaoX509AuthoritiesPopulator.noMatching",
-					new Object[] {subjectDN}, "No matching pattern was found in subjectDN: {0}"));
+			throw new BadCredentialsException(this.messages.getMessage("DaoX509AuthoritiesPopulator.noMatching",
+					new Object[] { subjectDN }, "No matching pattern was found in subjectDN: {0}"));
 		}
 
 		if (matcher.groupCount() != 1) {
@@ -80,7 +88,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 
 		if (user == null) {
 			throw new AuthenticationServiceException(
-				"UserDetailsService returned null, which is an interface contract violation");
+					"UserDetailsService returned null, which is an interface contract violation");
 		}
 
 		return user;
@@ -92,13 +100,17 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 	}
 
 	/**
-	 * Sets the regular expression which will by used to extract the user name from the certificate's Subject
-	 * DN.
-	 * <p>It should contain a single group; for example the default expression "CN=(.?)," matches the common
-	 * name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".</p>
-	 * <p>The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,
-	 * CN=..." giving a user name "jimi@hendrix.org"</p>
-	 *
+	 * Sets the regular expression which will by used to extract the user name from the
+	 * certificate's Subject DN.
+	 * <p>
+	 * It should contain a single group; for example the default expression "CN=(.?),"
+	 * matches the common name field. So "CN=Jimi Hendrix, OU=..." will give a user name
+	 * of "Jimi Hendrix".
+	 * </p>
+	 * <p>
+	 * The matches are case insensitive. So "emailAddress=(.?)," will match
+	 * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
+	 * </p>
 	 * @param subjectDNRegex the regular expression to find in the subject
 	 */
 	public void setSubjectDNRegex(String subjectDNRegex) {
@@ -108,4 +120,5 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
 	}
+
 }

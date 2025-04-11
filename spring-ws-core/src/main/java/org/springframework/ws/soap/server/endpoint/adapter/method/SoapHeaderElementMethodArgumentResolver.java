@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.springframework.core.MethodParameter;
@@ -33,20 +34,23 @@ import org.springframework.ws.soap.server.endpoint.annotation.SoapHeader;
 import org.springframework.xml.namespace.QNameUtils;
 
 /**
- * Implementation of {@link MethodArgumentResolver} that supports resolving {@link SoapHeaderElement} parameters. Target
- * method parameters must be annotated with {@link SoapHeader} to indicate the SOAP header to resolve. This resolver
- * supports simple {@link SoapHeaderElement} parameters and {@link List} parameters for elements that appear multiple
- * times in the same SOAP header. </p> The following snippet shows an example of supported declarations.
- * <pre><code>
+ * Implementation of {@link MethodArgumentResolver} that supports resolving
+ * {@link SoapHeaderElement} parameters. Target method parameters must be annotated with
+ * {@link SoapHeader} to indicate the SOAP header to resolve. This resolver supports
+ * simple {@link SoapHeaderElement} parameters and {@link List} parameters for elements
+ * that appear multiple times in the same SOAP header.
+ * <p>
+ * The following snippet shows an example of supported declarations. <pre>
+ * {@code
  * public void soapHeaderElement(@SoapHeader("{http://springframework.org/ws}header") SoapHeaderElement element)
  *
- * public void soapHeaderElementList(@SoapHeader("{http://springframework.org/ws}header") List&lt;SoapHeaderElement&gt; elements)
- * </code></pre>
+ * public void soapHeaderElementList(@SoapHeader("{http://springframework.org/ws}header") List<SoapHeaderElement> elements)
+ * } </pre>
  *
  * @author Tareq Abedrabbo
  * @author Arjen Poutsma
- * @see SoapHeader
  * @since 2.0
+ * @see SoapHeader
  */
 public class SoapHeaderElementMethodArgumentResolver implements MethodArgumentResolver {
 
@@ -67,8 +71,7 @@ public class SoapHeaderElementMethodArgumentResolver implements MethodArgumentRe
 		// List<SoapHeaderElement> parameter
 		if (List.class.equals(parameterType)) {
 			Type genericType = parameter.getGenericParameterType();
-			if (genericType instanceof ParameterizedType) {
-				ParameterizedType parameterizedType = (ParameterizedType) genericType;
+			if (genericType instanceof ParameterizedType parameterizedType) {
 				Type[] typeArguments = parameterizedType.getActualTypeArguments();
 				if (typeArguments.length == 1 && SoapHeaderElement.class.equals(typeArguments[0])) {
 					return true;
@@ -86,8 +89,8 @@ public class SoapHeaderElementMethodArgumentResolver implements MethodArgumentRe
 
 		String paramValue = parameter.getParameterAnnotation(SoapHeader.class).value();
 
-		Assert.isTrue(QNameUtils.validateQName(paramValue), "Invalid header qualified name [" + paramValue + "]. " +
-				"QName must be of the form '{namespace}localPart'.");
+		Assert.isTrue(QNameUtils.validateQName(paramValue), "Invalid header qualified name [" + paramValue + "]. "
+				+ "QName must be of the form '{namespace}localPart'.");
 
 		QName qname = QName.valueOf(paramValue);
 
@@ -115,8 +118,8 @@ public class SoapHeaderElementMethodArgumentResolver implements MethodArgumentRe
 	}
 
 	private List<SoapHeaderElement> extractSoapHeaderList(QName qname,
-														  org.springframework.ws.soap.SoapHeader soapHeader) {
-		List<SoapHeaderElement> result = new ArrayList<SoapHeaderElement>();
+			org.springframework.ws.soap.SoapHeader soapHeader) {
+		List<SoapHeaderElement> result = new ArrayList<>();
 		Iterator<SoapHeaderElement> elements = soapHeader.examineAllHeaderElements();
 		while (elements.hasNext()) {
 			SoapHeaderElement e = elements.next();
@@ -126,4 +129,5 @@ public class SoapHeaderElementMethodArgumentResolver implements MethodArgumentRe
 		}
 		return result;
 	}
+
 }

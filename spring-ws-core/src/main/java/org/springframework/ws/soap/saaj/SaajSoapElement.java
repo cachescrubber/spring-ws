@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +17,22 @@
 package org.springframework.ws.soap.saaj;
 
 import java.util.Iterator;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPException;
 
 import org.springframework.util.Assert;
 import org.springframework.ws.soap.SoapElement;
 
 /**
- * SAAJ-specific implementation of the {@code SoapElement} interface. Wraps a {@link javax.xml.soap.SOAPElement}.
+ * SAAJ-specific implementation of the {@code SoapElement} interface. Wraps a
+ * {@link jakarta.xml.soap.SOAPElement}.
  *
+ * @param <T> the type of the {@link SOAPElement}
  * @author Arjen Poutsma
  * @since 1.0.0
  */
@@ -43,18 +47,18 @@ class SaajSoapElement<T extends SOAPElement> implements SoapElement {
 
 	@Override
 	public Source getSource() {
-		return new DOMSource(element);
+		return new DOMSource(this.element);
 	}
 
 	@Override
 	public QName getName() {
-		return element.getElementQName();
+		return this.element.getElementQName();
 	}
 
 	@Override
 	public void addAttribute(QName name, String value) {
 		try {
-			element.addAttribute(name, value);
+			this.element.addAttribute(name, value);
 		}
 		catch (SOAPException ex) {
 			throw new SaajSoapElementException(ex);
@@ -63,24 +67,24 @@ class SaajSoapElement<T extends SOAPElement> implements SoapElement {
 
 	@Override
 	public void removeAttribute(QName name) {
-		element.removeAttribute(name);
+		this.element.removeAttribute(name);
 	}
 
 	@Override
 	public String getAttributeValue(QName name) {
-		return element.getAttributeValue(name);
+		return this.element.getAttributeValue(name);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<QName> getAllAttributes() {
-		return element.getAllAttributesAsQNames();
+		return this.element.getAllAttributesAsQNames();
 	}
 
 	@Override
 	public void addNamespaceDeclaration(String prefix, String namespaceUri) {
 		try {
-			element.addNamespaceDeclaration(prefix, namespaceUri);
+			this.element.addNamespaceDeclaration(prefix, namespaceUri);
 		}
 		catch (SOAPException ex) {
 			throw new SaajSoapElementException(ex);
@@ -88,7 +92,7 @@ class SaajSoapElement<T extends SOAPElement> implements SoapElement {
 	}
 
 	protected final T getSaajElement() {
-		return element;
+		return this.element;
 	}
 
 }

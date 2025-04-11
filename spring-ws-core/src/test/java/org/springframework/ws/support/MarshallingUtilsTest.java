@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,8 @@ package org.springframework.ws.support;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
+import org.junit.jupiter.api.Test;
+
 import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.mime.MimeContainer;
@@ -29,15 +31,19 @@ import org.springframework.ws.mime.MimeMessage;
 import org.springframework.xml.transform.StringResult;
 import org.springframework.xml.transform.StringSource;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class MarshallingUtilsTest {
 
 	@Test
 	public void testUnmarshal() throws Exception {
+
 		Unmarshaller unmarshallerMock = createMock(Unmarshaller.class);
 		WebServiceMessage messageMock = createMock(WebServiceMessage.class);
 
@@ -49,13 +55,15 @@ public class MarshallingUtilsTest {
 		replay(unmarshallerMock, messageMock);
 
 		Object result = MarshallingUtils.unmarshal(unmarshallerMock, messageMock);
-		Assert.assertEquals("Invalid unmarshalled object", unmarshalled, result);
+
+		assertThat(result).isEqualTo(unmarshalled);
 
 		verify(unmarshallerMock, messageMock);
 	}
 
 	@Test
 	public void testUnmarshalMime() throws Exception {
+
 		MimeUnmarshaller unmarshallerMock = createMock(MimeUnmarshaller.class);
 		MimeMessage messageMock = createMock(MimeMessage.class);
 
@@ -67,13 +75,15 @@ public class MarshallingUtilsTest {
 		replay(unmarshallerMock, messageMock);
 
 		Object result = MarshallingUtils.unmarshal(unmarshallerMock, messageMock);
-		Assert.assertEquals("Invalid unmarshalled object", unmarshalled, result);
+
+		assertThat(result).isEqualTo(unmarshalled);
 
 		verify(unmarshallerMock, messageMock);
 	}
 
 	@Test
 	public void testUnmarshalNoPayload() throws Exception {
+
 		Unmarshaller unmarshallerMock = createMock(Unmarshaller.class);
 		MimeMessage messageMock = createMock(MimeMessage.class);
 
@@ -82,13 +92,15 @@ public class MarshallingUtilsTest {
 		replay(unmarshallerMock, messageMock);
 
 		Object result = MarshallingUtils.unmarshal(unmarshallerMock, messageMock);
-		Assert.assertNull("Invalid unmarshalled object", result);
+
+		assertThat(result).isNull();
 
 		verify(unmarshallerMock, messageMock);
 	}
 
 	@Test
 	public void testMarshal() throws Exception {
+
 		Marshaller marshallerMock = createMock(Marshaller.class);
 		WebServiceMessage messageMock = createMock(WebServiceMessage.class);
 
@@ -106,6 +118,7 @@ public class MarshallingUtilsTest {
 
 	@Test
 	public void testMarshalMime() throws Exception {
+
 		MimeMarshaller marshallerMock = createMock(MimeMarshaller.class);
 		MimeMessage messageMock = createMock(MimeMessage.class);
 
@@ -120,6 +133,5 @@ public class MarshallingUtilsTest {
 
 		verify(marshallerMock, messageMock);
 	}
-
 
 }

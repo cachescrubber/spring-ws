@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,38 +18,41 @@ package org.springframework.ws.soap.saaj;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPMessage;
+
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConstants;
+import jakarta.xml.soap.SOAPMessage;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.WebServiceMessageFactory;
 import org.springframework.ws.soap.SoapMessage;
-import org.springframework.ws.soap.soap11.AbstractSoap11MessageFactoryTestCase;
+import org.springframework.ws.soap.soap11.AbstractSoap11MessageFactoryTest;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.Assert.assertTrue;
-
-public class SaajSoap11MessageFactoryTest extends AbstractSoap11MessageFactoryTestCase {
+public class SaajSoap11MessageFactoryTest extends AbstractSoap11MessageFactoryTest {
 
 	@Override
 	protected WebServiceMessageFactory createMessageFactory() throws Exception {
+
 		MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
 		return new SaajSoapMessageFactory(messageFactory);
 	}
 
 	@Test
 	public void properties() throws IOException {
+
 		Map<String, ?> properties = Collections.singletonMap(SOAPMessage.WRITE_XML_DECLARATION, "true");
-		((SaajSoapMessageFactory)messageFactory).setMessageProperties(properties);
-		SoapMessage soapMessage = (SoapMessage) messageFactory.createWebServiceMessage();
+		((SaajSoapMessageFactory) this.messageFactory).setMessageProperties(properties);
+		SoapMessage soapMessage = (SoapMessage) this.messageFactory.createWebServiceMessage();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		soapMessage.writeTo(os);
-		String result = os.toString("UTF-8");
-		assertTrue("XML declaration not written", result.startsWith("<?xml version=\"1.0\""));
-	}
+		String result = os.toString(StandardCharsets.UTF_8);
 
+		assertThat(result).startsWith("<?xml version=\"1.0\"");
+	}
 
 }

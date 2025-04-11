@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,11 +48,13 @@ public abstract class FreePortScanner {
 	 * Returns the number of a free port in the given range.
 	 */
 	public static int getFreePort(int minPort, int maxPort) {
+
 		Assert.isTrue(minPort > 0, "'minPort' must be larger than 0");
 		Assert.isTrue(maxPort > minPort, "'maxPort' must be larger than minPort");
 		int portRange = maxPort - minPort;
 		int candidatePort;
 		int searchCounter = 0;
+
 		do {
 			if (++searchCounter > portRange) {
 				throw new IllegalStateException(
@@ -70,29 +72,21 @@ public abstract class FreePortScanner {
 	}
 
 	private static boolean isPortAvailable(int port) {
-		ServerSocket serverSocket;
-		try {
-			serverSocket = new ServerSocket();
+
+		try (ServerSocket serverSocket = new ServerSocket()) {
+
+			try {
+				InetSocketAddress sa = new InetSocketAddress(port);
+				serverSocket.bind(sa);
+				return true;
+			}
+			catch (IOException e) {
+				return false;
+			}
+
 		}
 		catch (IOException ex) {
 			throw new IllegalStateException("Unable to create ServerSocket.", ex);
-		}
-
-		try {
-			InetSocketAddress sa = new InetSocketAddress(port);
-			serverSocket.bind(sa);
-			return true;
-		}
-		catch (IOException ex) {
-			return false;
-		}
-		finally {
-			try {
-				serverSocket.close();
-			}
-			catch (IOException ex) {
-				// ignore
-			}
 		}
 	}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,8 @@ import org.springframework.ws.WebServiceMessageFactory;
 import org.springframework.ws.transport.WebServiceConnection;
 
 /**
- * Mock implementation of {@link WebServiceConnection}. Implements {@link ResponseActions} to form a fluent API.
+ * Mock implementation of {@link WebServiceConnection}. Implements {@link ResponseActions}
+ * to form a fluent API.
  *
  * @author Arjen Poutsma
  * @author Lukas Krecan
@@ -35,7 +36,7 @@ import org.springframework.ws.transport.WebServiceConnection;
  */
 class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
-	private final List<RequestMatcher> requestMatchers = new LinkedList<RequestMatcher>();
+	private final List<RequestMatcher> requestMatchers = new LinkedList<>();
 
 	private URI uri;
 
@@ -45,7 +46,7 @@ class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
 	void addRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "'requestMatcher' must not be null");
-		requestMatchers.add(requestMatcher);
+		this.requestMatchers.add(requestMatcher);
 	}
 
 	void setUri(URI uri) {
@@ -71,9 +72,9 @@ class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
 	@Override
 	public void send(WebServiceMessage message) throws IOException {
-		if (!requestMatchers.isEmpty()) {
-			for (RequestMatcher requestMatcher : requestMatchers) {
-				requestMatcher.match(uri, message);
+		if (!this.requestMatchers.isEmpty()) {
+			for (RequestMatcher requestMatcher : this.requestMatchers) {
+				requestMatcher.match(this.uri, message);
 			}
 		}
 		else {
@@ -84,8 +85,8 @@ class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
 	@Override
 	public WebServiceMessage receive(WebServiceMessageFactory messageFactory) throws IOException {
-		if (responseCreator != null) {
-			return responseCreator.createResponse(uri, request, messageFactory);
+		if (this.responseCreator != null) {
+			return this.responseCreator.createResponse(this.uri, this.request, messageFactory);
 		}
 		else {
 			return null;
@@ -94,18 +95,18 @@ class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
 	@Override
 	public URI getUri() {
-		return uri;
+		return this.uri;
 	}
 
 	@Override
 	public boolean hasError() throws IOException {
-		return responseCreator instanceof ErrorResponseCreator;
+		return this.responseCreator instanceof ErrorResponseCreator;
 	}
 
 	@Override
 	public String getErrorMessage() throws IOException {
-		if (responseCreator instanceof ErrorResponseCreator) {
-			return ((ErrorResponseCreator) responseCreator).getErrorMessage();
+		if (this.responseCreator instanceof ErrorResponseCreator) {
+			return ((ErrorResponseCreator) this.responseCreator).getErrorMessage();
 		}
 		else {
 			return null;
@@ -114,10 +115,10 @@ class MockSenderConnection implements WebServiceConnection, ResponseActions {
 
 	@Override
 	public void close() throws IOException {
-		requestMatchers.clear();
-		request = null;
-		responseCreator = null;
-		uri = null;
+		this.requestMatchers.clear();
+		this.request = null;
+		this.responseCreator = null;
+		this.uri = null;
 	}
 
 }

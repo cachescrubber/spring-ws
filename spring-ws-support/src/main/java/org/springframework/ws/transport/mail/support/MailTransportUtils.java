@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,20 +20,18 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.mail.Folder;
-import javax.mail.MessagingException;
-import javax.mail.Service;
-import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+
+import jakarta.mail.Folder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Service;
+import jakarta.mail.URLName;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.StringUtils;
 import org.springframework.ws.transport.mail.MailTransportConstants;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Collection of utility methods to work with Mail transports.
@@ -61,7 +59,7 @@ public abstract class MailTransportUtils {
 					try {
 						return new InternetAddress(group);
 					}
-					catch (AddressException e) {
+					catch (AddressException ex) {
 						// try next group
 					}
 				}
@@ -79,12 +77,11 @@ public abstract class MailTransportUtils {
 	}
 
 	/**
-	 * Close the given JavaMail Service and ignore any thrown exception. This is useful for typical {@code finally}
-	 * blocks in manual JavaMail code.
-	 *
+	 * Close the given JavaMail Service and ignore any thrown exception. This is useful
+	 * for typical {@code finally} blocks in manual JavaMail code.
 	 * @param service the JavaMail Service to close (may be {@code null})
-	 * @see Transport
-	 * @see Store
+	 * @see jakarta.mail.Transport
+	 * @see jakarta.mail.Store
 	 */
 	public static void closeService(Service service) {
 		if (service != null) {
@@ -98,9 +95,8 @@ public abstract class MailTransportUtils {
 	}
 
 	/**
-	 * Close the given JavaMail Folder and ignore any thrown exception. This is useful for typical {@code finally}
-	 * blocks in manual JavaMail code.
-	 *
+	 * Close the given JavaMail Folder and ignore any thrown exception. This is useful for
+	 * typical {@code finally} blocks in manual JavaMail code.
 	 * @param folder the JavaMail Folder to close (may be {@code null})
 	 */
 
@@ -109,10 +105,9 @@ public abstract class MailTransportUtils {
 	}
 
 	/**
-	 * Close the given JavaMail Folder and ignore any thrown exception. This is useful for typical {@code finally}
-	 * blocks in manual JavaMail code.
-	 *
-	 * @param folder  the JavaMail Folder to close (may be {@code null})
+	 * Close the given JavaMail Folder and ignore any thrown exception. This is useful for
+	 * typical {@code finally} blocks in manual JavaMail code.
+	 * @param folder the JavaMail Folder to close (may be {@code null})
 	 * @param expunge whether all deleted messages should be expunged from the folder
 	 */
 	public static void closeFolder(Folder folder, boolean expunge) {
@@ -126,7 +121,10 @@ public abstract class MailTransportUtils {
 		}
 	}
 
-	/** Returns a string representation of the given {@link URLName}, where the password has been protected. */
+	/**
+	 * Returns a string representation of the given {@link URLName}, where the password
+	 * has been protected.
+	 */
 	public static String toPasswordProtectedString(URLName name) {
 		String protocol = name.getProtocol();
 		String username = name.getUsername();
@@ -153,7 +151,7 @@ public abstract class MailTransportUtils {
 				tempURL.append(host);
 			}
 			if (port != -1) {
-				tempURL.append(':').append(Integer.toString(port));
+				tempURL.append(':').append(port);
 			}
 			if (StringUtils.hasLength(file)) {
 				tempURL.append('/');
@@ -170,8 +168,7 @@ public abstract class MailTransportUtils {
 
 	/**
 	 * Converts the given internet address into a {@code mailto} URI.
-	 *
-	 * @param to	  the To: address
+	 * @param to the To: address
 	 * @param subject the subject, may be {@code null}
 	 * @return a mailto URI
 	 */
@@ -183,6 +180,5 @@ public abstract class MailTransportUtils {
 			return new URI(MailTransportConstants.MAIL_URI_SCHEME, to.getAddress(), null);
 		}
 	}
-
 
 }

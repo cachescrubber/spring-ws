@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2011 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.ws.server.endpoint.mapping;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerFactory;
 
@@ -32,10 +33,11 @@ import org.springframework.ws.server.endpoint.support.PayloadRootUtils;
 import org.springframework.xml.transform.TransformerFactoryUtils;
 
 /**
- * Implementation of the {@link EndpointMapping} interface that uses the {@link PayloadRoot} annotation to map methods
- * to request payload root elements.
+ * Implementation of the {@link EndpointMapping} interface that uses the
+ * {@link PayloadRoot} annotation to map methods to request payload root elements.
+ * <p>
+ * Endpoints typically have the following form:
  *
- * <p>Endpoints typically have the following form:
  * <pre>
  * &#64;Endpoint
  * public class MyEndpoint{
@@ -60,8 +62,7 @@ public class PayloadRootAnnotationMethodEndpointMapping extends AbstractAnnotati
 
 	/**
 	 * Override the default {@link TransformerFactory}.
-	 * 
-	 * @param transformerFactory
+	 * @param transformerFactory the transformer factory to use
 	 */
 	public static void setTransformerFactory(TransformerFactory transformerFactory) {
 		PayloadRootAnnotationMethodEndpointMapping.transformerFactory = transformerFactory;
@@ -74,7 +75,7 @@ public class PayloadRootAnnotationMethodEndpointMapping extends AbstractAnnotati
 
 	@Override
 	protected List<QName> getLookupKeysForMethod(Method method) {
-		List<QName> result = new ArrayList<QName>();
+		List<QName> result = new ArrayList<>();
 
 		PayloadRoots payloadRoots = AnnotationUtils.findAnnotation(method, PayloadRoots.class);
 		if (payloadRoots != null) {
@@ -93,8 +94,7 @@ public class PayloadRootAnnotationMethodEndpointMapping extends AbstractAnnotati
 	}
 
 	private QName getQNameFromAnnotation(PayloadRoot payloadRoot) {
-		if (StringUtils.hasLength(payloadRoot.localPart()) && StringUtils.hasLength(
-				payloadRoot.namespace())) {
+		if (StringUtils.hasLength(payloadRoot.localPart()) && StringUtils.hasLength(payloadRoot.namespace())) {
 			return new QName(payloadRoot.namespace(), payloadRoot.localPart());
 		}
 		else {

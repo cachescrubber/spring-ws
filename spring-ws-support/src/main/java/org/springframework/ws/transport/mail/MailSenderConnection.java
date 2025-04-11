@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,22 +29,22 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.URLName;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.search.HeaderTerm;
-import javax.mail.search.SearchTerm;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Header;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
+import jakarta.mail.Transport;
+import jakarta.mail.URLName;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.search.HeaderTerm;
+import jakarta.mail.search.SearchTerm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,8 +56,8 @@ import org.springframework.ws.transport.WebServiceConnection;
 import org.springframework.ws.transport.mail.support.MailTransportUtils;
 
 /**
- * Implementation of {@link WebServiceConnection} that is used for client-side Mail access. Exposes a {@link Message}
- * request and response message.
+ * Implementation of {@link WebServiceConnection} that is used for client-side Mail
+ * access. Exposes a {@link Message} request and response message.
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
@@ -97,11 +97,8 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	private Folder folder;
 
 	/** Constructs a new Mail connection with the given parameters. */
-	protected MailSenderConnection(Session session,
-								   URLName transportUri,
-								   URLName storeUri,
-								   InternetAddress to,
-								   long receiveTimeout) {
+	protected MailSenderConnection(Session session, URLName transportUri, URLName storeUri, InternetAddress to,
+			long receiveTimeout) {
 		Assert.notNull(session, "'session' must not be null");
 		Assert.notNull(transportUri, "'transportUri' must not be null");
 		Assert.notNull(storeUri, "'storeUri' must not be null");
@@ -115,12 +112,12 @@ public class MailSenderConnection extends AbstractSenderConnection {
 
 	/** Returns the request message for this connection. */
 	public Message getRequestMessage() {
-		return requestMessage;
+		return this.requestMessage;
 	}
 
 	/** Returns the response message, if any, for this connection. */
 	public Message getResponseMessage() {
-		return responseMessage;
+		return this.responseMessage;
 	}
 
 	/*
@@ -140,25 +137,25 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	 */
 	@Override
 	public URI getUri() throws URISyntaxException {
-		return MailTransportUtils.toUri(to, subject);
+		return MailTransportUtils.toUri(this.to, this.subject);
 	}
 
 	/*
-	* Sending
-	*/
+	 * Sending
+	 */
 	@Override
 	protected void onSendBeforeWrite(WebServiceMessage message) throws IOException {
 		try {
-			requestMessage = new MimeMessage(session);
-			requestMessage.setRecipient(Message.RecipientType.TO, to);
-			requestMessage.setSentDate(new Date());
-			if (from != null) {
-				requestMessage.setFrom(from);
+			this.requestMessage = new MimeMessage(this.session);
+			this.requestMessage.setRecipient(Message.RecipientType.TO, this.to);
+			this.requestMessage.setSentDate(new Date());
+			if (this.from != null) {
+				this.requestMessage.setFrom(this.from);
 			}
-			if (subject != null) {
-				requestMessage.setSubject(subject);
+			if (this.subject != null) {
+				this.requestMessage.setSubject(this.subject);
 			}
-			requestBuffer = new ByteArrayOutputStream();
+			this.requestBuffer = new ByteArrayOutputStream();
 		}
 		catch (MessagingException ex) {
 			throw new MailTransportException(ex);
@@ -168,9 +165,9 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	@Override
 	public void addRequestHeader(String name, String value) throws IOException {
 		try {
-			requestMessage.addHeader(name, value);
+			this.requestMessage.addHeader(name, value);
 			if (TransportConstants.HEADER_CONTENT_TYPE.equals(name)) {
-				requestContentType = value;
+				this.requestContentType = value;
 			}
 		}
 		catch (MessagingException ex) {
@@ -180,19 +177,19 @@ public class MailSenderConnection extends AbstractSenderConnection {
 
 	@Override
 	protected OutputStream getRequestOutputStream() throws IOException {
-		return requestBuffer;
+		return this.requestBuffer;
 	}
 
 	@Override
 	protected void onSendAfterWrite(WebServiceMessage message) throws IOException {
 		Transport transport = null;
 		try {
-			requestMessage.setDataHandler(
-					new DataHandler(new ByteArrayDataSource(requestContentType, requestBuffer.toByteArray())));
-			transport = session.getTransport(transportUri);
+			this.requestMessage.setDataHandler(new DataHandler(
+					new ByteArrayDataSource(this.requestContentType, this.requestBuffer.toByteArray())));
+			transport = this.session.getTransport(this.transportUri);
 			transport.connect();
-			requestMessage.saveChanges();
-			transport.sendMessage(requestMessage, requestMessage.getAllRecipients());
+			this.requestMessage.saveChanges();
+			transport.sendMessage(this.requestMessage, this.requestMessage.getAllRecipients());
 		}
 		catch (MessagingException ex) {
 			throw new MailTransportException(ex);
@@ -209,26 +206,26 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	@Override
 	protected void onReceiveBeforeRead() throws IOException {
 		try {
-			String requestMessageId = requestMessage.getMessageID();
-			Assert.hasLength(requestMessageId, "No Message-ID found on request message [" + requestMessage + "]");
+			String requestMessageId = this.requestMessage.getMessageID();
+			Assert.hasLength(requestMessageId, "No Message-ID found on request message [" + this.requestMessage + "]");
 			try {
-				Thread.sleep(receiveTimeout);
+				Thread.sleep(this.receiveTimeout);
 			}
-			catch (InterruptedException e) {
+			catch (InterruptedException ex) {
 				// Re-interrupt current thread, to allow other threads to react.
 				Thread.currentThread().interrupt();
 			}
 			openFolder();
 			SearchTerm searchTerm = new HeaderTerm(MailTransportConstants.HEADER_IN_REPLY_TO, requestMessageId);
-			Message[] responses = folder.search(searchTerm);
+			Message[] responses = this.folder.search(searchTerm);
 			if (responses.length > 0) {
 				if (responses.length > 1) {
 					logger.warn("Received more than one response for request with ID [" + requestMessageId + "]");
 				}
-				responseMessage = responses[0];
+				this.responseMessage = responses[0];
 			}
-			if (deleteAfterReceive) {
-				responseMessage.setFlag(Flags.Flag.DELETED, true);
+			if (this.deleteAfterReceive) {
+				this.responseMessage.setFlag(Flags.Flag.DELETED, true);
 			}
 		}
 		catch (MessagingException ex) {
@@ -237,30 +234,30 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	}
 
 	private void openFolder() throws MessagingException {
-		store = session.getStore(storeUri);
-		store.connect();
-		folder = store.getFolder(storeUri);
-		if (folder == null || !folder.exists()) {
+		this.store = this.session.getStore(this.storeUri);
+		this.store.connect();
+		this.folder = this.store.getFolder(this.storeUri);
+		if (this.folder == null || !this.folder.exists()) {
 			throw new IllegalStateException("No default folder to receive from");
 		}
-		if (deleteAfterReceive) {
-			folder.open(Folder.READ_WRITE);
+		if (this.deleteAfterReceive) {
+			this.folder.open(Folder.READ_WRITE);
 		}
 		else {
-			folder.open(Folder.READ_ONLY);
+			this.folder.open(Folder.READ_ONLY);
 		}
 	}
 
 	@Override
 	protected boolean hasResponse() throws IOException {
-		return responseMessage != null;
+		return this.responseMessage != null;
 	}
 
 	@Override
 	public Iterator<String> getResponseHeaderNames() throws IOException {
 		try {
-			List<String> headers = new ArrayList<String>();
-			Enumeration<?> enumeration = responseMessage.getAllHeaders();
+			List<String> headers = new ArrayList<>();
+			Enumeration<?> enumeration = this.responseMessage.getAllHeaders();
 			while (enumeration.hasMoreElements()) {
 				Header header = (Header) enumeration.nextElement();
 				headers.add(header.getName());
@@ -275,7 +272,7 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	@Override
 	public Iterator<String> getResponseHeaders(String name) throws IOException {
 		try {
-			String[] headers = responseMessage.getHeader(name);
+			String[] headers = this.responseMessage.getHeader(name);
 			return Arrays.asList(headers).iterator();
 		}
 		catch (MessagingException ex) {
@@ -287,7 +284,7 @@ public class MailSenderConnection extends AbstractSenderConnection {
 	@Override
 	protected InputStream getResponseInputStream() throws IOException {
 		try {
-			return responseMessage.getDataHandler().getInputStream();
+			return this.responseMessage.getDataHandler().getInputStream();
 		}
 		catch (MessagingException ex) {
 			throw new MailTransportException(ex);
@@ -306,24 +303,24 @@ public class MailSenderConnection extends AbstractSenderConnection {
 
 	@Override
 	public void onClose() throws IOException {
-		MailTransportUtils.closeFolder(folder, deleteAfterReceive);
-		MailTransportUtils.closeService(store);
+		MailTransportUtils.closeFolder(this.folder, this.deleteAfterReceive);
+		MailTransportUtils.closeService(this.store);
 	}
 
-	private class ByteArrayDataSource implements DataSource {
+	private static final class ByteArrayDataSource implements DataSource {
 
 		private byte[] data;
 
 		private String contentType;
 
-		public ByteArrayDataSource(String contentType, byte[] data) {
+		ByteArrayDataSource(String contentType, byte[] data) {
 			this.data = data;
 			this.contentType = contentType;
 		}
 
 		@Override
 		public InputStream getInputStream() throws IOException {
-			return new ByteArrayInputStream(data);
+			return new ByteArrayInputStream(this.data);
 		}
 
 		@Override
@@ -333,13 +330,14 @@ public class MailSenderConnection extends AbstractSenderConnection {
 
 		@Override
 		public String getContentType() {
-			return contentType;
+			return this.contentType;
 		}
 
 		@Override
 		public String getName() {
 			return "ByteArrayDataSource";
 		}
+
 	}
 
 }

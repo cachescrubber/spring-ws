@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,24 +30,32 @@ import org.springframework.ws.wsdl.wsdl11.provider.ServicesProvider;
 import org.springframework.ws.wsdl.wsdl11.provider.TypesProvider;
 
 /**
- * Implementation of the {@link Wsdl11Definition} that uses a provider-based mechanism to populate a WSDL4J {@link
- * Definition}.
- *
- * <p>All providers are optional, indicating that a particular part of the WSDL will not be created. Providers can be set
- * via various properties. The providers are {@link #afterPropertiesSet() invoked} in the following order: <ol>
- * <li>{@link ImportsProvider}</li> <li>{@link TypesProvider}</li> <li>{@link MessagesProvider}</li> <li>{@link
- * PortTypesProvider}</li> <li>{@link BindingsProvider}</li> <li>{@link ServicesProvider}</li> </ol>
- *
- * <p>This definition requires the target namespace to be set via {@link #setTargetNamespace(String)}
+ * Implementation of the {@link Wsdl11Definition} that uses a provider-based mechanism to
+ * populate a WSDL4J {@link Definition}.
+ * <p>
+ * All providers are optional, indicating that a particular part of the WSDL will not be
+ * created. Providers can be set via various properties. The providers are
+ * {@link #afterPropertiesSet() invoked} in the following order:
+ * <ol>
+ * <li>{@link ImportsProvider}</li>
+ * <li>{@link TypesProvider}</li>
+ * <li>{@link MessagesProvider}</li>
+ * <li>{@link PortTypesProvider}</li>
+ * <li>{@link BindingsProvider}</li>
+ * <li>{@link ServicesProvider}</li>
+ * </ol>
+ * <p>
+ * This definition requires the target namespace to be set via
+ * {@link #setTargetNamespace(String)}
  *
  * @author Arjen Poutsma
+ * @since 1.5.0
  * @see #setImportsProvider(ImportsProvider)
  * @see #setTypesProvider(TypesProvider)
  * @see #setMessagesProvider(MessagesProvider)
  * @see #setPortTypesProvider(PortTypesProvider)
  * @see #setBindingsProvider(BindingsProvider)
  * @see #setServicesProvider(ServicesProvider)
- * @since 1.5.0
  */
 public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements InitializingBean {
 
@@ -70,20 +78,18 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link ImportsProvider} for this definition.
-	 *
-	 * <p>Default is {@code null}, indicating that no {@code &lt;import&gt;} will be created
-	 *
+	 * <p>
+	 * Default is {@code null}, indicating that no {@code &lt;import&gt;} will be created
 	 * @return the import provider; or {@code null}
 	 */
 	public ImportsProvider getImportsProvider() {
-		return importsProvider;
+		return this.importsProvider;
 	}
 
 	/**
 	 * Sets the {@link ImportsProvider} for this definition.
-	 *
-	 * <p>Default is {@code null}, indicating that no {@code &lt;import&gt;} will be created
-	 *
+	 * <p>
+	 * Default is {@code null}, indicating that no {@code &lt;import&gt;} will be created
 	 * @param importsProvider the import provider
 	 */
 	public void setImportsProvider(ImportsProvider importsProvider) {
@@ -92,20 +98,18 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link TypesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;types&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;types&gt;} will be created
 	 * @return the types provider; or {@code null}
 	 */
 	public TypesProvider getTypesProvider() {
-		return typesProvider;
+		return this.typesProvider;
 	}
 
 	/**
 	 * Sets the {@link TypesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;types&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;types&gt;} will be created
 	 * @param typesProvider the types provider; or {@code null}
 	 */
 	public void setTypesProvider(TypesProvider typesProvider) {
@@ -114,20 +118,20 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link MessagesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;message&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;message&gt;} will be
+	 * created
 	 * @return the messages provider; or {@code null}
 	 */
 	public MessagesProvider getMessagesProvider() {
-		return messagesProvider;
+		return this.messagesProvider;
 	}
 
 	/**
 	 * Sets the {@link MessagesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;message&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;message&gt;} will be
+	 * created
 	 * @param messagesProvider the messages provider; or {@code null}
 	 */
 	public void setMessagesProvider(MessagesProvider messagesProvider) {
@@ -136,20 +140,20 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link PortTypesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;portType&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;portType&gt;} will be
+	 * created
 	 * @return the port types provider; or {@code null}
 	 */
 	public PortTypesProvider getPortTypesProvider() {
-		return portTypesProvider;
+		return this.portTypesProvider;
 	}
 
 	/**
 	 * Sets the {@link PortTypesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;portType&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;portType&gt;} will be
+	 * created
 	 * @param portTypesProvider the port types provider; or {@code null}
 	 */
 	public void setPortTypesProvider(PortTypesProvider portTypesProvider) {
@@ -158,20 +162,20 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link BindingsProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;binding&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;binding&gt;} will be
+	 * created
 	 * @return the binding provider; or {@code null}
 	 */
 	public BindingsProvider getBindingsProvider() {
-		return bindingsProvider;
+		return this.bindingsProvider;
 	}
 
 	/**
 	 * Sets the {@link BindingsProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;binding&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;binding&gt;} will be
+	 * created
 	 * @param bindingsProvider the bindings provider; or {@code null}
 	 */
 	public void setBindingsProvider(BindingsProvider bindingsProvider) {
@@ -180,20 +184,20 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the {@link ServicesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;service&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;service&gt;} will be
+	 * created
 	 * @return the services provider; or {@code null}
 	 */
 	public ServicesProvider getServicesProvider() {
-		return servicesProvider;
+		return this.servicesProvider;
 	}
 
 	/**
 	 * Sets the {@link ServicesProvider} for this definition.
-	 *
-	 * <p>Defaults to {@code null}, indicating that no {@code &lt;service&gt;} will be created
-	 *
+	 * <p>
+	 * Defaults to {@code null}, indicating that no {@code &lt;service&gt;} will be
+	 * created
 	 * @param servicesProvider the services provider; or {@code null}
 	 */
 	public void setServicesProvider(ServicesProvider servicesProvider) {
@@ -202,17 +206,15 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 
 	/**
 	 * Returns the target namespace for the WSDL definition.
-	 *
 	 * @return the target namespace
 	 * @see javax.wsdl.Definition#getTargetNamespace()
 	 */
 	public String getTargetNamespace() {
-		return targetNamespace;
+		return this.targetNamespace;
 	}
 
 	/**
 	 * Sets the target namespace used for this definition. Required.
-	 *
 	 * @param targetNamespace the target namespace
 	 * @see javax.wsdl.Definition#setTargetNamespace(String)
 	 */
@@ -227,24 +229,25 @@ public class ProviderBasedWsdl4jDefinition extends Wsdl4jDefinition implements I
 		Definition definition = wsdlFactory.newDefinition();
 		definition.setTargetNamespace(getTargetNamespace());
 		definition.addNamespace(TARGET_NAMESPACE_PREFIX, getTargetNamespace());
-		if (importsProvider != null) {
-			importsProvider.addImports(definition);
+		if (this.importsProvider != null) {
+			this.importsProvider.addImports(definition);
 		}
-		if (typesProvider != null) {
-			typesProvider.addTypes(definition);
+		if (this.typesProvider != null) {
+			this.typesProvider.addTypes(definition);
 		}
-		if (messagesProvider != null) {
-			messagesProvider.addMessages(definition);
+		if (this.messagesProvider != null) {
+			this.messagesProvider.addMessages(definition);
 		}
-		if (portTypesProvider != null) {
-			portTypesProvider.addPortTypes(definition);
+		if (this.portTypesProvider != null) {
+			this.portTypesProvider.addPortTypes(definition);
 		}
-		if (bindingsProvider != null) {
-			bindingsProvider.addBindings(definition);
+		if (this.bindingsProvider != null) {
+			this.bindingsProvider.addBindings(definition);
 		}
-		if (servicesProvider != null) {
-			servicesProvider.addServices(definition);
+		if (this.servicesProvider != null) {
+			this.servicesProvider.addServices(definition);
 		}
 		setDefinition(definition);
 	}
+
 }

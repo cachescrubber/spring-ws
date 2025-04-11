@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,8 +42,7 @@ public abstract class XmppTransportUtils {
 	 * Converts the given XMPP destination into a {@code xmpp} URI.
 	 */
 	public static URI toUri(Message requestMessage) throws URISyntaxException {
-		return new URI(XmppTransportConstants.XMPP_URI_SCHEME,
-				requestMessage.getTo().asUnescapedString(), null);
+		return new URI(XmppTransportConstants.XMPP_URI_SCHEME, requestMessage.getTo().asUnescapedString(), null);
 	}
 
 	public static String getTo(URI uri) {
@@ -79,7 +78,7 @@ public abstract class XmppTransportUtils {
 			return Collections.singletonList(value).iterator();
 		}
 		else {
-			return Collections.<String>emptyList().iterator();
+			return Collections.emptyIterator();
 		}
 	}
 

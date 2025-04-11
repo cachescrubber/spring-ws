@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,16 +18,16 @@ package org.springframework.ws.test.server.integration;
 
 import javax.xml.transform.Source;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.ws.test.server.MockWebServiceClient;
 import org.springframework.xml.transform.StringSource;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.springframework.ws.test.server.RequestCreators.withPayload;
 import static org.springframework.ws.test.server.ResponseMatchers.payload;
@@ -35,7 +35,7 @@ import static org.springframework.ws.test.server.ResponseMatchers.payload;
 /**
  * @author Arjen Poutsma
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("integration-test.xml")
 public class ServerIntegrationTest {
 
@@ -44,21 +44,21 @@ public class ServerIntegrationTest {
 
 	private MockWebServiceClient mockClient;
 
-	@Before
+	@BeforeEach
 	public void createClient() {
-		mockClient = MockWebServiceClient.createClient(applicationContext);
+		this.mockClient = MockWebServiceClient.createClient(this.applicationContext);
 	}
 
 	@Test
-	public void basic() throws Exception {
-		Source requestPayload = new StringSource("<customerCountRequest xmlns='http://springframework.org/spring-ws'>" +
-				"<customerName>John Doe</customerName>" + "</customerCountRequest>");
+	public void basic() {
+
+		Source requestPayload = new StringSource("<customerCountRequest xmlns='http://springframework.org/spring-ws'>"
+				+ "<customerName>John Doe</customerName>" + "</customerCountRequest>");
 		Source expectedResponsePayload = new StringSource(
-				"<customerCountResponse xmlns='http://springframework.org/spring-ws'>" +
-						"<customerCount>42</customerCount>" + "</customerCountResponse>");
+				"<customerCountResponse xmlns='http://springframework.org/spring-ws'>"
+						+ "<customerCount>42</customerCount>" + "</customerCountResponse>");
 
-		mockClient.sendRequest(withPayload(requestPayload)).andExpect(payload(expectedResponsePayload));
+		this.mockClient.sendRequest(withPayload(requestPayload)).andExpect(payload(expectedResponsePayload));
 	}
-
 
 }

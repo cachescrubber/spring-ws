@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.xml.xpath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -36,8 +37,8 @@ import org.springframework.xml.namespace.SimpleNamespaceContext;
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
- * @see #createXPathExpression(String)
  * @since 1.0.0
+ * @see #createXPathExpression(String)
  */
 abstract class Jaxp13XPathExpressionFactory {
 
@@ -45,7 +46,6 @@ abstract class Jaxp13XPathExpressionFactory {
 
 	/**
 	 * Creates a JAXP 1.3 {@code XPathExpression} from the given string expression.
-	 *
 	 * @param expression the XPath expression
 	 * @return the compiled {@code XPathExpression}
 	 * @throws XPathParseException when the given expression cannot be parsed
@@ -63,8 +63,8 @@ abstract class Jaxp13XPathExpressionFactory {
 	}
 
 	/**
-	 * Creates a JAXP 1.3 {@code XPathExpression} from the given string expression and namespaces.
-	 *
+	 * Creates a JAXP 1.3 {@code XPathExpression} from the given string expression and
+	 * namespaces.
 	 * @param expression the XPath expression
 	 * @param namespaces the namespaces
 	 * @return the compiled {@code XPathExpression}
@@ -89,11 +89,11 @@ abstract class Jaxp13XPathExpressionFactory {
 		return xpathFactory.newXPath();
 	}
 
-
 	/** JAXP 1.3 implementation of the {@code XPathExpression} interface. */
-	private static class Jaxp13XPathExpression implements XPathExpression {
+	private static final class Jaxp13XPathExpression implements XPathExpression {
 
 		private final javax.xml.xpath.XPathExpression xpathExpression;
+
 		private final String expression;
 
 		private Jaxp13XPathExpression(javax.xml.xpath.XPathExpression xpathExpression, String expression) {
@@ -103,7 +103,7 @@ abstract class Jaxp13XPathExpressionFactory {
 
 		@Override
 		public String toString() {
-			return expression;
+			return this.expression;
 		}
 
 		@Override
@@ -120,8 +120,8 @@ abstract class Jaxp13XPathExpressionFactory {
 		private Object evaluate(Node node, QName returnType) {
 			try {
 				// XPathExpression is not thread-safe
-				synchronized (xpathExpression) {
-					return xpathExpression.evaluate(node, returnType);
+				synchronized (this.xpathExpression) {
+					return this.xpathExpression.evaluate(node, returnType);
 				}
 			}
 			catch (XPathExpressionException ex) {
@@ -130,7 +130,7 @@ abstract class Jaxp13XPathExpressionFactory {
 		}
 
 		private List<Node> toNodeList(NodeList nodeList) {
-			List<Node> result = new ArrayList<Node>(nodeList.getLength());
+			List<Node> result = new ArrayList<>(nodeList.getLength());
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				result.add(nodeList.item(i));
 			}
@@ -171,7 +171,7 @@ abstract class Jaxp13XPathExpressionFactory {
 		@Override
 		public <T> List<T> evaluate(Node node, NodeMapper<T> nodeMapper) throws XPathException {
 			NodeList nodes = (NodeList) evaluate(node, XPathConstants.NODESET);
-			List<T> results = new ArrayList<T>(nodes.getLength());
+			List<T> results = new ArrayList<>(nodes.getLength());
 			for (int i = 0; i < nodes.getLength(); i++) {
 				try {
 					results.add(nodeMapper.mapNode(nodes.item(i), i));
@@ -182,6 +182,7 @@ abstract class Jaxp13XPathExpressionFactory {
 			}
 			return results;
 		}
+
 	}
 
 }

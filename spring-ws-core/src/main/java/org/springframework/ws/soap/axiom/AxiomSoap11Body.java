@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.soap.axiom;
 
 import java.util.Locale;
+
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMAttribute;
@@ -45,10 +46,8 @@ class AxiomSoap11Body extends AxiomSoapBody implements Soap11Body {
 
 	private final boolean langAttributeOnSoap11FaultString;
 
-	AxiomSoap11Body(SOAPBody axiomBody,
-					SOAPFactory axiomFactory,
-					boolean payloadCaching,
-					boolean langAttributeOnSoap11FaultString) {
+	AxiomSoap11Body(SOAPBody axiomBody, SOAPFactory axiomFactory, boolean payloadCaching,
+			boolean langAttributeOnSoap11FaultString) {
 		super(axiomBody, axiomFactory, payloadCaching);
 		this.langAttributeOnSoap11FaultString = langAttributeOnSoap11FaultString;
 	}
@@ -85,7 +84,7 @@ class AxiomSoap11Body extends AxiomSoapBody implements Soap11Body {
 			throw new IllegalArgumentException(
 					"A fault code with namespace and local part must be specific for a custom fault code");
 		}
-		if (!langAttributeOnSoap11FaultString) {
+		if (!this.langAttributeOnSoap11FaultString) {
 			faultStringLocale = null;
 		}
 		try {
@@ -119,8 +118,7 @@ class AxiomSoap11Body extends AxiomSoapBody implements Soap11Body {
 			if (namespace == null) {
 				namespace = fault.declareNamespace(code.getNamespaceURI(), "");
 			}
-			code = new QName(code.getNamespaceURI(), code.getLocalPart(),
-					namespace.getPrefix());
+			code = new QName(code.getNamespaceURI(), code.getLocalPart(), namespace.getPrefix());
 		}
 		faultCode.setText(code);
 	}
@@ -131,8 +129,8 @@ class AxiomSoap11Body extends AxiomSoapBody implements Soap11Body {
 			AxiomUtils.removeContents(getAxiomBody());
 			SOAPFault fault = getAxiomFactory().createSOAPFault(getAxiomBody());
 			SOAPFaultCode faultCode = getAxiomFactory().createSOAPFaultCode(fault);
-			faultCode.setText(new QName(fault.getNamespace().getNamespaceURI(), localName,
-					fault.getNamespace().getPrefix()));
+			faultCode.setText(
+					new QName(fault.getNamespace().getNamespaceURI(), localName, fault.getNamespace().getPrefix()));
 			SOAPFaultReason faultReason = getAxiomFactory().createSOAPFaultReason(fault);
 			if (locale != null) {
 				addLangAttribute(locale, faultReason);
@@ -147,15 +145,15 @@ class AxiomSoap11Body extends AxiomSoapBody implements Soap11Body {
 
 	private void addLangAttribute(Locale locale, SOAPFaultReason faultReason) {
 		OMNamespace xmlNamespace = getAxiomFactory().createOMNamespace("http://www.w3.org/XML/1998/namespace", "xml");
-		OMAttribute langAttribute =
-				getAxiomFactory().createOMAttribute("lang", xmlNamespace, AxiomUtils.toLanguage(locale));
+		OMAttribute langAttribute = getAxiomFactory().createOMAttribute("lang", xmlNamespace,
+				AxiomUtils.toLanguage(locale));
 		faultReason.addAttribute(langAttribute);
 	}
 
 	@Override
 	public Soap11Fault getFault() {
 		SOAPFault axiomFault = getAxiomBody().getFault();
-		return axiomFault != null ? new AxiomSoap11Fault(axiomFault, getAxiomFactory()) : null;
+		return (axiomFault != null) ? new AxiomSoap11Fault(axiomFault, getAxiomFactory()) : null;
 	}
 
 }

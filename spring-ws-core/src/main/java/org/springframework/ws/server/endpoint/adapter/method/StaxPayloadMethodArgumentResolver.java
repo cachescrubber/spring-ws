@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.ws.server.endpoint.adapter.method;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -34,8 +35,8 @@ import org.springframework.xml.XMLInputFactoryUtils;
 import org.springframework.xml.transform.TransformerObjectSupport;
 
 /**
- * Implementation of {@link MethodArgumentResolver} that supports StAX {@link XMLStreamReader} and {@link
- * XMLEventReader} arguments.
+ * Implementation of {@link MethodArgumentResolver} that supports StAX
+ * {@link XMLStreamReader} and {@link XMLEventReader} arguments.
  *
  * @author Arjen Poutsma
  * @since 2.0
@@ -90,19 +91,16 @@ public class StaxPayloadMethodArgumentResolver extends TransformerObjectSupport 
 		}
 		if (streamReader == null) {
 			try {
-				streamReader = inputFactory.createXMLStreamReader(requestSource);
+				streamReader = this.inputFactory.createXMLStreamReader(requestSource);
 			}
-			catch (XMLStreamException ex) {
-				streamReader = null;
-			}
-			catch (UnsupportedOperationException ex) {
+			catch (XMLStreamException | UnsupportedOperationException ex) {
 				streamReader = null;
 			}
 		}
 		if (streamReader == null) {
 			// as a final resort, transform the source to a stream, and read from that
 			ByteArrayInputStream bis = convertToByteArrayInputStream(requestSource);
-			streamReader = inputFactory.createXMLStreamReader(bis);
+			streamReader = this.inputFactory.createXMLStreamReader(bis);
 		}
 		return streamReader;
 	}
@@ -115,7 +113,7 @@ public class StaxPayloadMethodArgumentResolver extends TransformerObjectSupport 
 				XMLStreamReader streamReader = StaxUtils.getXMLStreamReader(requestSource);
 				if (streamReader != null) {
 					try {
-						eventReader = inputFactory.createXMLEventReader(streamReader);
+						eventReader = this.inputFactory.createXMLEventReader(streamReader);
 					}
 					catch (XMLStreamException ex) {
 						eventReader = null;
@@ -126,30 +124,26 @@ public class StaxPayloadMethodArgumentResolver extends TransformerObjectSupport 
 		}
 		if (eventReader == null) {
 			try {
-				eventReader = inputFactory.createXMLEventReader(requestSource);
+				eventReader = this.inputFactory.createXMLEventReader(requestSource);
 			}
-			catch (XMLStreamException ex) {
-				eventReader = null;
-			}
-			catch (UnsupportedOperationException ex) {
+			catch (XMLStreamException | UnsupportedOperationException ex) {
 				eventReader = null;
 			}
 		}
 		if (eventReader == null) {
 			// as a final resort, transform the source to a stream, and read from that
 			ByteArrayInputStream bis = convertToByteArrayInputStream(requestSource);
-			eventReader = inputFactory.createXMLEventReader(bis);
+			eventReader = this.inputFactory.createXMLEventReader(bis);
 		}
 		return eventReader;
 	}
 
 	/**
-	 * Create a {@code XMLInputFactory} that this resolver will use to create {@link XMLStreamReader} and {@link
-	 * XMLEventReader} objects.
-	 *
-	 * <p>Can be overridden in subclasses, adding further initialization of the factory. The resulting factory is cached,
-	 * so this method will only be called once.
-	 *
+	 * Create a {@code XMLInputFactory} that this resolver will use to create
+	 * {@link XMLStreamReader} and {@link XMLEventReader} objects.
+	 * <p>
+	 * Can be overridden in subclasses, adding further initialization of the factory. The
+	 * resulting factory is cached, so this method will only be called once.
 	 * @return the created factory
 	 */
 	protected XMLInputFactory createXmlInputFactory() {
@@ -161,7 +155,5 @@ public class StaxPayloadMethodArgumentResolver extends TransformerObjectSupport 
 		transform(source, new StreamResult(bos));
 		return new ByteArrayInputStream(bos.toByteArray());
 	}
-
-
 
 }

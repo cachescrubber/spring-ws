@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,7 @@ public class ClientHttpRequestMessageSender extends AbstractHttpWebServiceMessag
 	}
 
 	public ClientHttpRequestFactory getRequestFactory() {
-		return requestFactory;
+		return this.requestFactory;
 	}
 
 	public void setRequestFactory(ClientHttpRequestFactory requestFactory) {
@@ -57,11 +57,12 @@ public class ClientHttpRequestMessageSender extends AbstractHttpWebServiceMessag
 
 	@Override
 	public WebServiceConnection createConnection(URI uri) throws IOException {
-		ClientHttpRequest request = requestFactory.createRequest(uri, HttpMethod.POST);
+		ClientHttpRequest request = this.requestFactory.createRequest(uri, HttpMethod.POST);
 		if (isAcceptGzipEncoding()) {
-			request.getHeaders().add(HttpTransportConstants.HEADER_ACCEPT_ENCODING,
-					HttpTransportConstants.CONTENT_ENCODING_GZIP);
+			request.getHeaders()
+				.add(HttpTransportConstants.HEADER_ACCEPT_ENCODING, HttpTransportConstants.CONTENT_ENCODING_GZIP);
 		}
 		return new ClientHttpRequestConnection(request);
 	}
+
 }

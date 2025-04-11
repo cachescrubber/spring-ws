@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,10 +42,8 @@ class AxiomSoapEnvelope extends AxiomSoapElement implements SoapEnvelope {
 
 	private final boolean langAttributeOnSoap11FaultString;
 
-	AxiomSoapEnvelope(SOAPEnvelope axiomEnvelope,
-					  SOAPFactory axiomFactory,
-					  boolean payloadCaching,
-					  boolean langAttributeOnSoap11FaultString) {
+	AxiomSoapEnvelope(SOAPEnvelope axiomEnvelope, SOAPFactory axiomFactory, boolean payloadCaching,
+			boolean langAttributeOnSoap11FaultString) {
 		super(axiomEnvelope, axiomFactory);
 		this.payloadCaching = payloadCaching;
 		this.langAttributeOnSoap11FaultString = langAttributeOnSoap11FaultString;
@@ -78,16 +76,16 @@ class AxiomSoapEnvelope extends AxiomSoapElement implements SoapEnvelope {
 
 	@Override
 	public SoapBody getBody() {
-		if (body == null) {
+		if (this.body == null) {
 			try {
 				SOAPBody axiomBody = getAxiomEnvelope().getBody();
 				String namespaceURI = getAxiomEnvelope().getNamespace().getNamespaceURI();
 				if (SOAP11Constants.SOAP_ENVELOPE_NAMESPACE_URI.equals(namespaceURI)) {
-					body = new AxiomSoap11Body(axiomBody, getAxiomFactory(), payloadCaching,
-							langAttributeOnSoap11FaultString);
+					this.body = new AxiomSoap11Body(axiomBody, getAxiomFactory(), this.payloadCaching,
+							this.langAttributeOnSoap11FaultString);
 				}
 				else if (SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI.equals(namespaceURI)) {
-					body = new AxiomSoap12Body(axiomBody, getAxiomFactory(), payloadCaching);
+					this.body = new AxiomSoap12Body(axiomBody, getAxiomFactory(), this.payloadCaching);
 				}
 				else {
 					throw new AxiomSoapEnvelopeException("Unknown SOAP namespace \"" + namespaceURI + "\"");
@@ -97,7 +95,7 @@ class AxiomSoapEnvelope extends AxiomSoapElement implements SoapEnvelope {
 				throw new AxiomSoapBodyException(ex);
 			}
 		}
-		return body;
+		return this.body;
 	}
 
 	protected SOAPEnvelope getAxiomEnvelope() {

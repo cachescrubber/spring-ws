@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.JAXBIntrospector;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.UnmarshallerHandler;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -43,6 +37,13 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBIntrospector;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.UnmarshallerHandler;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -59,37 +60,41 @@ import org.springframework.ws.stream.StreamingWebServiceMessage;
 import org.springframework.xml.transform.TraxUtils;
 
 /**
- * Abstract base class for {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
- * MethodArgumentResolver} and {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
- * MethodReturnValueHandler} implementations that use JAXB2. Creates {@link JAXBContext} object lazily, and offers
- * {@linkplain #marshalToResponsePayload(org.springframework.ws.context.MessageContext, Class, Object) marshalling} and
- * {@linkplain #unmarshalFromRequestPayload(org.springframework.ws.context.MessageContext, Class) unmarshalling}
- * methods.
+ * Abstract base class for
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
+ * MethodArgumentResolver} and
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
+ * MethodReturnValueHandler} implementations that use JAXB2. Creates {@link JAXBContext}
+ * object lazily, and offers
+ * {@linkplain #marshalToResponsePayload(org.springframework.ws.context.MessageContext, Class, Object)
+ * marshalling} and
+ * {@linkplain #unmarshalFromRequestPayload(org.springframework.ws.context.MessageContext, Class)
+ * unmarshalling} methods.
  *
  * @author Arjen Poutsma
  * @since 2.0
  */
 public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloadMethodProcessor {
 
-	private final ConcurrentMap<Class<?>, JAXBContext> jaxbContexts = new ConcurrentHashMap<Class<?>, JAXBContext>();
+	private final ConcurrentMap<Class<?>, JAXBContext> jaxbContexts = new ConcurrentHashMap<>();
 
 	@Override
-	public final void handleReturnValue(MessageContext messageContext,
-			MethodParameter returnType, Object returnValue) throws Exception {
+	public final void handleReturnValue(MessageContext messageContext, MethodParameter returnType, Object returnValue)
+			throws Exception {
 		if (returnValue != null) {
 			handleReturnValueInternal(messageContext, returnType, returnValue);
 		}
 	}
 
-	protected abstract void handleReturnValueInternal(MessageContext messageContext,
-			MethodParameter returnType, Object returnValue) throws Exception;
+	protected abstract void handleReturnValueInternal(MessageContext messageContext, MethodParameter returnType,
+			Object returnValue) throws Exception;
 
 	/**
-	 * Marshals the given {@code jaxbElement} to the response payload of the given message context.
-	 *
+	 * Marshals the given {@code jaxbElement} to the response payload of the given message
+	 * context.
 	 * @param messageContext the message context to marshal to
-	 * @param clazz			 the clazz to create a marshaller for
-	 * @param jaxbElement	 the object to be marshalled
+	 * @param clazz the clazz to create a marshaller for
+	 * @param jaxbElement the object to be marshalled
 	 * @throws JAXBException in case of JAXB2 errors
 	 */
 	protected final void marshalToResponsePayload(MessageContext messageContext, Class<?> clazz, Object jaxbElement)
@@ -97,12 +102,11 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 		Assert.notNull(messageContext, "'messageContext' must not be null");
 		Assert.notNull(clazz, "'clazz' must not be null");
 		Assert.notNull(jaxbElement, "'jaxbElement' must not be null");
-		if (logger.isDebugEnabled()) {
-			logger.debug("Marshalling [" + jaxbElement + "] to response payload");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Marshalling [" + jaxbElement + "] to response payload");
 		}
 		WebServiceMessage response = messageContext.getResponse();
-		if (response instanceof StreamingWebServiceMessage) {
-			StreamingWebServiceMessage streamingResponse = (StreamingWebServiceMessage) response;
+		if (response instanceof StreamingWebServiceMessage streamingResponse) {
 
 			StreamingPayload payload = new JaxbStreamingPayload(clazz, jaxbElement);
 			streamingResponse.setStreamingPayload(payload);
@@ -121,9 +125,8 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 	/**
 	 * Unmarshals the request payload of the given message context.
-	 *
 	 * @param messageContext the message context to unmarshal from
-	 * @param clazz			 the class to unmarshal
+	 * @param clazz the class to unmarshal
 	 * @return the unmarshalled object, or {@code null} if the request has no payload
 	 * @throws JAXBException in case of JAXB2 errors
 	 */
@@ -136,8 +139,8 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 		try {
 			Jaxb2SourceCallback callback = new Jaxb2SourceCallback(clazz);
 			TraxUtils.doWithSource(requestPayload, callback);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Unmarshalled payload request to [" + callback.result + "]");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Unmarshalled payload request to [" + callback.result + "]");
 			}
 			return callback.result;
 		}
@@ -148,9 +151,8 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 	/**
 	 * Unmarshals the request payload of the given message context as {@link JAXBElement}.
-	 *
 	 * @param messageContext the message context to unmarshal from
-	 * @param clazz			 the class to unmarshal
+	 * @param clazz the class to unmarshal
 	 * @return the unmarshalled element, or {@code null} if the request has no payload
 	 * @throws JAXBException in case of JAXB2 errors
 	 */
@@ -161,10 +163,10 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 			return null;
 		}
 		try {
-			JaxbElementSourceCallback<T> callback = new JaxbElementSourceCallback<T>(clazz);
+			JaxbElementSourceCallback<T> callback = new JaxbElementSourceCallback<>(clazz);
 			TraxUtils.doWithSource(requestPayload, callback);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Unmarshalled payload request to [" + callback.result + "]");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Unmarshalled payload request to [" + callback.result + "]");
 			}
 			return callback.result;
 		}
@@ -175,7 +177,7 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 	private Source getRequestPayload(MessageContext messageContext) {
 		WebServiceMessage request = messageContext.getRequest();
-		return request != null ? request.getPayloadSource() : null;
+		return (request != null) ? request.getPayloadSource() : null;
 	}
 
 	private JAXBException convertToJaxbException(Exception ex) {
@@ -188,10 +190,9 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 	}
 
 	/**
-	 * Creates a new {@link Marshaller} to be used for marshalling objects to XML. Defaults to
-	 * {@link javax.xml.bind.JAXBContext#createMarshaller()}, but can be overridden in subclasses for further
-	 * customization.
-	 *
+	 * Creates a new {@link Marshaller} to be used for marshalling objects to XML.
+	 * Defaults to {@link jakarta.xml.bind.JAXBContext#createMarshaller()}, but can be
+	 * overridden in subclasses for further customization.
 	 * @param jaxbContext the JAXB context to create a marshaller for
 	 * @return the marshaller
 	 * @throws JAXBException in case of JAXB errors
@@ -205,10 +206,9 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 	}
 
 	/**
-	 * Creates a new {@link Unmarshaller} to be used for unmarshalling XML to objects. Defaults to
-	 * {@link javax.xml.bind.JAXBContext#createUnmarshaller()}, but can be overridden in subclasses for further
-	 * customization.
-	 *
+	 * Creates a new {@link Unmarshaller} to be used for unmarshalling XML to objects.
+	 * Defaults to {@link jakarta.xml.bind.JAXBContext#createUnmarshaller()}, but can be
+	 * overridden in subclasses for further customization.
 	 * @param jaxbContext the JAXB context to create a unmarshaller for
 	 * @return the unmarshaller
 	 * @throws JAXBException in case of JAXB errors
@@ -221,83 +221,87 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 		return createUnmarshaller(getJaxbContext(clazz));
 	}
 
-
 	private JAXBContext getJaxbContext(Class<?> clazz) throws JAXBException {
 		Assert.notNull(clazz, "'clazz' must not be null");
-		JAXBContext jaxbContext = jaxbContexts.get(clazz);
+		JAXBContext jaxbContext = this.jaxbContexts.get(clazz);
 		if (jaxbContext == null) {
 			jaxbContext = JAXBContext.newInstance(clazz);
-			jaxbContexts.putIfAbsent(clazz, jaxbContext);
+			this.jaxbContexts.putIfAbsent(clazz, jaxbContext);
 		}
 		return jaxbContext;
 	}
 
 	// Callbacks
 
-	private class Jaxb2SourceCallback implements TraxUtils.SourceCallback {
+	private final class Jaxb2SourceCallback implements TraxUtils.SourceCallback {
 
 		private final Unmarshaller unmarshaller;
 
 		private Object result;
 
-		public Jaxb2SourceCallback(Class<?> clazz) throws JAXBException {
+		Jaxb2SourceCallback(Class<?> clazz) throws JAXBException {
 			this.unmarshaller = createUnmarshaller(clazz);
 		}
 
 		@Override
 		public void domSource(Node node) throws JAXBException {
-			result = unmarshaller.unmarshal(node);
+			this.result = this.unmarshaller.unmarshal(node);
 		}
 
 		@Override
 		public void saxSource(XMLReader reader, InputSource inputSource) throws Exception {
 			if (inputSource.getByteStream() == null && inputSource.getCharacterStream() == null
 					&& inputSource.getSystemId() == null) {
-				// The InputSource neither has a stream nor a system ID set; this means that
-				// we are dealing with a custom SAXSource that is not backed by a SAX parser
+				// The InputSource neither has a stream nor a system ID set; this means
+				// that
+				// we are dealing with a custom SAXSource that is not backed by a SAX
+				// parser
 				// but that generates a sequence of SAX events in some other way.
-				// In this case, we need to use a ContentHandler to feed the SAX events into
+				// In this case, we need to use a ContentHandler to feed the SAX events
+				// into
 				// the unmarshaller.
-				UnmarshallerHandler handler = unmarshaller.getUnmarshallerHandler();
+				UnmarshallerHandler handler = this.unmarshaller.getUnmarshallerHandler();
 				reader.setContentHandler(handler);
 				reader.parse(inputSource);
-				result = handler.getResult();
-			} else {
+				this.result = handler.getResult();
+			}
+			else {
 				// If a stream or system ID is set, we assume that the SAXSource is backed
 				// by a SAX parser and we only pass the InputSource to the unmarshaller.
 				// This effectively ignores the SAX parser and lets the unmarshaller take
 				// care of the parsing (in a potentially more efficient way).
-				result = unmarshaller.unmarshal(inputSource);
+				this.result = this.unmarshaller.unmarshal(inputSource);
 			}
 		}
 
 		@Override
 		public void staxSource(XMLEventReader eventReader) throws JAXBException {
-			result = unmarshaller.unmarshal(eventReader);
+			this.result = this.unmarshaller.unmarshal(eventReader);
 		}
 
 		@Override
 		public void staxSource(XMLStreamReader streamReader) throws JAXBException {
-			result = unmarshaller.unmarshal(streamReader);
+			this.result = this.unmarshaller.unmarshal(streamReader);
 		}
 
 		@Override
 		public void streamSource(InputStream inputStream) throws IOException, JAXBException {
-			result = unmarshaller.unmarshal(inputStream);
+			this.result = this.unmarshaller.unmarshal(inputStream);
 		}
 
 		@Override
 		public void streamSource(Reader reader) throws IOException, JAXBException {
-			result = unmarshaller.unmarshal(reader);
+			this.result = this.unmarshaller.unmarshal(reader);
 		}
 
 		@Override
 		public void source(String systemId) throws Exception {
-			result = unmarshaller.unmarshal(new URL(systemId));
+			this.result = this.unmarshaller.unmarshal(new URL(systemId));
 		}
+
 	}
 
-	private class JaxbElementSourceCallback<T> implements TraxUtils.SourceCallback {
+	private final class JaxbElementSourceCallback<T> implements TraxUtils.SourceCallback {
 
 		private final Unmarshaller unmarshaller;
 
@@ -305,48 +309,49 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 		private JAXBElement<T> result;
 
-		public JaxbElementSourceCallback(Class<T> declaredType) throws JAXBException {
+		JaxbElementSourceCallback(Class<T> declaredType) throws JAXBException {
 			this.unmarshaller = createUnmarshaller(declaredType);
 			this.declaredType = declaredType;
 		}
 
 		@Override
 		public void domSource(Node node) throws JAXBException {
-			result = unmarshaller.unmarshal(node, declaredType);
+			this.result = this.unmarshaller.unmarshal(node, this.declaredType);
 		}
 
 		@Override
 		public void saxSource(XMLReader reader, InputSource inputSource) throws JAXBException {
-			result = unmarshaller.unmarshal(new SAXSource(reader, inputSource), declaredType);
+			this.result = this.unmarshaller.unmarshal(new SAXSource(reader, inputSource), this.declaredType);
 		}
 
 		@Override
 		public void staxSource(XMLEventReader eventReader) throws JAXBException {
-			result = unmarshaller.unmarshal(eventReader, declaredType);
+			this.result = this.unmarshaller.unmarshal(eventReader, this.declaredType);
 		}
 
 		@Override
 		public void staxSource(XMLStreamReader streamReader) throws JAXBException {
-			result = unmarshaller.unmarshal(streamReader, declaredType);
+			this.result = this.unmarshaller.unmarshal(streamReader, this.declaredType);
 		}
 
 		@Override
 		public void streamSource(InputStream inputStream) throws IOException, JAXBException {
-			result = unmarshaller.unmarshal(new StreamSource(inputStream), declaredType);
+			this.result = this.unmarshaller.unmarshal(new StreamSource(inputStream), this.declaredType);
 		}
 
 		@Override
 		public void streamSource(Reader reader) throws IOException, JAXBException {
-			result = unmarshaller.unmarshal(new StreamSource(reader), declaredType);
+			this.result = this.unmarshaller.unmarshal(new StreamSource(reader), this.declaredType);
 		}
 
 		@Override
 		public void source(String systemId) throws Exception {
-			result = unmarshaller.unmarshal(new StreamSource(systemId), declaredType);
+			this.result = this.unmarshaller.unmarshal(new StreamSource(systemId), this.declaredType);
 		}
+
 	}
 
-	private class Jaxb2ResultCallback implements TraxUtils.ResultCallback {
+	private final class Jaxb2ResultCallback implements TraxUtils.ResultCallback {
 
 		private final Marshaller marshaller;
 
@@ -359,41 +364,42 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 		@Override
 		public void domResult(Node node) throws JAXBException {
-			marshaller.marshal(jaxbElement, node);
+			this.marshaller.marshal(this.jaxbElement, node);
 		}
 
 		@Override
 		public void saxResult(ContentHandler contentHandler, LexicalHandler lexicalHandler) throws JAXBException {
-			marshaller.marshal(jaxbElement, contentHandler);
+			this.marshaller.marshal(this.jaxbElement, contentHandler);
 		}
 
 		@Override
 		public void staxResult(XMLEventWriter eventWriter) throws JAXBException {
-			marshaller.marshal(jaxbElement, eventWriter);
+			this.marshaller.marshal(this.jaxbElement, eventWriter);
 		}
 
 		@Override
 		public void staxResult(XMLStreamWriter streamWriter) throws JAXBException {
-			marshaller.marshal(jaxbElement, streamWriter);
+			this.marshaller.marshal(this.jaxbElement, streamWriter);
 		}
 
 		@Override
 		public void streamResult(OutputStream outputStream) throws JAXBException {
-			marshaller.marshal(jaxbElement, outputStream);
+			this.marshaller.marshal(this.jaxbElement, outputStream);
 		}
 
 		@Override
 		public void streamResult(Writer writer) throws JAXBException {
-			marshaller.marshal(jaxbElement, writer);
+			this.marshaller.marshal(this.jaxbElement, writer);
 		}
 
 		@Override
 		public void result(String systemId) throws Exception {
-			marshaller.marshal(jaxbElement, new StreamResult(systemId));
+			this.marshaller.marshal(this.jaxbElement, new StreamResult(systemId));
 		}
+
 	}
 
-	private class JaxbStreamingPayload implements StreamingPayload {
+	private final class JaxbStreamingPayload implements StreamingPayload {
 
 		private final Object jaxbElement;
 
@@ -412,19 +418,19 @@ public abstract class AbstractJaxb2PayloadMethodProcessor extends AbstractPayloa
 
 		@Override
 		public QName getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
 		public void writeTo(XMLStreamWriter streamWriter) throws XMLStreamException {
 			try {
-				marshaller.marshal(jaxbElement, streamWriter);
+				this.marshaller.marshal(this.jaxbElement, streamWriter);
 			}
 			catch (JAXBException ex) {
-				throw new XMLStreamException("Could not marshal [" + jaxbElement + "]: " + ex.getMessage(), ex);
+				throw new XMLStreamException("Could not marshal [" + this.jaxbElement + "]: " + ex.getMessage(), ex);
 			}
 		}
-	}
 
+	}
 
 }

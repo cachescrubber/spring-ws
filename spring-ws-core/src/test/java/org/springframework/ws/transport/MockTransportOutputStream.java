@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package org.springframework.ws.transport;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,26 +24,28 @@ import org.springframework.util.Assert;
 
 public class MockTransportOutputStream extends TransportOutputStream {
 
-	private Map<String, String> headers = new HashMap<String, String>();
+	private Map<String, String> headers = new HashMap<>();
 
 	private OutputStream outputStream;
 
 	public MockTransportOutputStream(OutputStream outputStream) {
+
 		Assert.notNull(outputStream, "outputStream must not be null");
 		this.outputStream = outputStream;
 	}
 
 	@Override
-	protected OutputStream createOutputStream() throws IOException {
-		return outputStream;
+	protected OutputStream createOutputStream() {
+		return this.outputStream;
 	}
 
 	public Map<String, String> getHeaders() {
-		return headers;
+		return this.headers;
 	}
 
 	@Override
-	public void addHeader(String name, String value) throws IOException {
-		headers.put(name, value);
+	public void addHeader(String name, String value) {
+		this.headers.put(name, value);
 	}
+
 }

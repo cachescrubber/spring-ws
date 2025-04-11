@@ -1,11 +1,11 @@
 /*
- * Copyright 2008 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,23 +16,26 @@
 
 package org.springframework.ws.soap.security.wss4j2.callback;
 
+import java.io.Serial;
 import java.io.Serializable;
+
 import javax.security.auth.callback.Callback;
 
 import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
 
 /**
- * Underlying security services instantiate and pass a {@code UsernameTokenPrincipalCallback} to the
- * {@code handle} method of a {@code CallbackHandler} to pass a security
- * {@code WSUsernameTokenPrincipal}.
+ * Underlying security services instantiate and pass a
+ * {@code UsernameTokenPrincipalCallback} to the {@code handle} method of a
+ * {@code CallbackHandler} to pass a security {@code WSUsernameTokenPrincipal}.
  *
  * @author Arjen Poutsma
  * @author Jamin Hitchcock
- * @see WSUsernameTokenPrincipalImpl
  * @since 2.3.0
+ * @see WSUsernameTokenPrincipalImpl
  */
 public class UsernameTokenPrincipalCallback implements Callback, Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -3022202225157082715L;
 
 	private final WSUsernameTokenPrincipalImpl principal;
@@ -44,6 +47,7 @@ public class UsernameTokenPrincipalCallback implements Callback, Serializable {
 
 	/** Get the retrieved {@code Principal}. */
 	public WSUsernameTokenPrincipalImpl getPrincipal() {
-		return principal;
+		return this.principal;
 	}
+
 }

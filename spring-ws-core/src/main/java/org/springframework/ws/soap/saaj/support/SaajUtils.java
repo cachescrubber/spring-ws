@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,15 +19,17 @@ package org.springframework.ws.soap.saaj.support;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
+
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.MimeHeaders;
+import jakarta.xml.soap.Name;
+import jakarta.xml.soap.SOAPBody;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
 
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -35,28 +37,35 @@ import org.springframework.util.StringUtils;
 import org.springframework.ws.transport.TransportConstants;
 
 /**
- * Collection of generic utility methods to work with SAAJ. Includes conversion from SAAJ {@link Name} objects to {@link
- * QName}s and vice-versa, and SAAJ version checking.
+ * Collection of generic utility methods to work with SAAJ. Includes conversion from SAAJ
+ * {@link Name} objects to {@link QName}s and vice-versa, and SAAJ version checking.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see Name
  * @see QName
- * @since 1.0.0
  */
 public abstract class SaajUtils {
 
+	/**
+	 * SAAJ version 1.1.
+	 */
 	public static final int SAAJ_11 = 0;
 
+	/**
+	 * SAAJ version 1.2.
+	 */
 	public static final int SAAJ_12 = 1;
 
+	/**
+	 * SAAJ version 1.3.
+	 */
 	public static final int SAAJ_13 = 2;
 
 	private static int saajVersion = SAAJ_13;
 
 	/**
-	 * Gets the SAAJ version.
-	 * Returns {@link #SAAJ_13} as of Spring-WS 2.2.
-	 *
+	 * Gets the SAAJ version. Returns {@link #SAAJ_13} as of Spring-WS 2.2.
 	 * @return a code comparable to the SAAJ_XX codes in this class
 	 */
 	public static int getSaajVersion() {
@@ -64,9 +73,8 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Gets the SAAJ version for the specified {@link SOAPMessage}.
-	 * Returns {@link #SAAJ_13} as of Spring-WS 2.2.
-	 *
+	 * Gets the SAAJ version for the specified {@link SOAPMessage}. Returns
+	 * {@link #SAAJ_13} as of Spring-WS 2.2.
 	 * @return a code comparable to the SAAJ_XX codes in this class
 	 * @see #SAAJ_11
 	 * @see #SAAJ_12
@@ -79,9 +87,8 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Gets the SAAJ version for the specified {@link javax.xml.soap.SOAPElement}.
+	 * Gets the SAAJ version for the specified {@link jakarta.xml.soap.SOAPElement}.
 	 * Returns {@link #SAAJ_13} as of Spring-WS 2.2.
-	 *
 	 * @return a code comparable to the SAAJ_XX codes in this class
 	 * @see #SAAJ_11
 	 * @see #SAAJ_12
@@ -92,9 +99,9 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Returns the SAAJ version as a String. The returned string will be "{@code SAAJ 1.3}", "{@code SAAJ
+	 * Returns the SAAJ version as a String. The returned string will be
+	 * "{@code SAAJ 1.3}", "{@code SAAJ
 	 * 1.2}", or "{@code SAAJ 1.1}".
-	 *
 	 * @return a string representation of the SAAJ version
 	 * @see #getSaajVersion()
 	 */
@@ -118,12 +125,12 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Converts a {@link QName} to a {@link Name}. A {@link SOAPElement} is required to resolve namespaces.
-	 *
-	 * @param qName			 the {@code QName} to convert
+	 * Converts a {@link QName} to a {@link Name}. A {@link SOAPElement} is required to
+	 * resolve namespaces.
+	 * @param qName the {@code QName} to convert
 	 * @param resolveElement a {@code SOAPElement} used to resolve namespaces to prefixes
 	 * @return the converted SAAJ Name
-	 * @throws SOAPException			if conversion is unsuccessful
+	 * @throws SOAPException if conversion is unsuccessful
 	 * @throws IllegalArgumentException if {@code qName} is not fully qualified
 	 */
 	public static Name toName(QName qName, SOAPElement resolveElement) throws SOAPException {
@@ -154,8 +161,7 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Converts a {@code javax.xml.soap.Name} to a {@code javax.xml.namespace.QName}.
-	 *
+	 * Converts a {@code jakarta.xml.soap.Name} to a {@code javax.xml.namespace.QName}.
 	 * @param name the {@code Name} to convert
 	 * @return the converted {@code QName}
 	 */
@@ -172,31 +178,26 @@ public abstract class SaajUtils {
 	}
 
 	/**
-	 * Loads a SAAJ {@code SOAPMessage} from the given resource with a given message factory.
-	 *
-	 * @param resource		 the resource to read from
-	 * @param messageFactory SAAJ message factory used to construct the message
+	 * Loads a SAAJ {@code SOAPMessage} from the given resource with a given message
+	 * factory.
+	 * @param resource the resource to read from
+	 * @param messageFactory the SAAJ message factory used to construct the message
 	 * @return the loaded SAAJ message
 	 * @throws SOAPException if the message cannot be constructed
-	 * @throws IOException	 if the input stream resource cannot be loaded
+	 * @throws IOException if the input stream resource cannot be loaded
 	 */
 	public static SOAPMessage loadMessage(Resource resource, MessageFactory messageFactory)
 			throws SOAPException, IOException {
-		InputStream is = resource.getInputStream();
-		try {
+		try (InputStream is = resource.getInputStream()) {
 			MimeHeaders mimeHeaders = new MimeHeaders();
 			mimeHeaders.addHeader(TransportConstants.HEADER_CONTENT_TYPE, "text/xml");
 			mimeHeaders.addHeader(TransportConstants.HEADER_CONTENT_LENGTH, Long.toString(resource.getFile().length()));
 			return messageFactory.createMessage(mimeHeaders, is);
 		}
-		finally {
-			is.close();
-		}
 	}
 
 	/**
 	 * Returns the SAAJ {@code SOAPEnvelope} for the given element.
-	 *
 	 * @param element the element to return the envelope from
 	 * @return the envelope, or {@code null} if not found
 	 */
@@ -216,7 +217,7 @@ public abstract class SaajUtils {
 	 * Returns the first child element of the given body.
 	 */
 	public static SOAPElement getFirstBodyElement(SOAPBody body) {
-		for (Iterator<?> iterator = body.getChildElements(); iterator.hasNext(); ) {
+		for (Iterator<?> iterator = body.getChildElements(); iterator.hasNext();) {
 			Object child = iterator.next();
 			if (child instanceof SOAPElement) {
 				return (SOAPElement) child;

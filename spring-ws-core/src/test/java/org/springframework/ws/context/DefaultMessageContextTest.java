@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,18 @@
 
 package org.springframework.ws.context;
 
-import java.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.MockWebServiceMessage;
 import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.WebServiceMessageFactory;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class DefaultMessageContextTest {
 
@@ -36,43 +37,53 @@ public class DefaultMessageContextTest {
 
 	private WebServiceMessage request;
 
-	@Before
-	public void setUp() throws Exception {
-		factoryMock = createMock(WebServiceMessageFactory.class);
-		request = new MockWebServiceMessage();
-		context = new DefaultMessageContext(request, factoryMock);
+	@BeforeEach
+	public void setUp() {
+
+		this.factoryMock = createMock(WebServiceMessageFactory.class);
+		this.request = new MockWebServiceMessage();
+		this.context = new DefaultMessageContext(this.request, this.factoryMock);
 	}
 
 	@Test
-	public void testRequest() throws Exception {
-		Assert.assertEquals("Invalid request returned", request, context.getRequest());
+	public void testRequest() {
+		assertThat(this.context.getRequest()).isEqualTo(this.request);
 	}
 
 	@Test
-	public void testResponse() throws Exception {
+	public void testResponse() {
+
 		WebServiceMessage response = new MockWebServiceMessage();
-		expect(factoryMock.createWebServiceMessage()).andReturn(response);
-		replay(factoryMock);
+		expect(this.factoryMock.createWebServiceMessage()).andReturn(response);
+		replay(this.factoryMock);
 
-		WebServiceMessage result = context.getResponse();
-		Assert.assertEquals("Invalid response returned", response, result);
-		verify(factoryMock);
+		WebServiceMessage result = this.context.getResponse();
+
+		assertThat(result).isEqualTo(response);
+
+		verify(this.factoryMock);
 	}
 
 	@Test
-	public void testProperties() throws Exception {
-		Assert.assertEquals("Invalid property names returned", 0, context.getPropertyNames().length);
+	public void testProperties() {
+
+		assertThat(this.context.getPropertyNames()).hasSize(0);
+
 		String name = "name";
-		Assert.assertFalse("Property set", context.containsProperty(name));
+
+		assertThat(this.context.containsProperty(name)).isFalse();
+
 		String value = "value";
-		context.setProperty(name, value);
-		Assert.assertTrue("Property not set", context.containsProperty(name));
-		Assert.assertEquals("Invalid property names returned", Arrays.asList(name),
-				Arrays.asList(context.getPropertyNames()));
-		Assert.assertEquals("Invalid property value returned", value, context.getProperty(name));
-		context.removeProperty(name);
-		Assert.assertFalse("Property set", context.containsProperty(name));
-		Assert.assertEquals("Invalid property names returned", 0, context.getPropertyNames().length);
+		this.context.setProperty(name, value);
+
+		assertThat(this.context.containsProperty(name)).isTrue();
+		assertThat(this.context.getPropertyNames()).containsExactly(name);
+		assertThat(this.context.getProperty(name)).isEqualTo(value);
+
+		this.context.removeProperty(name);
+
+		assertThat(this.context.containsProperty(name)).isFalse();
+		assertThat(this.context.getPropertyNames()).isEmpty();
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,14 +30,15 @@ import org.springframework.util.StringUtils;
 import org.springframework.ws.wsdl.WsdlDefinitionException;
 
 /**
- * Implementation of the {@code Wsdl11Definition} based on WSDL4J. A {@link javax.wsdl.Definition} can be given as
- * as constructor argument, or set using a property.
+ * Implementation of the {@code Wsdl11Definition} based on WSDL4J. A
+ * {@link javax.wsdl.Definition} can be given as as constructor argument, or set using a
+ * property.
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
+ * @since 1.0.0
  * @see #Wsdl4jDefinition(javax.wsdl.Definition)
  * @see #setDefinition(javax.wsdl.Definition)
- * @since 1.0.0
  */
 public class Wsdl4jDefinition implements Wsdl11Definition {
 
@@ -48,7 +49,6 @@ public class Wsdl4jDefinition implements Wsdl11Definition {
 
 	/**
 	 * Constructs a new, empty {@code Wsdl4jDefinition}.
-	 *
 	 * @see #setDefinition(javax.wsdl.Definition)
 	 */
 	public Wsdl4jDefinition() {
@@ -56,7 +56,6 @@ public class Wsdl4jDefinition implements Wsdl11Definition {
 
 	/**
 	 * Constructs a new {@code Wsdl4jDefinition} based on the given {@code Definition}.
-	 *
 	 * @param definition the WSDL4J definition
 	 */
 	public Wsdl4jDefinition(Definition definition) {
@@ -65,26 +64,26 @@ public class Wsdl4jDefinition implements Wsdl11Definition {
 
 	/** Returns the WSDL4J {@code Definition}. */
 	public Definition getDefinition() {
-		synchronized (monitor) {
-			return definition;
+		synchronized (this.monitor) {
+			return this.definition;
 		}
 	}
 
 	/** Set the WSDL4J {@code Definition}. */
 	public void setDefinition(Definition definition) {
-		synchronized (monitor) {
+		synchronized (this.monitor) {
 			this.definition = definition;
 		}
 	}
 
 	@Override
 	public Source getSource() {
-		synchronized (monitor) {
-			Assert.notNull(definition, "definition must not be null");
+		synchronized (this.monitor) {
+			Assert.notNull(this.definition, "definition must not be null");
 			try {
 				WSDLFactory wsdlFactory = WSDLFactory.newInstance();
 				WSDLWriter wsdlWriter = wsdlFactory.newWSDLWriter();
-				Document document = wsdlWriter.getDocument(definition);
+				Document document = wsdlWriter.getDocument(this.definition);
 				return new DOMSource(document);
 			}
 			catch (WSDLException ex) {
@@ -95,11 +94,12 @@ public class Wsdl4jDefinition implements Wsdl11Definition {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Wsdl4jDefinition");
-		if (definition != null && StringUtils.hasLength(definition.getTargetNamespace())) {
+		if (this.definition != null && StringUtils.hasLength(this.definition.getTargetNamespace())) {
 			builder.append('{');
-			builder.append(definition.getTargetNamespace());
+			builder.append(this.definition.getTargetNamespace());
 			builder.append('}');
 		}
 		return builder.toString();
 	}
+
 }

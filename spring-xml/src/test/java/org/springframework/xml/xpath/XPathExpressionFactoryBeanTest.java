@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,27 +16,31 @@
 
 package org.springframework.xml.xpath;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XPathExpressionFactoryBeanTest {
 
 	private XPathExpressionFactoryBean factoryBean;
 
-	@Before
-	public void setUp() throws Exception {
-		factoryBean = new XPathExpressionFactoryBean();
+	@BeforeEach
+	public void setUp() {
+		this.factoryBean = new XPathExpressionFactoryBean();
 	}
 
 	@Test
 	public void testFactoryBean() throws Exception {
-		factoryBean.setExpression("/root");
-		factoryBean.afterPropertiesSet();
-		Object result = factoryBean.getObject();
-		Assert.assertNotNull("No result obtained", result);
-		Assert.assertTrue("No XPathExpression returned", result instanceof XPathExpression);
-		Assert.assertTrue("Not a singleton", factoryBean.isSingleton());
-		Assert.assertEquals("Not a XPathExpresison", XPathExpression.class, factoryBean.getObjectType());
+
+		this.factoryBean.setExpression("/root");
+		this.factoryBean.afterPropertiesSet();
+		Object result = this.factoryBean.getObject();
+
+		assertThat(result).isNotNull();
+		assertThat(result).isInstanceOf(XPathExpression.class);
+		assertThat(this.factoryBean.isSingleton()).isTrue();
+		assertThat(this.factoryBean.getObject()).isInstanceOf(XPathExpression.class);
 	}
+
 }

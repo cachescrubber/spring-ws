@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,23 +16,22 @@
 
 package org.springframework.ws.transport.mail.monitor;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.event.MessageCountAdapter;
-import javax.mail.event.MessageCountEvent;
-import javax.mail.event.MessageCountListener;
+import com.sun.mail.imap.IMAPFolder;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.event.MessageCountAdapter;
+import jakarta.mail.event.MessageCountEvent;
+import jakarta.mail.event.MessageCountListener;
 
 import org.springframework.util.Assert;
 
-import com.sun.mail.imap.IMAPFolder;
-
 /**
- * Implementation of the {@link MonitoringStrategy} interface that uses the IMAP IDLE command for asynchronous message
- * detection.
- *
- * <p><b>Note</b> that this implementation is only suitable for use with IMAP servers which support the IDLE command.
- * Additionally, this strategy requires JavaMail version 1.4.1.
+ * Implementation of the {@link MonitoringStrategy} interface that uses the IMAP IDLE
+ * command for asynchronous message detection.
+ * <p>
+ * <b>Note</b> that this implementation is only suitable for use with IMAP servers which
+ * support the IDLE command. Additionally, this strategy requires JavaMail version 1.4.1.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
@@ -49,20 +48,20 @@ public class ImapIdleMonitoringStrategy extends AbstractMonitoringStrategy {
 		if (searchForNewMessages(folder).length > 0) {
 			return;
 		}
-		if (messageCountListener == null) {
+		if (this.messageCountListener == null) {
 			createMessageCountListener();
 		}
-		folder.addMessageCountListener(messageCountListener);
+		folder.addMessageCountListener(this.messageCountListener);
 		try {
 			imapFolder.idle();
 		}
 		finally {
-			folder.removeMessageCountListener(messageCountListener);
+			folder.removeMessageCountListener(this.messageCountListener);
 		}
 	}
 
 	private void createMessageCountListener() {
-		messageCountListener = new MessageCountAdapter() {
+		this.messageCountListener = new MessageCountAdapter() {
 			@Override
 			public void messagesAdded(MessageCountEvent e) {
 				Message[] messages = e.getMessages();
@@ -78,4 +77,5 @@ public class ImapIdleMonitoringStrategy extends AbstractMonitoringStrategy {
 			}
 		};
 	}
+
 }

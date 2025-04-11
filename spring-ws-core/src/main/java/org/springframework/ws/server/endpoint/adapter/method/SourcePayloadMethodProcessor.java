@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.server.endpoint.adapter.method;
 
 import java.io.ByteArrayInputStream;
+
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -38,8 +39,8 @@ import org.springframework.xml.JaxpVersion;
 import org.springframework.xml.XMLInputFactoryUtils;
 
 /**
- * Implementation of {@link MethodArgumentResolver} and {@link MethodReturnValueHandler} that supports {@link Source}
- * objects.
+ * Implementation of {@link MethodArgumentResolver} and {@link MethodReturnValueHandler}
+ * that supports {@link Source} objects.
  *
  * @author Arjen Poutsma
  * @since 2.0
@@ -84,16 +85,14 @@ public class SourcePayloadMethodProcessor extends AbstractPayloadSourceMethodPro
 		else if (JaxpVersion.isAtLeastJaxp14() && Jaxp14StaxHandler.isStaxSource(parameterType)) {
 			XMLStreamReader streamReader;
 			try {
-				streamReader = inputFactory.createXMLStreamReader(requestPayload);
-			} catch (UnsupportedOperationException ignored) {
-				streamReader = null;
+				streamReader = this.inputFactory.createXMLStreamReader(requestPayload);
 			}
-			catch (XMLStreamException ignored) {
+			catch (UnsupportedOperationException | XMLStreamException ignored) {
 				streamReader = null;
 			}
 			if (streamReader == null) {
 				ByteArrayInputStream bis = convertToByteArrayInputStream(requestPayload);
-				streamReader = inputFactory.createXMLStreamReader(bis);
+				streamReader = this.inputFactory.createXMLStreamReader(bis);
 			}
 			return Jaxp14StaxHandler.createStaxSource(streamReader, requestPayload.getSystemId());
 		}
@@ -117,12 +116,12 @@ public class SourcePayloadMethodProcessor extends AbstractPayloadSourceMethodPro
 	}
 
 	/**
-	 * Create a {@code XMLInputFactory} that this resolver will use to create {@link javax.xml.stream.XMLStreamReader}
-	 * and {@link javax.xml.stream.XMLEventReader} objects.
-	 *
-	 * <p>Can be overridden in subclasses, adding further initialization of the factory. The resulting factory is cached,
-	 * so this method will only be called once.
-	 *
+	 * Create a {@code XMLInputFactory} that this resolver will use to create
+	 * {@link javax.xml.stream.XMLStreamReader} and
+	 * {@link javax.xml.stream.XMLEventReader} objects.
+	 * <p>
+	 * Can be overridden in subclasses, adding further initialization of the factory. The
+	 * resulting factory is cached, so this method will only be called once.
 	 * @return the created factory
 	 */
 	protected XMLInputFactory createXmlInputFactory() {
@@ -130,7 +129,7 @@ public class SourcePayloadMethodProcessor extends AbstractPayloadSourceMethodPro
 	}
 
 	/** Inner class to avoid a static JAXP 1.4 dependency. */
-	private static class Jaxp14StaxHandler {
+	private static final class Jaxp14StaxHandler {
 
 		private static boolean isStaxSource(Class<?> clazz) {
 			return StAXSource.class.isAssignableFrom(clazz);
@@ -142,7 +141,7 @@ public class SourcePayloadMethodProcessor extends AbstractPayloadSourceMethodPro
 
 	}
 
-	private static class SystemIdStreamReaderDelegate extends StreamReaderDelegate {
+	private static final class SystemIdStreamReaderDelegate extends StreamReaderDelegate {
 
 		private final String systemId;
 
@@ -156,26 +155,27 @@ public class SourcePayloadMethodProcessor extends AbstractPayloadSourceMethodPro
 			final Location parentLocation = getParent().getLocation();
 			return new Location() {
 				public int getLineNumber() {
-					return parentLocation != null ? parentLocation.getLineNumber() : -1;
+					return (parentLocation != null) ? parentLocation.getLineNumber() : -1;
 				}
 
 				public int getColumnNumber() {
-					return parentLocation != null ? parentLocation.getColumnNumber() : -1;
+					return (parentLocation != null) ? parentLocation.getColumnNumber() : -1;
 				}
 
 				public int getCharacterOffset() {
-					return parentLocation != null ? parentLocation.getLineNumber() : -1;
+					return (parentLocation != null) ? parentLocation.getLineNumber() : -1;
 				}
 
 				public String getPublicId() {
-					return parentLocation != null ? parentLocation.getPublicId() : null;
+					return (parentLocation != null) ? parentLocation.getPublicId() : null;
 				}
 
 				public String getSystemId() {
-					return systemId;
+					return SystemIdStreamReaderDelegate.this.systemId;
 				}
 			};
 		}
+
 	}
 
 }

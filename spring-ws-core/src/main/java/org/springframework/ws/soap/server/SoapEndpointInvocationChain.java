@@ -1,11 +1,11 @@
 /*
- * Copyright 2005 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,14 @@ import org.springframework.ws.server.EndpointInterceptor;
 import org.springframework.ws.server.EndpointInvocationChain;
 
 /**
- * SOAP-specific subclass of the {@code EndpointInvocationChain}. Adds associated actors (SOAP 1.1) or roles (SOAP
- * 1.2). Used by the {@code SoapMessageDispatcher} to determine the MustUnderstand headers for particular
- * endpoint.
+ * SOAP-specific subclass of the {@code EndpointInvocationChain}. Adds associated actors
+ * (SOAP 1.1) or roles (SOAP 1.2). Used by the {@code SoapMessageDispatcher} to determine
+ * the MustUnderstand headers for particular endpoint.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #getActorsOrRoles()
  * @see SoapMessageDispatcher
- * @since 1.0.0
  */
 public class SoapEndpointInvocationChain extends EndpointInvocationChain {
 
@@ -37,7 +37,6 @@ public class SoapEndpointInvocationChain extends EndpointInvocationChain {
 
 	/**
 	 * Create new {@code SoapEndpointInvocationChain}.
-	 *
 	 * @param endpoint the endpoint object to invoke
 	 */
 	public SoapEndpointInvocationChain(Object endpoint) {
@@ -46,8 +45,7 @@ public class SoapEndpointInvocationChain extends EndpointInvocationChain {
 
 	/**
 	 * Create new {@code SoapEndpointInvocationChain}.
-	 *
-	 * @param endpoint	   the endpoint object to invoke
+	 * @param endpoint the endpoint object to invoke
 	 * @param interceptors the array of interceptors to apply
 	 */
 	public SoapEndpointInvocationChain(Object endpoint, EndpointInterceptor[] interceptors) {
@@ -56,33 +54,34 @@ public class SoapEndpointInvocationChain extends EndpointInvocationChain {
 
 	/**
 	 * Create new {@code EndpointInvocationChain}.
-	 *
-	 * @param endpoint			 the endpoint object to invoke
-	 * @param interceptors		 the array of interceptors to apply
-	 * @param actorsOrRoles		 the array of actorsOrRoles to set
-	 * @param isUltimateReceiver whether this chain fullfils the SOAP 1.2 Ultimate receiver role
+	 * @param endpoint the endpoint object to invoke
+	 * @param interceptors the array of interceptors to apply
+	 * @param actorsOrRoles the array of actorsOrRoles to set
+	 * @param isUltimateReceiver whether this chain fullfils the SOAP 1.2 Ultimate
+	 * receiver role
 	 */
-	public SoapEndpointInvocationChain(Object endpoint,
-									   EndpointInterceptor[] interceptors,
-									   String[] actorsOrRoles,
-									   boolean isUltimateReceiver) {
+	public SoapEndpointInvocationChain(Object endpoint, EndpointInterceptor[] interceptors, String[] actorsOrRoles,
+			boolean isUltimateReceiver) {
 		super(endpoint, interceptors);
 		this.actorsOrRoles = actorsOrRoles;
 		this.isUltimateReceiver = isUltimateReceiver;
 	}
 
 	/**
-	 * Gets the actors (SOAP 1.1) or roles (SOAP 1.2) associated with an invocation of this chain and its contained
-	 * interceptors and endpoint.
-	 *
+	 * Gets the actors (SOAP 1.1) or roles (SOAP 1.2) associated with an invocation of
+	 * this chain and its contained interceptors and endpoint.
 	 * @return a string array of URIs for SOAP actors/roles
 	 */
 	public String[] getActorsOrRoles() {
-		return actorsOrRoles;
+		return this.actorsOrRoles;
 	}
 
-	/** Indicates whether this chain fulfills the SOAP 1.2 Ultimate Receiver role. Default is {@code true}. */
+	/**
+	 * Indicates whether this chain fulfills the SOAP 1.2 Ultimate Receiver role. Default
+	 * is {@code true}.
+	 */
 	public boolean isUltimateReceiver() {
-		return isUltimateReceiver;
+		return this.isUltimateReceiver;
 	}
+
 }

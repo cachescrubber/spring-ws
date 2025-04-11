@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.config.annotation;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -41,45 +42,40 @@ import org.springframework.ws.soap.server.endpoint.mapping.SoapActionAnnotationM
 
 /**
  * This is the main class providing the configuration behind the Spring Web Services Java
- * config. It is typically imported by adding {@link EnableWs @EnableWs} to an
- * application {@link Configuration @Configuration} class. An alternative, more
- * advanced option is to extend directly from this class and override methods as
- * necessary remembering to add {@link Configuration @Configuration} to the
- * subclass and {@link Bean @Bean} to overridden {@link Bean @Bean} methods.
- * For more details see the Javadoc of {@link EnableWs @EnableWs}.
- *
- * <p>This class registers the following {@link EndpointMapping}s:
+ * config. It is typically imported by adding {@link EnableWs @EnableWs} to an application
+ * {@link Configuration @Configuration} class. An alternative, more advanced option is to
+ * extend directly from this class and override methods as necessary remembering to add
+ * {@link Configuration @Configuration} to the subclass and {@link Bean @Bean} to
+ * overridden {@link Bean @Bean} methods. For more details see the Javadoc of
+ * {@link EnableWs @EnableWs}.
+ * <p>
+ * This class registers the following {@link EndpointMapping}s:
  * <ul>
- *	<li>{@link PayloadRootAnnotationMethodEndpointMapping}
- *	ordered at 0 for mapping requests to {@link PayloadRoot @PayloadRoot} annotated
- *	controller methods.
- *	<li>{@link SoapActionAnnotationMethodEndpointMapping}
- *	ordered at 1 for mapping requests to {@link SoapAction @SoapAction} annotated
- *	controller methods.
- *	<li>{@link AnnotationActionEndpointMapping}
- *	ordered at 2 for mapping requests to {@link Action @Action} annotated
- *	controller methods.
+ * <li>{@link PayloadRootAnnotationMethodEndpointMapping} ordered at 0 for mapping
+ * requests to {@link PayloadRoot @PayloadRoot} annotated controller methods.
+ * <li>{@link SoapActionAnnotationMethodEndpointMapping} ordered at 1 for mapping requests
+ * to {@link SoapAction @SoapAction} annotated controller methods.
+ * <li>{@link AnnotationActionEndpointMapping} ordered at 2 for mapping requests to
+ * {@link Action @Action} annotated controller methods.
  * </ul>
- *
- * <p>Registers one {@link EndpointAdapter}:
+ * <p>
+ * Registers one {@link EndpointAdapter}:
  * <ul>
- *	<li>{@link DefaultMethodEndpointAdapter}
- *	for processing requests with annotated endpoint methods.
+ * <li>{@link DefaultMethodEndpointAdapter} for processing requests with annotated
+ * endpoint methods.
  * </ul>
- *
- * <p>Registers the following {@link EndpointExceptionResolver}s:
+ * <p>
+ * Registers the following {@link EndpointExceptionResolver}s:
  * <ul>
- *	<li>{@link SoapFaultAnnotationExceptionResolver} for handling exceptions
- *	annotated with {@link SoapFault @SoapFault}.
- *	<li>{@link SimpleSoapExceptionResolver} for creating default exceptions.
+ * <li>{@link SoapFaultAnnotationExceptionResolver} for handling exceptions annotated with
+ * {@link SoapFault @SoapFault}.
+ * <li>{@link SimpleSoapExceptionResolver} for creating default exceptions.
  * </ul>
- *
- * @see EnableWs
- * @see WsConfigurer
- * @see WsConfigurerAdapter
  *
  * @author Arjen Poutsma
  * @since 2.2
+ * @see EnableWs
+ * @see WsConfigurer
  */
 public class WsConfigurationSupport {
 
@@ -91,8 +87,7 @@ public class WsConfigurationSupport {
 	 */
 	@Bean
 	public PayloadRootAnnotationMethodEndpointMapping payloadRootAnnotationMethodEndpointMapping() {
-		PayloadRootAnnotationMethodEndpointMapping endpointMapping =
-				new PayloadRootAnnotationMethodEndpointMapping();
+		PayloadRootAnnotationMethodEndpointMapping endpointMapping = new PayloadRootAnnotationMethodEndpointMapping();
 		endpointMapping.setOrder(0);
 		endpointMapping.setInterceptors(getInterceptors());
 		return endpointMapping;
@@ -104,21 +99,19 @@ public class WsConfigurationSupport {
 	 */
 	@Bean
 	public SoapActionAnnotationMethodEndpointMapping soapActionAnnotationMethodEndpointMapping() {
-		SoapActionAnnotationMethodEndpointMapping endpointMapping =
-				new SoapActionAnnotationMethodEndpointMapping();
+		SoapActionAnnotationMethodEndpointMapping endpointMapping = new SoapActionAnnotationMethodEndpointMapping();
 		endpointMapping.setOrder(1);
 		endpointMapping.setInterceptors(getInterceptors());
 		return endpointMapping;
 	}
 
 	/**
-	 * Returns a {@link AnnotationActionEndpointMapping} ordered at 2 for
-	 * mapping requests to annotated endpoints.
+	 * Returns a {@link AnnotationActionEndpointMapping} ordered at 2 for mapping requests
+	 * to annotated endpoints.
 	 */
 	@Bean
 	public AnnotationActionEndpointMapping annotationActionEndpointMapping() {
-		AnnotationActionEndpointMapping endpointMapping =
-				new AnnotationActionEndpointMapping();
+		AnnotationActionEndpointMapping endpointMapping = new AnnotationActionEndpointMapping();
 		endpointMapping.setOrder(2);
 		endpointMapping.setPostInterceptors(getInterceptors());
 		return endpointMapping;
@@ -126,15 +119,15 @@ public class WsConfigurationSupport {
 
 	/**
 	 * Provide access to the shared handler interceptors used to configure
-	 * {@link EndpointMapping} instances with. This method cannot be overridden,
-	 * use {@link #addInterceptors(List)} instead.
+	 * {@link EndpointMapping} instances with. This method cannot be overridden, use
+	 * {@link #addInterceptors(List)} instead.
 	 */
 	protected final EndpointInterceptor[] getInterceptors() {
-		if (interceptors == null) {
-			interceptors = new ArrayList<EndpointInterceptor>();
-			addInterceptors(interceptors);
+		if (this.interceptors == null) {
+			this.interceptors = new ArrayList<>();
+			addInterceptors(this.interceptors);
 		}
-		return interceptors.toArray(new EndpointInterceptor[interceptors.size()]);
+		return this.interceptors.toArray(new EndpointInterceptor[0]);
 	}
 
 	/**
@@ -145,48 +138,44 @@ public class WsConfigurationSupport {
 	}
 
 	/**
-	 * Returns a {@link DefaultMethodEndpointAdapter} for processing requests
-	 * through annotated endpoint methods. Consider overriding one of these
-	 * other more fine-grained methods:
+	 * Returns a {@link DefaultMethodEndpointAdapter} for processing requests through
+	 * annotated endpoint methods. Consider overriding one of these other more
+	 * fine-grained methods:
 	 * <ul>
-	 *	<li>{@link #addArgumentResolvers(List)} for adding custom argument resolvers.
-	 *	<li>{@link #addReturnValueHandlers(List)} for adding custom return value handlers.
+	 * <li>{@link #addArgumentResolvers(List)} for configuring the argument resolvers.
+	 * <li>{@link #addReturnValueHandlers(List)} for configuring the return value
+	 * handlers.
 	 * </ul>
 	 */
 	@Bean
 	public DefaultMethodEndpointAdapter defaultMethodEndpointAdapter() {
-		List<MethodArgumentResolver> argumentResolvers =
-				new ArrayList<MethodArgumentResolver>();
+		DefaultMethodEndpointAdapter adapter = DefaultMethodEndpointAdapter.withDefaults();
+		LinkedList<MethodArgumentResolver> argumentResolvers = new LinkedList<>(adapter.getMethodArgumentResolvers());
 		addArgumentResolvers(argumentResolvers);
+		adapter.setMethodArgumentResolvers(argumentResolvers);
 
-		List<MethodReturnValueHandler> returnValueHandlers =
-				new ArrayList<MethodReturnValueHandler>();
+		LinkedList<MethodReturnValueHandler> returnValueHandlers = new LinkedList<>(
+				adapter.getMethodReturnValueHandlers());
 		addReturnValueHandlers(returnValueHandlers);
-
-		DefaultMethodEndpointAdapter adapter = new DefaultMethodEndpointAdapter();
-		adapter.setCustomMethodArgumentResolvers(argumentResolvers);
-		adapter.setCustomMethodReturnValueHandlers(returnValueHandlers);
+		adapter.setMethodReturnValueHandlers(returnValueHandlers);
 
 		return adapter;
 	}
 
 	/**
-	 * Add custom {@link MethodArgumentResolver}s to use in addition to
-	 * the ones registered by default.
-	 * @param argumentResolvers the list of custom converters;
-	 *	initially an empty list.
+	 * Configure the {@link MethodArgumentResolver}s to use in addition to the ones
+	 * registered by default.
+	 * @param argumentResolvers the list of resolvers; initially the default resolvers
 	 */
 	protected void addArgumentResolvers(List<MethodArgumentResolver> argumentResolvers) {
 	}
 
 	/**
-	 * Add custom {@link MethodReturnValueHandler}s in addition to the
-	 * ones registered by default.
-	 * @param returnValueHandlers the list of custom handlers;
-	 * initially an empty list.
+	 * Configure the {@link MethodReturnValueHandler}s to use in addition to the ones
+	 * registered by default.
+	 * @param returnValueHandlers the list of handlers; initially the default handlers
 	 */
-	protected void addReturnValueHandlers(
-			List<MethodReturnValueHandler> returnValueHandlers) {
+	protected void addReturnValueHandlers(List<MethodReturnValueHandler> returnValueHandlers) {
 	}
 
 	/**

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,8 +41,9 @@ import org.springframework.ws.transport.AbstractSenderConnection;
 import org.springframework.ws.transport.xmpp.support.XmppTransportUtils;
 
 /**
- * Implementation of {@link org.springframework.ws.transport.WebServiceConnection} that is used for client-side XMPP
- * access. Exposes a {@link Message} request and response message.
+ * Implementation of {@link org.springframework.ws.transport.WebServiceConnection} that is
+ * used for client-side XMPP access. Exposes a {@link Message} request and response
+ * message.
  *
  * @author Gildas Cuisinier
  * @author Arjen Poutsma
@@ -68,20 +69,21 @@ public class XmppSenderConnection extends AbstractSenderConnection {
 		this.connection = connection;
 		try {
 			this.requestMessage = new Message(JidCreate.from(to), Message.Type.chat);
-		} catch (XmppStringprepException e) {
-			throw new RuntimeException(e);
+		}
+		catch (XmppStringprepException ex) {
+			throw new RuntimeException(ex);
 		}
 		this.requestMessage.setThread(thread);
 	}
 
 	/** Returns the request message for this connection. */
 	public Message getRequestMessage() {
-		return requestMessage;
+		return this.requestMessage;
 	}
 
 	/** Returns the response message, if any, for this connection. */
 	public Message getResponseMessage() {
-		return responseMessage;
+		return this.responseMessage;
 	}
 
 	/*
@@ -97,12 +99,12 @@ public class XmppSenderConnection extends AbstractSenderConnection {
 	}
 
 	/*
-	* URI
-	*/
+	 * URI
+	 */
 
 	@Override
 	public URI getUri() throws URISyntaxException {
-		return XmppTransportUtils.toUri(requestMessage);
+		return XmppTransportUtils.toUri(this.requestMessage);
 	}
 
 	/*
@@ -111,12 +113,12 @@ public class XmppSenderConnection extends AbstractSenderConnection {
 
 	@Override
 	public boolean hasError() {
-		return XmppTransportUtils.hasError(responseMessage);
+		return XmppTransportUtils.hasError(this.responseMessage);
 	}
 
 	@Override
 	public String getErrorMessage() {
-		return XmppTransportUtils.getErrorMessage(responseMessage);
+		return XmppTransportUtils.getErrorMessage(this.responseMessage);
 	}
 
 	/*
@@ -125,23 +127,22 @@ public class XmppSenderConnection extends AbstractSenderConnection {
 
 	@Override
 	public void addRequestHeader(String name, String value) {
-		XmppTransportUtils.addHeader(requestMessage, name, value);
+		XmppTransportUtils.addHeader(this.requestMessage, name, value);
 	}
 
 	@Override
 	protected OutputStream getRequestOutputStream() throws IOException {
-		return new MessageOutputStream(requestMessage, messageEncoding);
+		return new MessageOutputStream(this.requestMessage, this.messageEncoding);
 	}
 
 	@Override
 	protected void onSendAfterWrite(WebServiceMessage message) throws IOException {
-		requestMessage.setFrom(connection.getUser());
+		this.requestMessage.setFrom(this.connection.getUser());
 		try {
-			connection.sendStanza(requestMessage);
-		} catch (SmackException.NotConnectedException e) {
-			throw new IOException(e);
-		} catch (InterruptedException e) {
-			throw new IOException(e);
+			this.connection.sendStanza(this.requestMessage);
+		}
+		catch (SmackException.NotConnectedException | InterruptedException ex) {
+			throw new IOException(ex);
 		}
 	}
 
@@ -153,45 +154,48 @@ public class XmppSenderConnection extends AbstractSenderConnection {
 	protected void onReceiveBeforeRead() throws IOException {
 		StanzaFilter packetFilter = createPacketFilter();
 
-		StanzaCollector collector = connection.createStanzaCollector(packetFilter);
+		StanzaCollector collector = this.connection.createStanzaCollector(packetFilter);
 		try {
-			Stanza packet = receiveTimeout >= 0 ? collector.nextResult(receiveTimeout) : collector.nextResult();
+			Stanza packet = (this.receiveTimeout >= 0) ? collector.nextResult(this.receiveTimeout)
+					: collector.nextResult();
 			if (packet instanceof Message) {
-				responseMessage = (Message) packet;
-			} else if (packet != null) {
+				this.responseMessage = (Message) packet;
+			}
+			else if (packet != null) {
 				throw new IllegalArgumentException(
 						"Wrong packet type: [" + packet.getClass() + "]. Only Messages can be handled.");
 			}
-		} catch (InterruptedException e) {
-			throw new IOException(e);
+		}
+		catch (InterruptedException ex) {
+			throw new IOException(ex);
 		}
 	}
 
 	private StanzaFilter createPacketFilter() {
 		AndFilter andFilter = new AndFilter();
 		andFilter.addFilter(new StanzaTypeFilter(Message.class));
-		andFilter.addFilter(new ThreadFilter(requestMessage.getThread()));
+		andFilter.addFilter(new ThreadFilter(this.requestMessage.getThread()));
 		return andFilter;
 	}
 
 	@Override
 	protected boolean hasResponse() throws IOException {
-		return responseMessage != null;
+		return this.responseMessage != null;
 	}
 
 	@Override
 	public Iterator<String> getResponseHeaderNames() {
-		return XmppTransportUtils.getHeaderNames(responseMessage);
+		return XmppTransportUtils.getHeaderNames(this.responseMessage);
 	}
 
 	@Override
 	public Iterator<String> getResponseHeaders(String name) throws IOException {
-		return XmppTransportUtils.getHeaders(responseMessage, name);
+		return XmppTransportUtils.getHeaders(this.responseMessage, name);
 	}
 
 	@Override
 	protected InputStream getResponseInputStream() throws IOException {
-		return new MessageInputStream(responseMessage, messageEncoding);
+		return new MessageInputStream(this.responseMessage, this.messageEncoding);
 	}
 
 }

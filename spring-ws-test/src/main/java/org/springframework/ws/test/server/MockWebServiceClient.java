@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static org.springframework.ws.test.support.AssertionErrors.fail;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
@@ -30,29 +29,35 @@ import org.springframework.ws.context.DefaultMessageContext;
 import org.springframework.ws.context.MessageContext;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 import org.springframework.ws.soap.server.SoapMessageDispatcher;
+import org.springframework.ws.test.support.AssertionErrors;
 import org.springframework.ws.test.support.MockStrategiesHelper;
 import org.springframework.ws.transport.WebServiceMessageReceiver;
 
 /**
- * <strong>Main entry point for server-side Web service testing</strong>. Typically used to test a {@link
- * org.springframework.ws.server.MessageDispatcher MessageDispatcher} (including its endpoints, mappings, etc) by
- * creating request messages, and setting up expectations about response messages.
- *
- * <p>The typical usage of this class is:
+ * <strong>Main entry point for server-side Web service testing</strong>. Typically used
+ * to test a {@link org.springframework.ws.server.MessageDispatcher MessageDispatcher}
+ * (including its endpoints, mappings, etc) by creating request messages, and setting up
+ * expectations about response messages.
+ * <p>
+ * The typical usage of this class is:
  * <ol>
- * <li>Create a {@code MockWebServiceClient} instance by using {@link #createClient(ApplicationContext)} or
+ * <li>Create a {@code MockWebServiceClient} instance by using
+ * {@link #createClient(ApplicationContext)} or
  * {@link #createClient(WebServiceMessageReceiver, WebServiceMessageFactory)}</li>
- * <li>Send request messages by calling {@link #sendRequest(RequestCreator)}, possibly by using the default
- * {@link RequestCreator} implementations provided in {@link RequestCreators} (which can be statically imported).</li>
- * <li>Set up response expectations by calling {@link ResponseActions#andExpect(ResponseMatcher) andExpect(ResponseMatcher)},
- * possibly by using the default {@link ResponseMatcher} implementations provided in {@link ResponseMatchers}
- * (which can be statically imported). Multiple expectations can be set up by chaining {@code andExpect()} calls.</li>
+ * <li>Send request messages by calling {@link #sendRequest(RequestCreator)}, possibly by
+ * using the default {@link RequestCreator} implementations provided in
+ * {@link RequestCreators} (which can be statically imported).</li>
+ * <li>Set up response expectations by calling
+ * {@link ResponseActions#andExpect(ResponseMatcher) andExpect(ResponseMatcher)}, possibly
+ * by using the default {@link ResponseMatcher} implementations provided in
+ * {@link ResponseMatchers} (which can be statically imported). Multiple expectations can
+ * be set up by chaining {@code andExpect()} calls.</li>
  * </ol>
- * Note that because of the 'fluent' API offered by this class (and related classes), you can typically use the Code
- * Completion features (i.e. ctrl-space) in your IDE to set up the mocks.
- *
- * <p>For example:
- * <blockquote><pre>
+ * Note that because of the 'fluent' API offered by this class (and related classes), you
+ * can typically use the Code Completion features (i.e. ctrl-space) in your IDE to set up
+ * the mocks.
+ * <p>
+ * For example: <pre><code class="java">
  * import org.junit.*;
  * import org.springframework.beans.factory.annotation.Autowired;
  * import org.springframework.context.ApplicationContext;
@@ -62,7 +67,7 @@ import org.springframework.ws.transport.WebServiceMessageReceiver;
  * <strong>import org.springframework.ws.test.server.MockWebServiceClient</strong>;
  * <strong>import static org.springframework.ws.test.server.RequestCreators.*</strong>;
  * <strong>import static org.springframework.ws.test.server.ResponseMatchers.*</strong>;
- * 
+ *
  * &#064;RunWith(SpringJUnit4ClassRunner.class)
  * &#064;ContextConfiguration("applicationContext.xml")
  * public class MyWebServiceIntegrationTest {
@@ -93,14 +98,13 @@ import org.springframework.ws.transport.WebServiceMessageReceiver;
  *
  *	   <strong>mockClient.sendRequest(withPayload(requestPayload)).andExpect(payload(expectedResponsePayload))</strong>;
  *	 }
- * }
- * </pre></blockquote>
+ * }</code></pre>
  *
  * @author Arjen Poutsma
  * @author Lukas Krecan
  * @since 2.0
  */
-public class MockWebServiceClient {
+public final class MockWebServiceClient {
 
 	private static final Log logger = LogFactory.getLog(MockWebServiceClient.class);
 
@@ -120,30 +124,31 @@ public class MockWebServiceClient {
 	// Factory methods
 
 	/**
-	 * Creates a {@code MockWebServiceClient} instance based on the given {@link WebServiceMessageReceiver} and {@link
-	 * WebServiceMessageFactory}.
-	 *
-	 * @param messageReceiver the message receiver, typically a {@link SoapMessageDispatcher}
-	 * @param messageFactory  the message factory
+	 * Creates a {@code MockWebServiceClient} instance based on the given
+	 * {@link WebServiceMessageReceiver} and {@link WebServiceMessageFactory}.
+	 * @param messageReceiver the message receiver, typically a
+	 * {@link SoapMessageDispatcher}
+	 * @param messageFactory the message factory
 	 * @return the created client
 	 */
 	public static MockWebServiceClient createClient(WebServiceMessageReceiver messageReceiver,
-													WebServiceMessageFactory messageFactory) {
+			WebServiceMessageFactory messageFactory) {
 		return new MockWebServiceClient(messageReceiver, messageFactory);
 	}
 
 	/**
-	 * Creates a {@code MockWebServiceClient} instance based on the given {@link ApplicationContext}.
-	 *
-	 * This factory method works in a similar fashion as the standard
-	 * {@link org.springframework.ws.transport.http.MessageDispatcherServlet MessageDispatcherServlet}. That is:
+	 * Creates a {@code MockWebServiceClient} instance based on the given
+	 * {@link ApplicationContext}. This factory method works in a similar fashion as the
+	 * standard {@link org.springframework.ws.transport.http.MessageDispatcherServlet
+	 * MessageDispatcherServlet}. That is:
 	 * <ul>
-	 * <li>If a {@link WebServiceMessageReceiver} is configured in the given application context, it will use that.
-	 * If no message receiver is configured, it will create a default {@link SoapMessageDispatcher}.</li>
-	 * <li>If a {@link WebServiceMessageFactory} is configured in the given application context, it will use that.
-	 * If no message factory is configured, it will create a default {@link SaajSoapMessageFactory}.</li>
+	 * <li>If a {@link WebServiceMessageReceiver} is configured in the given application
+	 * context, it will use that. If no message receiver is configured, it will create a
+	 * default {@link SoapMessageDispatcher}.</li>
+	 * <li>If a {@link WebServiceMessageFactory} is configured in the given application
+	 * context, it will use that. If no message factory is configured, it will create a
+	 * default {@link SaajSoapMessageFactory}.</li>
 	 * </ul>
-	 *
 	 * @param applicationContext the application context to base the client on
 	 * @return the created client
 	 */
@@ -152,19 +157,18 @@ public class MockWebServiceClient {
 
 		MockStrategiesHelper strategiesHelper = new MockStrategiesHelper(applicationContext);
 
-		WebServiceMessageReceiver messageReceiver =
-				strategiesHelper.getStrategy(WebServiceMessageReceiver.class, SoapMessageDispatcher.class);
-		WebServiceMessageFactory messageFactory =
-				strategiesHelper.getStrategy(WebServiceMessageFactory.class, SaajSoapMessageFactory.class);
+		WebServiceMessageReceiver messageReceiver = strategiesHelper.getStrategy(WebServiceMessageReceiver.class,
+				SoapMessageDispatcher.class);
+		WebServiceMessageFactory messageFactory = strategiesHelper.getStrategy(WebServiceMessageFactory.class,
+				SaajSoapMessageFactory.class);
 		return new MockWebServiceClient(messageReceiver, messageFactory);
 	}
 
 	// Sending
 
 	/**
-	 * Sends a request message by using the given {@link RequestCreator}. Typically called by using the default request
-	 * creators provided by {@link RequestCreators}.
-	 *
+	 * Sends a request message by using the given {@link RequestCreator}. Typically called
+	 * by using the default request creators provided by {@link RequestCreators}.
 	 * @param requestCreator the request creator
 	 * @return the response actions
 	 * @see RequestCreators
@@ -172,23 +176,23 @@ public class MockWebServiceClient {
 	public ResponseActions sendRequest(RequestCreator requestCreator) {
 		Assert.notNull(requestCreator, "'requestCreator' must not be null");
 		try {
-			WebServiceMessage request = requestCreator.createRequest(messageFactory);
-			MessageContext messageContext = new DefaultMessageContext(request, messageFactory);
+			WebServiceMessage request = requestCreator.createRequest(this.messageFactory);
+			MessageContext messageContext = new DefaultMessageContext(request, this.messageFactory);
 
-			messageReceiver.receive(messageContext);
+			this.messageReceiver.receive(messageContext);
 
 			return new MockWebServiceClientResponseActions(messageContext);
 		}
 		catch (Exception ex) {
 			logger.error("Could not send request", ex);
-			fail(ex.getMessage());
+			AssertionErrors.fail(ex.getMessage());
 			return null;
 		}
 	}
 
 	// ResponseActions
 
-	private static class MockWebServiceClientResponseActions implements ResponseActions {
+	private static final class MockWebServiceClientResponseActions implements ResponseActions {
 
 		private final MessageContext messageContext;
 
@@ -199,10 +203,10 @@ public class MockWebServiceClient {
 
 		@Override
 		public ResponseActions andExpect(ResponseMatcher responseMatcher) {
-			WebServiceMessage request = messageContext.getRequest();
-			WebServiceMessage response = messageContext.getResponse();
+			WebServiceMessage request = this.messageContext.getRequest();
+			WebServiceMessage response = this.messageContext.getResponse();
 			if (response == null) {
-				fail("No response received");
+				AssertionErrors.fail("No response received");
 				return null;
 			}
 			try {
@@ -211,11 +215,11 @@ public class MockWebServiceClient {
 			}
 			catch (IOException ex) {
 				logger.error("Could not match request", ex);
-				fail(ex.getMessage());
+				AssertionErrors.fail(ex.getMessage());
 				return null;
 			}
 		}
-	}
 
+	}
 
 }

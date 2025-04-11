@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,10 +26,12 @@ import org.springframework.ws.soap.addressing.version.AddressingVersion;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
-public class AddressingInterceptor10Test extends AbstractAddressingInterceptorTestCase {
+public class AddressingInterceptor10Test extends AbstractAddressingInterceptorTest {
 
 	@Override
 	protected AddressingVersion getVersion() {
@@ -42,18 +44,22 @@ public class AddressingInterceptor10Test extends AbstractAddressingInterceptorTe
 	}
 
 	public void testNoTo() throws Exception {
+
 		SaajSoapMessage valid = loadSaajMessage(getTestPath() + "/request-no-to.xml");
-		MessageContext context = new DefaultMessageContext(valid, new SaajSoapMessageFactory(messageFactory));
+		MessageContext context = new DefaultMessageContext(valid, new SaajSoapMessageFactory(this.messageFactory));
 		URI messageId = new URI("uid:1234");
-		expect(strategyMock.newMessageId((SoapMessage) context.getResponse())).andReturn(messageId);
-		replay(strategyMock);
-		boolean result = interceptor.handleResponse(context, null);
-		assertTrue("Request with no To not handled", result);
-		assertTrue("Message Context has no response", context.hasResponse());
+		expect(this.strategyMock.newMessageId((SoapMessage) context.getResponse())).andReturn(messageId);
+		replay(this.strategyMock);
+		boolean result = this.interceptor.handleResponse(context, null);
+
+		assertThat(result).isTrue();
+		assertThat(context.hasResponse()).isTrue();
+
 		SaajSoapMessage expectedResponse = loadSaajMessage(getTestPath() + "/response-anonymous.xml");
-		assertXMLEqual("Invalid response for message with invalid MAP", expectedResponse,
-				(SaajSoapMessage) context.getResponse());
-		verify(strategyMock);
+
+		assertXMLSimilar(expectedResponse, (SaajSoapMessage) context.getResponse());
+
+		verify(this.strategyMock);
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,24 @@ package org.springframework.ws.client.core;
 
 import java.io.IOException;
 import java.net.URI;
+
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.AbstractThrowableAssert;
+import org.assertj.core.api.AssertProvider;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.oxm.Marshaller;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.ws.MockWebServiceMessage;
 import org.springframework.ws.MockWebServiceMessageFactory;
 import org.springframework.ws.WebServiceMessage;
+import org.springframework.ws.client.WebServiceClientException;
 import org.springframework.ws.client.WebServiceTransportException;
 import org.springframework.ws.client.support.destination.DestinationProvider;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
@@ -40,8 +47,16 @@ import org.springframework.ws.transport.WebServiceMessageSender;
 import org.springframework.xml.transform.StringResult;
 import org.springframework.xml.transform.StringSource;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class WebServiceTemplateTest {
@@ -52,452 +67,635 @@ public class WebServiceTemplateTest {
 
 	private MockWebServiceMessageFactory messageFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		messageFactory = new MockWebServiceMessageFactory();
-		template = new WebServiceTemplate(messageFactory);
-		connectionMock = createMock(FaultAwareWebServiceConnection.class);
+
+		this.messageFactory = new MockWebServiceMessageFactory();
+		this.template = new WebServiceTemplate(this.messageFactory);
+		this.connectionMock = mock(FaultAwareWebServiceConnection.class);
 		final URI expectedUri = new URI("http://www.springframework.org/spring-ws");
-		expect(connectionMock.getUri()).andReturn(expectedUri).anyTimes();
-		template.setMessageSender(new WebServiceMessageSender() {
+		when(this.connectionMock.getUri()).thenReturn(expectedUri);
+		this.template.setMessageSender(new WebServiceMessageSender() {
 
 			@Override
-			public WebServiceConnection createConnection(URI uri) throws IOException {
-				return connectionMock;
+			public WebServiceConnection createConnection(URI uri) {
+				return WebServiceTemplateTest.this.connectionMock;
 			}
 
 			@Override
 			public boolean supports(URI uri) {
-				assertEquals("Invalid uri", expectedUri, uri);
+
+				assertThat(uri).isEqualTo(expectedUri);
 				return true;
 			}
 		});
-		template.setDefaultUri(expectedUri.toString());
+
+		this.template.setDefaultUri(expectedUri.toString());
 	}
 
 	@Test
 	public void testMarshalAndSendNoMarshallerSet() throws Exception {
-		connectionMock.close();
 
-		replay(connectionMock);
+		this.connectionMock.close();
 
-		template.setMarshaller(null);
-		try {
-			template.marshalSendAndReceive(new Object());
-			fail("IllegalStateException expected");
-		}
-		catch (IllegalStateException ex) {
-			// expected behavior
-		}
+		this.template.setMarshaller(null);
 
-		verify(connectionMock);
+		assertThatIllegalStateException().isThrownBy(() -> this.template.marshalSendAndReceive(new Object()));
 	}
 
 	@Test
 	public void testMarshalAndSendNoUnmarshallerSet() throws Exception {
-		connectionMock.close();
 
-		replay(connectionMock);
+		this.connectionMock.close();
 
-		template.setUnmarshaller(null);
-		try {
-			template.marshalSendAndReceive(new Object());
-			fail("IllegalStateException expected");
-		}
-		catch (IllegalStateException ex) {
-			// expected behavior
-		}
-
-		verify(connectionMock);
+		this.template.setUnmarshaller(null);
+		assertThatIllegalStateException().isThrownBy(() -> this.template.marshalSendAndReceive(new Object()));
 	}
 
 	@Test
 	public void testSendAndReceiveMessageResponse() throws Exception {
-		WebServiceMessageCallback requestCallback = createMock(WebServiceMessageCallback.class);
+
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
 		requestCallback.doWithMessage(isA(WebServiceMessage.class));
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 		Object extracted = new Object();
-		expect(extractorMock.extractData(isA(WebServiceMessage.class))).andReturn(extracted);
+		when(extractorMock.extractData(isA(WebServiceMessage.class))).thenReturn(extracted);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
-		replay(connectionMock, requestCallback, extractorMock);
+		Object result = this.template.sendAndReceive(requestCallback, extractorMock);
 
-		Object result = template.sendAndReceive(requestCallback, extractorMock);
-		assertEquals("Invalid response", extracted, result);
-
-		verify(connectionMock, requestCallback, extractorMock);
+		assertThat(result).isEqualTo(extracted);
 	}
 
 	@Test
 	public void testSendAndReceiveMessageNoResponse() throws Exception {
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(null);
-		connectionMock.close();
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 
-		replay(connectionMock, extractorMock);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(null);
+		this.connectionMock.close();
 
-		Object result = template.sendAndReceive(null, extractorMock);
-		assertNull("Invalid response", result);
+		Object result = this.template.sendAndReceive(null, extractorMock);
 
-		verify(connectionMock, extractorMock);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public void testSendAndReceiveMessageFault() throws Exception {
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
 
-		FaultMessageResolver faultMessageResolverMock = createMock(FaultMessageResolver.class);
-		template.setFaultMessageResolver(faultMessageResolverMock);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
+
+		FaultMessageResolver faultMessageResolverMock = mock(FaultMessageResolver.class);
+		this.template.setFaultMessageResolver(faultMessageResolverMock);
 		faultMessageResolverMock.resolveFault(isA(WebServiceMessage.class));
 
 		MockWebServiceMessage response = new MockWebServiceMessage("<response/>");
 		response.setFault(true);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.hasFault()).andReturn(true);
-		expect(connectionMock.receive(messageFactory)).andReturn(response);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.hasFault()).thenReturn(true);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(response);
+		this.connectionMock.close();
 
-		replay(connectionMock, extractorMock, faultMessageResolverMock);
+		Object result = this.template.sendAndReceive(null, extractorMock);
 
-		Object result = template.sendAndReceive(null, extractorMock);
-		assertNull("Invalid response", result);
-
-		verify(connectionMock, extractorMock, faultMessageResolverMock);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public void testSendAndReceiveConnectionError() throws Exception {
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
 
-		template.setFaultMessageResolver(null);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(true);
-		expect(connectionMock.hasFault()).andReturn(false);
+		this.template.setFaultMessageResolver(null);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(true);
+		when(this.connectionMock.hasFault()).thenReturn(false);
 		String errorMessage = "errorMessage";
-		expect(connectionMock.getErrorMessage()).andReturn(errorMessage);
-		connectionMock.close();
+		when(this.connectionMock.getErrorMessage()).thenReturn(errorMessage);
+		this.connectionMock.close();
 
-		replay(connectionMock, extractorMock);
-
-		try {
-			template.sendAndReceive(null, extractorMock);
-			fail("Expected WebServiceTransportException");
-		}
-		catch (WebServiceTransportException ex) {
-			//expected
-			assertEquals("Invalid exception message", errorMessage, ex.getMessage());
-		}
-
-		verify(connectionMock, extractorMock);
+		assertThatExceptionOfType(WebServiceTransportException.class)
+			.isThrownBy(() -> this.template.sendAndReceive(null, extractorMock))
+			.withMessage(errorMessage);
 	}
 
 	@Test
 	public void testSendAndReceiveSourceResponse() throws Exception {
-		SourceExtractor extractorMock = createMock(SourceExtractor.class);
+
+		SourceExtractor extractorMock = mock(SourceExtractor.class);
 		Object extracted = new Object();
-		expect(extractorMock.extractData(isA(Source.class))).andReturn(extracted);
+		when(extractorMock.extractData(isA(Source.class))).thenReturn(extracted);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
-		replay(connectionMock, extractorMock);
+		Object result = this.template.sendSourceAndReceive(new StringSource("<request />"), extractorMock);
 
-		Object result = template.sendSourceAndReceive(new StringSource("<request />"), extractorMock);
-		assertEquals("Invalid response", extracted, result);
-
-		verify(connectionMock, extractorMock);
+		assertThat(result).isEqualTo(extracted);
 	}
 
 	@Test
 	public void testSendAndReceiveSourceNoResponse() throws Exception {
-		SourceExtractor extractorMock = createMock(SourceExtractor.class);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(null);
-		connectionMock.close();
+		SourceExtractor extractorMock = mock(SourceExtractor.class);
 
-		replay(connectionMock, extractorMock);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(null);
+		this.connectionMock.close();
 
-		Object result = template.sendSourceAndReceive(new StringSource("<request />"), extractorMock);
-		assertNull("Invalid response", result);
+		Object result = this.template.sendSourceAndReceive(new StringSource("<request />"), extractorMock);
 
-		verify(connectionMock, extractorMock);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public void testSendAndReceiveResultResponse() throws Exception {
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
 
-		replay(connectionMock);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
 		StringResult result = new StringResult();
-		boolean b = template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
-		assertTrue("Invalid result", b);
+		boolean b = this.template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
 
-		verify(connectionMock);
+		assertThat(b).isTrue();
 	}
 
 	@Test
 	public void testSendAndReceiveResultNoResponse() throws Exception {
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(null);
-		connectionMock.close();
 
-		replay(connectionMock);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(null);
+		this.connectionMock.close();
 
 		StringResult result = new StringResult();
-		boolean b = template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
-		assertFalse("Invalid result", b);
+		boolean b = this.template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
 
-		verify(connectionMock);
+		assertThat(b).isFalse();
 	}
 
 	@Test
 	public void testSendAndReceiveResultNoResponsePayload() throws Exception {
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		WebServiceMessage response = createMock(WebServiceMessage.class);
-		expect(connectionMock.receive(messageFactory)).andReturn(response);
-		expect(connectionMock.hasFault()).andReturn(false);
-		expect(response.getPayloadSource()).andReturn(null);
-		connectionMock.close();
 
-		replay(connectionMock, response);
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		WebServiceMessage response = mock(WebServiceMessage.class);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(response);
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		when(response.getPayloadSource()).thenReturn(null);
+		this.connectionMock.close();
 
 		StringResult result = new StringResult();
-		boolean b = template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
-		assertTrue("Invalid result", b);
+		boolean b = this.template.sendSourceAndReceiveToResult(new StringSource("<request />"), result);
 
-		verify(connectionMock, response);
+		assertThat(b).isTrue();
 	}
-
 
 	@Test
 	public void testSendAndReceiveMarshalResponse() throws Exception {
-		Marshaller marshallerMock = createMock(Marshaller.class);
-		template.setMarshaller(marshallerMock);
+
+		Marshaller marshallerMock = mock(Marshaller.class);
+		this.template.setMarshaller(marshallerMock);
 		marshallerMock.marshal(isA(Object.class), isA(Result.class));
 
-		Unmarshaller unmarshallerMock = createMock(Unmarshaller.class);
-		template.setUnmarshaller(unmarshallerMock);
+		Unmarshaller unmarshallerMock = mock(Unmarshaller.class);
+		this.template.setUnmarshaller(unmarshallerMock);
 		Object unmarshalled = new Object();
-		expect(unmarshallerMock.unmarshal(isA(Source.class))).andReturn(unmarshalled);
+		when(unmarshallerMock.unmarshal(isA(Source.class))).thenReturn(unmarshalled);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
-		replay(connectionMock, marshallerMock, unmarshallerMock);
+		Object result = this.template.marshalSendAndReceive(new Object());
 
-		Object result = template.marshalSendAndReceive(new Object());
-		assertEquals("Invalid result", unmarshalled, result);
-
-		verify(connectionMock, marshallerMock, unmarshallerMock);
+		assertThat(result).isEqualTo(unmarshalled);
 	}
 
 	@Test
 	public void testSendAndReceiveMarshalNoResponse() throws Exception {
-		Marshaller marshallerMock = createMock(Marshaller.class);
-		template.setMarshaller(marshallerMock);
+
+		Marshaller marshallerMock = mock(Marshaller.class);
+		this.template.setMarshaller(marshallerMock);
 		marshallerMock.marshal(isA(Object.class), isA(Result.class));
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(null);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(null);
+		this.connectionMock.close();
 
-		replay(connectionMock, marshallerMock);
+		Object result = this.template.marshalSendAndReceive(new Object());
 
-		Object result = template.marshalSendAndReceive(new Object());
-		assertNull("Invalid result", result);
-
-		verify(connectionMock, marshallerMock);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public void testSendAndReceiveCustomUri() throws Exception {
+
 		final URI customUri = new URI("http://www.springframework.org/spring-ws/custom");
-		template.setMessageSender(new WebServiceMessageSender() {
+		this.template.setMessageSender(new WebServiceMessageSender() {
 
 			@Override
-			public WebServiceConnection createConnection(URI uri) throws IOException {
-				return connectionMock;
+			public WebServiceConnection createConnection(URI uri) {
+				return WebServiceTemplateTest.this.connectionMock;
 			}
 
 			@Override
 			public boolean supports(URI uri) {
-				assertEquals("Invalid uri", customUri, uri);
+
+				assertThat(uri).isEqualTo(customUri);
 				return true;
 			}
 		});
-		WebServiceMessageCallback requestCallback = createMock(WebServiceMessageCallback.class);
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
 		requestCallback.doWithMessage(isA(WebServiceMessage.class));
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 		Object extracted = new Object();
-		expect(extractorMock.extractData(isA(WebServiceMessage.class))).andReturn(extracted);
+		when(extractorMock.extractData(isA(WebServiceMessage.class))).thenReturn(extracted);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
-		replay(connectionMock, requestCallback, extractorMock);
+		Object result = this.template.sendAndReceive(customUri.toString(), requestCallback, extractorMock);
 
-		Object result = template.sendAndReceive(customUri.toString(), requestCallback, extractorMock);
-		assertEquals("Invalid response", extracted, result);
-
-		verify(connectionMock, requestCallback, extractorMock);
+		assertThat(result).isEqualTo(extracted);
 	}
 
 	@Test
 	public void testInterceptors() throws Exception {
-		ClientInterceptor interceptorMock1 = createStrictMock("interceptor1", ClientInterceptor.class);
-		ClientInterceptor interceptorMock2 = createStrictMock("interceptor2", ClientInterceptor.class);
-		template.setInterceptors(new ClientInterceptor[]{interceptorMock1, interceptorMock2});
-		expect(interceptorMock1.handleRequest(isA(MessageContext.class))).andReturn(true);
-		expect(interceptorMock2.handleRequest(isA(MessageContext.class))).andReturn(true);
-		expect(interceptorMock2.handleResponse(isA(MessageContext.class))).andReturn(true);
-		expect(interceptorMock1.handleResponse(isA(MessageContext.class))).andReturn(true);
-		interceptorMock2.afterCompletion(isA(MessageContext.class), (Exception)isNull());
-		interceptorMock1.afterCompletion(isA(MessageContext.class), (Exception)isNull());
 
-		WebServiceMessageCallback requestCallback = createMock(WebServiceMessageCallback.class);
+		ClientInterceptor interceptorMock1 = mock(ClientInterceptor.class);
+		ClientInterceptor interceptorMock2 = mock(ClientInterceptor.class);
+		this.template.setInterceptors(new ClientInterceptor[] { interceptorMock1, interceptorMock2 });
+		when(interceptorMock1.handleRequest(isA(MessageContext.class))).thenReturn(true);
+		when(interceptorMock2.handleRequest(isA(MessageContext.class))).thenReturn(true);
+		when(interceptorMock2.handleResponse(isA(MessageContext.class))).thenReturn(true);
+		when(interceptorMock1.handleResponse(isA(MessageContext.class))).thenReturn(true);
+		interceptorMock2.afterCompletion(isA(MessageContext.class), isNull());
+		interceptorMock1.afterCompletion(isA(MessageContext.class), isNull());
+
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
 		requestCallback.doWithMessage(isA(WebServiceMessage.class));
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 		Object extracted = new Object();
-		expect(extractorMock.extractData(isA(WebServiceMessage.class))).andReturn(extracted);
+		when(extractorMock.extractData(isA(WebServiceMessage.class))).thenReturn(extracted);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(new MockWebServiceMessage("<response/>"));
-		expect(connectionMock.hasFault()).andReturn(false);
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
 
-		replay(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		Object result = this.template.sendAndReceive(requestCallback, extractorMock);
 
-		Object result = template.sendAndReceive(requestCallback, extractorMock);
-		assertEquals("Invalid response", extracted, result);
-
-		verify(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		assertThat(result).isEqualTo(extracted);
 	}
 
 	@Test
 	public void testInterceptorsInterceptedNoResponse() throws Exception {
-		MessageContext messageContext = new DefaultMessageContext(messageFactory);
 
-		ClientInterceptor interceptorMock1 = createStrictMock("interceptor1", ClientInterceptor.class);
-		ClientInterceptor interceptorMock2 = createStrictMock("interceptor2", ClientInterceptor.class);
-		template.setInterceptors(new ClientInterceptor[]{interceptorMock1, interceptorMock2});
-		expect(interceptorMock1.handleRequest(isA(MessageContext.class))).andReturn(false);
-		interceptorMock1.afterCompletion(isA(MessageContext.class), (Exception)isNull());
+		MessageContext messageContext = new DefaultMessageContext(this.messageFactory);
 
-		WebServiceMessageCallback requestCallback = createMock(WebServiceMessageCallback.class);
+		ClientInterceptor interceptorMock1 = mock(ClientInterceptor.class);
+		ClientInterceptor interceptorMock2 = mock(ClientInterceptor.class);
+		this.template.setInterceptors(new ClientInterceptor[] { interceptorMock1, interceptorMock2 });
+		when(interceptorMock1.handleRequest(isA(MessageContext.class))).thenReturn(false);
+		interceptorMock1.afterCompletion(isA(MessageContext.class), isNull());
+
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
 		requestCallback.doWithMessage(messageContext.getRequest());
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 
-		replay(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		Object result = this.template.doSendAndReceive(messageContext, this.connectionMock, requestCallback,
+				extractorMock);
 
-		Object result = template.doSendAndReceive(messageContext, connectionMock, requestCallback, extractorMock);
-		assertNull(result);
-
-		verify(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public void testInterceptorsInterceptedCreateResponse() throws Exception {
-		MessageContext messageContext = new DefaultMessageContext(messageFactory);
+
+		MessageContext messageContext = new DefaultMessageContext(this.messageFactory);
 		// force creation of response
 		messageContext.getResponse();
 
-		ClientInterceptor interceptorMock1 = createStrictMock("interceptor1", ClientInterceptor.class);
-		ClientInterceptor interceptorMock2 = createStrictMock("interceptor2", ClientInterceptor.class);
-		template.setInterceptors(new ClientInterceptor[]{interceptorMock1, interceptorMock2});
-		expect(interceptorMock1.handleRequest(isA(MessageContext.class))).andReturn(false);
-		expect(interceptorMock1.handleResponse(isA(MessageContext.class))).andReturn(true);
-		interceptorMock1.afterCompletion(isA(MessageContext.class), (Exception)isNull());
+		ClientInterceptor interceptorMock1 = mock(ClientInterceptor.class);
+		ClientInterceptor interceptorMock2 = mock(ClientInterceptor.class);
+		this.template.setInterceptors(new ClientInterceptor[] { interceptorMock1, interceptorMock2 });
+		when(interceptorMock1.handleRequest(isA(MessageContext.class))).thenReturn(false);
+		when(interceptorMock1.handleResponse(isA(MessageContext.class))).thenReturn(true);
+		interceptorMock1.afterCompletion(isA(MessageContext.class), isNull());
 
-		WebServiceMessageCallback requestCallback = createMock(WebServiceMessageCallback.class);
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
 		requestCallback.doWithMessage(messageContext.getRequest());
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 		Object extracted = new Object();
-		expect(extractorMock.extractData(messageContext.getResponse())).andReturn(extracted);
+		when(extractorMock.extractData(messageContext.getResponse())).thenReturn(extracted);
 
-		expect(connectionMock.hasFault()).andReturn(false);
+		when(this.connectionMock.hasFault()).thenReturn(false);
 
-		replay(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		Object result = this.template.doSendAndReceive(messageContext, this.connectionMock, requestCallback,
+				extractorMock);
 
-		Object result = template.doSendAndReceive(messageContext, connectionMock, requestCallback, extractorMock);
-		assertEquals("Invalid response", extracted, result);
-
-		verify(connectionMock, interceptorMock1, interceptorMock2, requestCallback, extractorMock);
+		assertThat(result).isEqualTo(extracted);
 	}
-	
+
+	@Test
+	void afterCompletionInvokedOnlyOnceWithSuccess() throws Exception {
+		NoOpClientInterceptor clientInterceptor1 = new NoOpClientInterceptor();
+		NoOpClientInterceptor clientInterceptor2 = new NoOpClientInterceptor();
+		this.template.setInterceptors(new ClientInterceptor[] { clientInterceptor1, clientInterceptor2 });
+
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
+		requestCallback.doWithMessage(any(WebServiceMessage.class));
+		Object extracted = new Object();
+		WebServiceMessageExtractor<Object> extract = createSimpleExtractor(extracted);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
+
+		Object result = this.template.sendAndReceive(requestCallback, extract);
+
+		assertThat(result).isEqualTo(extracted);
+		assertThat(clientInterceptor1).hasHandledExchange();
+		assertThat(clientInterceptor2).hasHandledExchange();
+	}
+
+	@Test
+	void afterCompletionInvokedOnlyOnceWitFailureInAfterCompletion() throws Exception {
+		IllegalStateException testException = new IllegalStateException("test");
+		NoOpClientInterceptor clientInterceptor1 = new NoOpClientInterceptor() {
+			@Override
+			public void afterCompletion(MessageContext messageContext, Exception ex) throws WebServiceClientException {
+				super.afterCompletion(messageContext, ex);
+				throw testException;
+			}
+		};
+		NoOpClientInterceptor clientInterceptor2 = new NoOpClientInterceptor();
+		this.template.setInterceptors(new ClientInterceptor[] { clientInterceptor1, clientInterceptor2 });
+
+		WebServiceMessageCallback requestCallback = mock(WebServiceMessageCallback.class);
+		requestCallback.doWithMessage(any(WebServiceMessage.class));
+		Object extracted = new Object();
+		WebServiceMessageExtractor<Object> extract = createSimpleExtractor(extracted);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(new MockWebServiceMessage("<response/>"));
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		this.connectionMock.close();
+
+		Object result = this.template.sendAndReceive(requestCallback, extract);
+
+		assertThat(result).isEqualTo(extracted);
+		assertThat(clientInterceptor1).hasHandledExchange().hasNoCompletionException();
+		assertThat(clientInterceptor2).hasHandledExchange().hasNoCompletionException();
+	}
+
+	@Test
+	void afterCompletionInvokedOnlyOnceWithError() throws Exception {
+		NoOpClientInterceptor clientInterceptor1 = new NoOpClientInterceptor();
+		NoOpClientInterceptor clientInterceptor2 = new NoOpClientInterceptor();
+		this.template.setInterceptors(new ClientInterceptor[] { clientInterceptor1, clientInterceptor2 });
+
+		Object extracted = new Object();
+		WebServiceMessageExtractor<Object> extract = createSimpleExtractor(extracted);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(true);
+		when(this.connectionMock.hasFault()).thenReturn(false);
+		String errorMessage = "errorMessage";
+		when(this.connectionMock.getErrorMessage()).thenReturn(errorMessage);
+		this.connectionMock.close();
+
+		assertThatExceptionOfType(WebServiceTransportException.class)
+			.isThrownBy(() -> this.template.sendAndReceive(null, extract))
+			.satisfies(exception -> {
+				assertThat(clientInterceptor1).hasHandledError().completionException().isSameAs(exception);
+				assertThat(clientInterceptor2).hasHandledError().completionException().isSameAs(exception);
+			});
+	}
+
+	@Test
+	void afterCompletionInvokedOnlyOnceWithFault() throws Exception {
+		NoOpClientInterceptor clientInterceptor1 = new NoOpClientInterceptor();
+		NoOpClientInterceptor clientInterceptor2 = new NoOpClientInterceptor();
+		this.template.setInterceptors(new ClientInterceptor[] { clientInterceptor1, clientInterceptor2 });
+		this.template.setFaultMessageResolver(null);
+
+		WebServiceMessageExtractor<Object> extractorMock = createSimpleExtractor(new Object());
+		MockWebServiceMessage response = new MockWebServiceMessage("<response/>");
+		response.setFault(true);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.hasFault()).thenReturn(true);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(response);
+		this.connectionMock.close();
+
+		assertThatExceptionOfType(WebServiceTransportException.class)
+			.isThrownBy(() -> this.template.sendAndReceive(null, extractorMock))
+			.satisfies(exception -> {
+				assertThat(clientInterceptor1).hasHandledFault().completionException().isSameAs(exception);
+				assertThat(clientInterceptor2).hasHandledFault().completionException().isSameAs(exception);
+			});
+	}
+
+	@Test
+	void afterCompletionInvokedOnlyOnceWithFaultAndFaultMessageResolver() throws Exception {
+		NoOpClientInterceptor clientInterceptor1 = new NoOpClientInterceptor();
+		NoOpClientInterceptor clientInterceptor2 = new NoOpClientInterceptor();
+		this.template.setInterceptors(new ClientInterceptor[] { clientInterceptor1, clientInterceptor2 });
+
+		WebServiceMessageExtractor<Object> extractorMock = createSimpleExtractor(new Object());
+		FaultMessageResolver faultMessageResolverMock = mock(FaultMessageResolver.class);
+		faultMessageResolverMock.resolveFault(isA(WebServiceMessage.class));
+		this.template.setFaultMessageResolver(faultMessageResolverMock);
+
+		MockWebServiceMessage response = new MockWebServiceMessage("<response/>");
+		response.setFault(true);
+
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.hasFault()).thenReturn(true);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(response);
+		this.connectionMock.close();
+
+		this.template.sendAndReceive(null, extractorMock);
+		assertThat(clientInterceptor1).hasHandledFault().hasNoCompletionException();
+		assertThat(clientInterceptor2).hasHandledFault().hasNoCompletionException();
+	}
+
+	private <T> WebServiceMessageExtractor<T> createSimpleExtractor(T target) throws IOException, TransformerException {
+		WebServiceMessageExtractor<T> extractor = mock(WebServiceMessageExtractor.class);
+		given(extractor.extractData(any(WebServiceMessage.class))).willReturn(target);
+		return extractor;
+	}
+
 	@Test
 	public void testDestinationResolver() throws Exception {
-		DestinationProvider providerMock = createMock(DestinationProvider.class);
-		template.setDestinationProvider(providerMock);
-		final URI providerUri = new URI("http://www.springframework.org/spring-ws/destinationProvider");
-		expect(providerMock.getDestination()).andReturn(providerUri);
 
-		template.setMessageSender(new WebServiceMessageSender() {
+		DestinationProvider providerMock = mock(DestinationProvider.class);
+		this.template.setDestinationProvider(providerMock);
+		final URI providerUri = new URI("http://www.springframework.org/spring-ws/destinationProvider");
+		when(providerMock.getDestination()).thenReturn(providerUri);
+
+		this.template.setMessageSender(new WebServiceMessageSender() {
 
 			@Override
-			public WebServiceConnection createConnection(URI uri) throws IOException {
-				return connectionMock;
+			public WebServiceConnection createConnection(URI uri) {
+				return WebServiceTemplateTest.this.connectionMock;
 			}
 
 			@Override
 			public boolean supports(URI uri) {
-				assertEquals("Invalid uri", providerUri, uri);
+
+				assertThat(uri).isEqualTo(providerUri);
 				return true;
 			}
 		});
 
-		WebServiceMessageExtractor extractorMock = createMock(WebServiceMessageExtractor.class);
+		WebServiceMessageExtractor extractorMock = mock(WebServiceMessageExtractor.class);
 
-		reset(connectionMock);
+		reset(this.connectionMock);
 
-		connectionMock.send(isA(WebServiceMessage.class));
-		expect(connectionMock.hasError()).andReturn(false);
-		expect(connectionMock.receive(messageFactory)).andReturn(null);
-//		expect(connectionMock.getUri()).andReturn(new URI("http://example.com"));
-		connectionMock.close();
+		this.connectionMock.send(isA(WebServiceMessage.class));
+		when(this.connectionMock.hasError()).thenReturn(false);
+		when(this.connectionMock.receive(this.messageFactory)).thenReturn(null);
+		when(this.connectionMock.getUri()).thenReturn(new URI("http://example.com"));
+		this.connectionMock.close();
 
-		replay(connectionMock, extractorMock, providerMock);
+		Object result = this.template.sendAndReceive(null, extractorMock);
 
-		Object result = template.sendAndReceive(null, extractorMock);
-		assertNull("Invalid response", result);
-
-		verify(connectionMock, extractorMock, providerMock);
+		assertThat(result).isNull();
 	}
 
+	private static class NoOpClientInterceptor
+			implements ClientInterceptor, AssertProvider<NoOpClientInterceptorAssert> {
+
+		private boolean handledRequest;
+
+		private boolean handledResponse;
+
+		private boolean handledFault;
+
+		private boolean afterCompletion;
+
+		private Exception afterCompletionException;
+
+		@Override
+		public boolean handleRequest(MessageContext messageContext) throws WebServiceClientException {
+			if (this.handledRequest) {
+				throw new IllegalStateException("handleRequest has already been called");
+			}
+			this.handledRequest = true;
+			return true;
+		}
+
+		@Override
+		public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
+			if (this.handledResponse) {
+				throw new IllegalStateException("handleResponse has already been called");
+			}
+			this.handledResponse = true;
+			return true;
+		}
+
+		@Override
+		public boolean handleFault(MessageContext messageContext) throws WebServiceClientException {
+			if (this.handledFault) {
+				throw new IllegalStateException("handleFault has already been called");
+			}
+			this.handledFault = true;
+			return true;
+		}
+
+		@Override
+		public void afterCompletion(MessageContext messageContext, Exception ex) throws WebServiceClientException {
+			if (this.afterCompletion) {
+				throw new IllegalStateException("afterCompletion has already been called");
+			}
+			this.afterCompletion = true;
+			this.afterCompletionException = ex;
+		}
+
+		@Override
+		public NoOpClientInterceptorAssert assertThat() {
+			return new NoOpClientInterceptorAssert(this);
+		}
+
+	}
+
+	private static class NoOpClientInterceptorAssert
+			extends AbstractObjectAssert<NoOpClientInterceptorAssert, NoOpClientInterceptor> {
+
+		NoOpClientInterceptorAssert(NoOpClientInterceptor actual) {
+			super(actual, NoOpClientInterceptorAssert.class);
+		}
+
+		NoOpClientInterceptorAssert hasHandledExchange() {
+			assertThat(this.actual.handledRequest).isTrue();
+			assertThat(this.actual.handledResponse).isTrue();
+			assertThat(this.actual.handledFault).isFalse();
+			assertThat(this.actual.afterCompletion).isTrue();
+			return this.myself;
+		}
+
+		NoOpClientInterceptorAssert hasHandledError() {
+			assertThat(this.actual.handledRequest).isTrue();
+			assertThat(this.actual.handledResponse).isFalse();
+			assertThat(this.actual.handledFault).isFalse();
+			assertThat(this.actual.afterCompletion).isTrue();
+			return this.myself;
+		}
+
+		NoOpClientInterceptorAssert hasHandledFault() {
+			assertThat(this.actual.handledRequest).isTrue();
+			assertThat(this.actual.handledResponse).isFalse();
+			assertThat(this.actual.handledFault).isTrue();
+			assertThat(this.actual.afterCompletion).isTrue();
+			return this.myself;
+		}
+
+		NoOpClientInterceptorAssert hasNoCompletionException() {
+			assertThat(this.actual.afterCompletionException).isNull();
+			return this.myself;
+		}
+
+		AbstractThrowableAssert<?, ? extends Exception> completionException() {
+			return Assertions.assertThat(this.actual.afterCompletionException);
+		}
+
+	}
 
 }

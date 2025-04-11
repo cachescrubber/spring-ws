@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,25 +19,30 @@ package org.springframework.xml.transform;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMSource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.springframework.xml.DocumentBuilderFactoryUtils;
 
-import static org.custommonkey.xmlunit.XMLAssert.*;
+import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class StringResultTest {
 
 	@Test
 	public void testStringResult() throws Exception {
+
 		Document document = DocumentBuilderFactoryUtils.newInstance().newDocumentBuilder().newDocument();
 		Element element = document.createElementNS("namespace", "prefix:localName");
 		document.appendChild(element);
+
 		Transformer transformer = TransformerFactoryUtils.newInstance().newTransformer();
 		StringResult result = new StringResult();
 		transformer.transform(new DOMSource(document), result);
-		assertXMLEqual("Invalid result", "<prefix:localName xmlns:prefix='namespace'/>", result.toString());
+
+		assertThat(result.toString()).and("<prefix:localName xmlns:prefix='namespace'/>")
+			.ignoreWhitespace()
+			.areIdentical();
 	}
 
 }

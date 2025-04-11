@@ -1,11 +1,11 @@
 /*
- * Copyright 2006 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,20 +19,20 @@ package org.springframework.ws.soap;
 import javax.xml.namespace.QName;
 
 /**
- * Interface that defines a specific version of the SOAP specification. Contains properties for elements that make up a
- * soap envelope.
+ * Interface that defines a specific version of the SOAP specification. Contains
+ * properties for elements that make up a soap envelope.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #SOAP_11
  * @see #SOAP_12
- * @since 1.0.0
  */
 public interface SoapVersion {
 
 	/**
 	 * Represents version 1.1 of the SOAP specification.
-	 *
-	 * @see <a href="http://www.w3.org/TR/2000/NOTE-SOAP-20000508/">SOAP 1.1 specification</a>
+	 * @see <a href="http://www.w3.org/TR/2000/NOTE-SOAP-20000508/">SOAP 1.1
+	 * specification</a>
 	 */
 	SoapVersion SOAP_11 = new SoapVersion() {
 
@@ -63,11 +63,11 @@ public interface SoapVersion {
 		private QName VERSION_MISMATCH_FAULT_NAME = new QName(ENVELOPE_NAMESPACE_URI, "VersionMismatch");
 
 		public QName getBodyName() {
-			return BODY_NAME;
+			return this.BODY_NAME;
 		}
 
 		public QName getEnvelopeName() {
-			return ENVELOPE_NAME;
+			return this.ENVELOPE_NAME;
 		}
 
 		public String getEnvelopeNamespaceUri() {
@@ -75,11 +75,11 @@ public interface SoapVersion {
 		}
 
 		public QName getFaultName() {
-			return FAULT_NAME;
+			return this.FAULT_NAME;
 		}
 
 		public QName getHeaderName() {
-			return HEADER_NAME;
+			return this.HEADER_NAME;
 		}
 
 		public String getNextActorOrRoleUri() {
@@ -91,7 +91,7 @@ public interface SoapVersion {
 		}
 
 		public QName getServerOrReceiverFaultName() {
-			return SERVER_FAULT_NAME;
+			return this.SERVER_FAULT_NAME;
 		}
 
 		public String getUltimateReceiverRoleUri() {
@@ -99,11 +99,11 @@ public interface SoapVersion {
 		}
 
 		public QName getActorOrRoleName() {
-			return ACTOR_NAME;
+			return this.ACTOR_NAME;
 		}
 
 		public QName getClientOrSenderFaultName() {
-			return CLIENT_FAULT_NAME;
+			return this.CLIENT_FAULT_NAME;
 		}
 
 		public String getContentType() {
@@ -111,15 +111,15 @@ public interface SoapVersion {
 		}
 
 		public QName getMustUnderstandAttributeName() {
-			return MUST_UNDERSTAND_ATTRIBUTE_NAME;
+			return this.MUST_UNDERSTAND_ATTRIBUTE_NAME;
 		}
 
 		public QName getMustUnderstandFaultName() {
-			return MUST_UNDERSTAND_FAULT_NAME;
+			return this.MUST_UNDERSTAND_FAULT_NAME;
 		}
 
 		public QName getVersionMismatchFaultName() {
-			return VERSION_MISMATCH_FAULT_NAME;
+			return this.VERSION_MISMATCH_FAULT_NAME;
 		}
 
 		public String toString() {
@@ -129,7 +129,6 @@ public interface SoapVersion {
 
 	/**
 	 * Represents version 1.2 of the SOAP specification.
-	 *
 	 * @see <a href="http://www.w3.org/TR/soap12-part0/">SOAP 1.2 specification</a>
 	 */
 	SoapVersion SOAP_12 = new SoapVersion() {
@@ -165,11 +164,11 @@ public interface SoapVersion {
 		private QName VERSION_MISMATCH_FAULT_NAME = new QName(ENVELOPE_NAMESPACE_URI, "VersionMismatch");
 
 		public QName getBodyName() {
-			return BODY_NAME;
+			return this.BODY_NAME;
 		}
 
 		public QName getEnvelopeName() {
-			return ENVELOPE_NAME;
+			return this.ENVELOPE_NAME;
 		}
 
 		public String getEnvelopeNamespaceUri() {
@@ -177,11 +176,11 @@ public interface SoapVersion {
 		}
 
 		public QName getFaultName() {
-			return FAULT_NAME;
+			return this.FAULT_NAME;
 		}
 
 		public QName getHeaderName() {
-			return HEADER_NAME;
+			return this.HEADER_NAME;
 		}
 
 		public String getNextActorOrRoleUri() {
@@ -193,7 +192,7 @@ public interface SoapVersion {
 		}
 
 		public QName getServerOrReceiverFaultName() {
-			return RECEIVER_FAULT_NAME;
+			return this.RECEIVER_FAULT_NAME;
 		}
 
 		public String getUltimateReceiverRoleUri() {
@@ -201,11 +200,11 @@ public interface SoapVersion {
 		}
 
 		public QName getActorOrRoleName() {
-			return ROLE_NAME;
+			return this.ROLE_NAME;
 		}
 
 		public QName getClientOrSenderFaultName() {
-			return SENDER_FAULT_NAME;
+			return this.SENDER_FAULT_NAME;
 		}
 
 		public String getContentType() {
@@ -213,15 +212,15 @@ public interface SoapVersion {
 		}
 
 		public QName getMustUnderstandAttributeName() {
-			return MUST_UNDERSTAND_ATTRIBUTE_NAME;
+			return this.MUST_UNDERSTAND_ATTRIBUTE_NAME;
 		}
 
 		public QName getMustUnderstandFaultName() {
-			return MUST_UNDERSTAND_FAULT_NAME;
+			return this.MUST_UNDERSTAND_FAULT_NAME;
 		}
 
 		public QName getVersionMismatchFaultName() {
-			return VERSION_MISMATCH_FAULT_NAME;
+			return this.VERSION_MISMATCH_FAULT_NAME;
 		}
 
 		public String toString() {
@@ -252,12 +251,15 @@ public interface SoapVersion {
 	QName getMustUnderstandAttributeName();
 
 	/**
-	 * Returns the URI indicating that a header element is intended for the next SOAP application that processes the
-	 * message.
+	 * Returns the URI indicating that a header element is intended for the next SOAP
+	 * application that processes the message.
 	 */
 	String getNextActorOrRoleUri();
 
-	/** Returns the URI indicating that a header element should never be directly processed. */
+	/**
+	 * Returns the URI indicating that a header element should never be directly
+	 * processed.
+	 */
 	String getNoneActorOrRoleUri();
 
 	/** Returns the qualified name of the {@code MustUnderstand} SOAP Fault value. */
@@ -276,8 +278,9 @@ public interface SoapVersion {
 	QName getClientOrSenderFaultName();
 
 	/**
-	 * Returns the URI indicating that a header element should only be processed by nodes acting as the ultimate
-	 * receiver of a message.
+	 * Returns the URI indicating that a header element should only be processed by nodes
+	 * acting as the ultimate receiver of a message.
 	 */
 	String getUltimateReceiverRoleUri();
+
 }

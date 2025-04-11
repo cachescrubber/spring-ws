@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,14 +37,17 @@ public class DefaultMessageContext extends AbstractMessageContext {
 
 	private WebServiceMessage response;
 
-	/** Construct a new, empty instance of the {@code DefaultMessageContext} with the given message factory. */
+	/**
+	 * Construct a new, empty instance of the {@code DefaultMessageContext} with the given
+	 * message factory.
+	 */
 	public DefaultMessageContext(WebServiceMessageFactory messageFactory) {
 		this(messageFactory.createWebServiceMessage(), messageFactory);
 	}
 
 	/**
-	 * Construct a new instance of the {@code DefaultMessageContext} with the given request message and message
-	 * factory.
+	 * Construct a new instance of the {@code DefaultMessageContext} with the given
+	 * request message and message factory.
 	 */
 	public DefaultMessageContext(WebServiceMessage request, WebServiceMessageFactory messageFactory) {
 		Assert.notNull(request, "request must not be null");
@@ -55,20 +58,20 @@ public class DefaultMessageContext extends AbstractMessageContext {
 
 	@Override
 	public WebServiceMessage getRequest() {
-		return request;
+		return this.request;
 	}
 
 	@Override
 	public boolean hasResponse() {
-		return response != null;
+		return this.response != null;
 	}
 
 	@Override
 	public WebServiceMessage getResponse() {
-		if (response == null) {
-			response = messageFactory.createWebServiceMessage();
+		if (this.response == null) {
+			this.response = this.messageFactory.createWebServiceMessage();
 		}
-		return response;
+		return this.response;
 	}
 
 	@Override
@@ -79,22 +82,23 @@ public class DefaultMessageContext extends AbstractMessageContext {
 
 	@Override
 	public void clearResponse() {
-		response = null;
+		this.response = null;
 	}
 
 	@Override
 	public void readResponse(InputStream inputStream) throws IOException {
 		checkForResponse();
-		response = messageFactory.createWebServiceMessage(inputStream);
+		this.response = this.messageFactory.createWebServiceMessage(inputStream);
 	}
 
 	public WebServiceMessageFactory getMessageFactory() {
-		return messageFactory;
+		return this.messageFactory;
 	}
 
 	private void checkForResponse() throws IllegalStateException {
-		if (response != null) {
+		if (this.response != null) {
 			throw new IllegalStateException("Response message already created");
 		}
 	}
+
 }

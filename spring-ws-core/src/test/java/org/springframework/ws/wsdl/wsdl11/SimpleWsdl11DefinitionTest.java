@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,25 +16,28 @@
 
 package org.springframework.ws.wsdl.wsdl11;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.core.io.ClassPathResource;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SimpleWsdl11DefinitionTest {
 
 	private SimpleWsdl11Definition definition;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		definition = new SimpleWsdl11Definition();
-		definition.setWsdl(new ClassPathResource("complete.wsdl", getClass()));
-		definition.afterPropertiesSet();
+
+		this.definition = new SimpleWsdl11Definition();
+		this.definition.setWsdl(new ClassPathResource("complete.wsdl", getClass()));
+		this.definition.afterPropertiesSet();
 	}
 
 	@Test
-	public void testGetSource() throws Exception {
-		Assert.assertNotNull("No source returned", definition.getSource());
+	public void testGetSource() {
+		assertThat(this.definition.getSource()).isNotNull();
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,9 @@ import org.springframework.ws.transport.AbstractReceiverConnection;
 import org.springframework.ws.transport.xmpp.support.XmppTransportUtils;
 
 /**
- * Implementation of {@link org.springframework.ws.transport.WebServiceConnection} that is used for server-side XMPP
- * access. Exposes a {@link Message} request and response message.
+ * Implementation of {@link org.springframework.ws.transport.WebServiceConnection} that is
+ * used for server-side XMPP access. Exposes a {@link Message} request and response
+ * message.
  *
  * @author Gildas Cuisinier
  * @author Arjen Poutsma
@@ -60,12 +61,12 @@ public class XmppReceiverConnection extends AbstractReceiverConnection {
 
 	/** Returns the request message for this connection. */
 	public Message getRequestMessage() {
-		return requestMessage;
+		return this.requestMessage;
 	}
 
 	/** Returns the response message, if any, for this connection. */
 	public Message getResponseMessage() {
-		return responseMessage;
+		return this.responseMessage;
 	}
 
 	/*
@@ -77,26 +78,26 @@ public class XmppReceiverConnection extends AbstractReceiverConnection {
 	}
 
 	/*
-	* URI
-	*/
+	 * URI
+	 */
 
 	@Override
 	public URI getUri() throws URISyntaxException {
-		return XmppTransportUtils.toUri(requestMessage);
+		return XmppTransportUtils.toUri(this.requestMessage);
 	}
 
 	/*
-	* Errors
-	*/
+	 * Errors
+	 */
 
 	@Override
 	public boolean hasError() {
-		return XmppTransportUtils.hasError(responseMessage);
+		return XmppTransportUtils.hasError(this.responseMessage);
 	}
 
 	@Override
 	public String getErrorMessage() {
-		return XmppTransportUtils.getErrorMessage(responseMessage);
+		return XmppTransportUtils.getErrorMessage(this.responseMessage);
 	}
 
 	/*
@@ -105,17 +106,17 @@ public class XmppReceiverConnection extends AbstractReceiverConnection {
 
 	@Override
 	public Iterator<String> getRequestHeaderNames() throws IOException {
-		return XmppTransportUtils.getHeaderNames(requestMessage);
+		return XmppTransportUtils.getHeaderNames(this.requestMessage);
 	}
 
 	@Override
 	public Iterator<String> getRequestHeaders(String name) throws IOException {
-		return XmppTransportUtils.getHeaders(requestMessage, name);
+		return XmppTransportUtils.getHeaders(this.requestMessage, name);
 	}
 
 	@Override
 	protected InputStream getRequestInputStream() throws IOException {
-		return new MessageInputStream(requestMessage, messageEncoding);
+		return new MessageInputStream(this.requestMessage, this.messageEncoding);
 	}
 
 	/*
@@ -124,29 +125,29 @@ public class XmppReceiverConnection extends AbstractReceiverConnection {
 
 	@Override
 	protected void onSendBeforeWrite(WebServiceMessage message) throws IOException {
-		responseMessage = new Message(requestMessage.getFrom(), Message.Type.chat);
-		responseMessage.setFrom(connection.getUser());
-		responseMessage.setThread(requestMessage.getThread());
+		this.responseMessage = new Message(this.requestMessage.getFrom(), Message.Type.chat);
+		this.responseMessage.setFrom(this.connection.getUser());
+		this.responseMessage.setThread(this.requestMessage.getThread());
 	}
 
 	@Override
 	public void addResponseHeader(String name, String value) throws IOException {
-		XmppTransportUtils.addHeader(responseMessage, name, value);
+		XmppTransportUtils.addHeader(this.responseMessage, name, value);
 	}
 
 	@Override
 	protected OutputStream getResponseOutputStream() throws IOException {
-		return new MessageOutputStream(responseMessage, messageEncoding);
+		return new MessageOutputStream(this.responseMessage, this.messageEncoding);
 	}
 
 	@Override
 	protected void onSendAfterWrite(WebServiceMessage message) throws IOException {
 		try {
-			connection.sendStanza(responseMessage);
-		} catch (SmackException.NotConnectedException e) {
-			throw new IOException(e);
-		} catch (InterruptedException e) {
-			throw new IOException(e);
+			this.connection.sendStanza(this.responseMessage);
+		}
+		catch (SmackException.NotConnectedException | InterruptedException ex) {
+			throw new IOException(ex);
 		}
 	}
+
 }

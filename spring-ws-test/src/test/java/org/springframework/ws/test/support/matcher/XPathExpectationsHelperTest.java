@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2011 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,21 +20,27 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import org.springframework.ws.WebServiceMessage;
 import org.springframework.xml.transform.StringSource;
 
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class XPathExpectationsHelperTest {
 
 	@Test
 	public void existsMatch() throws IOException, AssertionError {
+
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b");
 		WebServiceMessageMatcher matcher = helper.exists();
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>"));
@@ -46,25 +52,32 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void existsNonMatch() throws IOException, AssertionError {
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//c");
-		WebServiceMessageMatcher matcher = helper.exists();
-		assertNotNull(matcher);
+	@Test
+	public void existsNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//c");
+			WebServiceMessageMatcher matcher = helper.exists();
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>")).times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 	@Test
 	public void doesNotExistMatch() throws IOException, AssertionError {
+
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//c");
 		WebServiceMessageMatcher matcher = helper.doesNotExist();
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>"));
@@ -76,25 +89,32 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void doesNotExistNonMatch() throws IOException, AssertionError {
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//a");
-		WebServiceMessageMatcher matcher = helper.doesNotExist();
-		assertNotNull(matcher);
+	@Test
+	public void doesNotExistNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//a");
+			WebServiceMessageMatcher matcher = helper.doesNotExist();
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource()).andReturn(new StringSource("<a><b/></a>")).times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 	@Test
 	public void evaluatesToTrueMatch() throws IOException, AssertionError {
+
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b=1");
 		WebServiceMessageMatcher matcher = helper.evaluatesTo(true);
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
@@ -106,25 +126,32 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void evaluatesToTrueNonMatch() throws IOException, AssertionError {
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b=2");
-		WebServiceMessageMatcher matcher = helper.evaluatesTo(true);
-		assertNotNull(matcher);
+	@Test
+	public void evaluatesToTrueNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//b=2");
+			WebServiceMessageMatcher matcher = helper.evaluatesTo(true);
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 	@Test
 	public void evaluatesToFalseMatch() throws IOException, AssertionError {
+
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b!=1");
 		WebServiceMessageMatcher matcher = helper.evaluatesTo(false);
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
@@ -136,25 +163,32 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void evaluatesToFalseNonMatch() throws IOException, AssertionError {
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b!=2");
-		WebServiceMessageMatcher matcher = helper.evaluatesTo(false);
-		assertNotNull(matcher);
+	@Test
+	public void evaluatesToFalseNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//b!=2");
+			WebServiceMessageMatcher matcher = helper.evaluatesTo(false);
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 	@Test
 	public void evaluatesToIntegerMatch() throws IOException, AssertionError {
+
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b");
 		WebServiceMessageMatcher matcher = helper.evaluatesTo(1);
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
@@ -166,30 +200,37 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void evaluatesToIntegerNonMatch() throws IOException, AssertionError {
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b");
-		WebServiceMessageMatcher matcher = helper.evaluatesTo(2);
-		assertNotNull(matcher);
+	@Test
+	public void evaluatesToIntegerNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//b");
+			WebServiceMessageMatcher matcher = helper.evaluatesTo(2);
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource()).andReturn(new StringSource("<a><b>1</b></a>")).times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 	@Test
 	public void existsWithNamespacesMatch() throws IOException, AssertionError {
+
 		Map<String, String> ns = Collections.singletonMap("x", "http://example.org");
 		XPathExpectationsHelper helper = new XPathExpectationsHelper("//x:b", ns);
 		WebServiceMessageMatcher matcher = helper.exists();
-		assertNotNull(matcher);
+
+		assertThat(matcher).isNotNull();
 
 		WebServiceMessage message = createMock(WebServiceMessage.class);
 		expect(message.getPayloadSource())
-				.andReturn(new StringSource("<a:a xmlns:a=\"http://example.org\"><a:b/></a:a>"));
+			.andReturn(new StringSource("<a:a xmlns:a=\"http://example.org\"><a:b/></a:a>"));
 
 		replay(message);
 
@@ -198,20 +239,26 @@ public class XPathExpectationsHelperTest {
 		verify(message);
 	}
 
-	@Test(expected = AssertionError.class)
-	public void existsWithNamespacesNonMatch() throws IOException, AssertionError {
-		Map<String, String> ns = Collections.singletonMap("x", "http://example.org");
-		XPathExpectationsHelper helper = new XPathExpectationsHelper("//b", ns);
-		WebServiceMessageMatcher matcher = helper.exists();
-		assertNotNull(matcher);
+	@Test
+	public void existsWithNamespacesNonMatch() throws AssertionError {
 
-		WebServiceMessage message = createMock(WebServiceMessage.class);
-		expect(message.getPayloadSource())
-				.andReturn(new StringSource("<a:a xmlns:a=\"http://example.org\"><a:b/></a:a>")).times(2);
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> {
 
-		replay(message);
+			Map<String, String> ns = Collections.singletonMap("x", "http://example.org");
+			XPathExpectationsHelper helper = new XPathExpectationsHelper("//b", ns);
+			WebServiceMessageMatcher matcher = helper.exists();
 
-		matcher.match(message);
+			assertThat(matcher).isNotNull();
+
+			WebServiceMessage message = createMock(WebServiceMessage.class);
+			expect(message.getPayloadSource())
+				.andReturn(new StringSource("<a:a xmlns:a=\"http://example.org\"><a:b/></a:a>"))
+				.times(2);
+
+			replay(message);
+
+			matcher.match(message);
+		});
 	}
 
 }

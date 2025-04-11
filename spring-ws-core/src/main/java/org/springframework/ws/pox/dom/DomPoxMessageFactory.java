@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.ws.pox.dom;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,15 +29,16 @@ import org.xml.sax.SAXException;
 
 import org.springframework.util.Assert;
 import org.springframework.ws.WebServiceMessageFactory;
-import org.springframework.xml.transform.TransformerObjectSupport;
 import org.springframework.xml.DocumentBuilderFactoryUtils;
+import org.springframework.xml.transform.TransformerObjectSupport;
 
 /**
- * Implementation of the {@link WebServiceMessageFactory} interface that creates a {@link DomPoxMessage}.
+ * Implementation of the {@link WebServiceMessageFactory} interface that creates a
+ * {@link DomPoxMessage}.
  *
  * @author Arjen Poutsma
- * @see org.springframework.ws.pox.dom.DomPoxMessage
  * @since 1.0.0
+ * @see org.springframework.ws.pox.dom.DomPoxMessage
  */
 public class DomPoxMessageFactory extends TransformerObjectSupport implements WebServiceMessageFactory {
 
@@ -56,12 +58,11 @@ public class DomPoxMessageFactory extends TransformerObjectSupport implements We
 
 	/**
 	 * Provide your own {@link DocumentBuilderFactory}.
-	 * 
-	 * @param documentBuilderFactory
+	 * @param documentBuilderFactory the document builder factory to use
 	 */
 	public DomPoxMessageFactory(DocumentBuilderFactory documentBuilderFactory) {
 		this.documentBuilderFactory = documentBuilderFactory;
-		
+
 		documentBuilderFactory.setNamespaceAware(true);
 		documentBuilderFactory.setValidating(false);
 		documentBuilderFactory.setExpandEntityReferences(false);
@@ -73,14 +74,17 @@ public class DomPoxMessageFactory extends TransformerObjectSupport implements We
 		this.contentType = contentType;
 	}
 
-	/** Set whether or not the XML parser should be XML namespace aware. Default is {@code true}. */
+	/**
+	 * Set whether or not the XML parser should be XML namespace aware. Default is
+	 * {@code true}.
+	 */
 	public void setNamespaceAware(boolean namespaceAware) {
-		documentBuilderFactory.setNamespaceAware(namespaceAware);
+		this.documentBuilderFactory.setNamespaceAware(namespaceAware);
 	}
 
 	/** Set if the XML parser should validate the document. Default is {@code false}. */
 	public void setValidating(boolean validating) {
-		documentBuilderFactory.setValidating(validating);
+		this.documentBuilderFactory.setValidating(validating);
 	}
 
 	/**
@@ -88,15 +92,15 @@ public class DomPoxMessageFactory extends TransformerObjectSupport implements We
 	 * {@code false}.
 	 */
 	public void setExpandEntityReferences(boolean expandEntityRef) {
-		documentBuilderFactory.setExpandEntityReferences(expandEntityRef);
+		this.documentBuilderFactory.setExpandEntityReferences(expandEntityRef);
 	}
 
 	@Override
 	public DomPoxMessage createWebServiceMessage() {
 		try {
-			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			DocumentBuilder documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
 			Document request = documentBuilder.newDocument();
-			return new DomPoxMessage(request, createTransformer(), contentType);
+			return new DomPoxMessage(request, createTransformer(), this.contentType);
 		}
 		catch (ParserConfigurationException ex) {
 			throw new DomPoxMessageException("Could not create message context", ex);
@@ -109,9 +113,9 @@ public class DomPoxMessageFactory extends TransformerObjectSupport implements We
 	@Override
 	public DomPoxMessage createWebServiceMessage(InputStream inputStream) throws IOException {
 		try {
-			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			DocumentBuilder documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
 			Document request = documentBuilder.parse(inputStream);
-			return new DomPoxMessage(request, createTransformer(), contentType);
+			return new DomPoxMessage(request, createTransformer(), this.contentType);
 		}
 		catch (ParserConfigurationException ex) {
 			throw new DomPoxMessageException("Could not create message context", ex);
@@ -123,4 +127,5 @@ public class DomPoxMessageFactory extends TransformerObjectSupport implements We
 			throw new DomPoxMessageException("Could not create transformer", ex);
 		}
 	}
+
 }

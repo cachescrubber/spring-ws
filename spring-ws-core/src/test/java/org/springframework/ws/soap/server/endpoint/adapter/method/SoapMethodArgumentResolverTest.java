@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,23 @@
 
 package org.springframework.ws.soap.server.endpoint.adapter.method;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.ws.context.MessageContext;
-import org.springframework.ws.server.endpoint.adapter.method.AbstractMethodArgumentResolverTestCase;
+import org.springframework.ws.server.endpoint.adapter.method.AbstractMethodArgumentResolverTest;
 import org.springframework.ws.soap.SoapBody;
 import org.springframework.ws.soap.SoapEnvelope;
 import org.springframework.ws.soap.SoapHeader;
 import org.springframework.ws.soap.SoapMessage;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-/** @author Arjen Poutsma */
-public class SoapMethodArgumentResolverTest extends AbstractMethodArgumentResolverTestCase {
+/**
+ * @author Arjen Poutsma
+ */
+public class SoapMethodArgumentResolverTest extends AbstractMethodArgumentResolverTest {
 
 	private SoapMethodArgumentResolver resolver;
 
@@ -43,57 +44,59 @@ public class SoapMethodArgumentResolverTest extends AbstractMethodArgumentResolv
 
 	private MethodParameter soapHeaderParameter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		resolver = new SoapMethodArgumentResolver();
-		soapMessageParameter = new MethodParameter(getClass().getMethod("soapMessage", SoapMessage.class), 0);
-		soapEnvelopeParameter = new MethodParameter(getClass().getMethod("soapEnvelope", SoapEnvelope.class), 0);
-		soapBodyParameter = new MethodParameter(getClass().getMethod("soapBody", SoapBody.class), 0);
-		soapHeaderParameter = new MethodParameter(getClass().getMethod("soapHeader", SoapHeader.class), 0);
+
+		this.resolver = new SoapMethodArgumentResolver();
+		this.soapMessageParameter = new MethodParameter(getClass().getMethod("soapMessage", SoapMessage.class), 0);
+		this.soapEnvelopeParameter = new MethodParameter(getClass().getMethod("soapEnvelope", SoapEnvelope.class), 0);
+		this.soapBodyParameter = new MethodParameter(getClass().getMethod("soapBody", SoapBody.class), 0);
+		this.soapHeaderParameter = new MethodParameter(getClass().getMethod("soapHeader", SoapHeader.class), 0);
 	}
 
 	@Test
-	public void supportsParameter() throws Exception {
-		assertTrue("resolver does not support SoapMessage", resolver.supportsParameter(soapMessageParameter));
-		assertTrue("resolver does not support SoapEnvelope", resolver.supportsParameter(soapEnvelopeParameter));
-		assertTrue("resolver does not support SoapBody", resolver.supportsParameter(soapBodyParameter));
-		assertTrue("resolver does not support SoapHeader", resolver.supportsParameter(soapHeaderParameter));
+	public void supportsParameter() {
+
+		assertThat(this.resolver.supportsParameter(this.soapMessageParameter)).isTrue();
+		assertThat(this.resolver.supportsParameter(this.soapEnvelopeParameter)).isTrue();
+		assertThat(this.resolver.supportsParameter(this.soapBodyParameter)).isTrue();
+		assertThat(this.resolver.supportsParameter(this.soapHeaderParameter)).isTrue();
 	}
 
 	@Test
 	public void resolveSoapMessageSaaj() throws Exception {
+
 		MessageContext messageContext = createSaajMessageContext();
+		Object result = this.resolver.resolveArgument(messageContext, this.soapMessageParameter);
 
-		Object result = resolver.resolveArgument(messageContext, soapMessageParameter);
-
-		assertEquals(messageContext.getRequest(), result);
+		assertThat(result).isEqualTo(messageContext.getRequest());
 	}
 
 	@Test
 	public void resolveSoapEnvelopeSaaj() throws Exception {
+
 		MessageContext messageContext = createSaajMessageContext();
+		Object result = this.resolver.resolveArgument(messageContext, this.soapEnvelopeParameter);
 
-		Object result = resolver.resolveArgument(messageContext, soapEnvelopeParameter);
-
-		assertEquals(((SoapMessage)messageContext.getRequest()).getEnvelope(), result);
+		assertThat(result).isEqualTo(((SoapMessage) messageContext.getRequest()).getEnvelope());
 	}
 
 	@Test
 	public void resolveSoapBodySaaj() throws Exception {
+
 		MessageContext messageContext = createSaajMessageContext();
+		Object result = this.resolver.resolveArgument(messageContext, this.soapBodyParameter);
 
-		Object result = resolver.resolveArgument(messageContext, soapBodyParameter);
-
-		assertEquals(((SoapMessage)messageContext.getRequest()).getSoapBody(), result);
+		assertThat(result).isEqualTo(((SoapMessage) messageContext.getRequest()).getSoapBody());
 	}
 
 	@Test
 	public void resolveSoapHeaderSaaj() throws Exception {
+
 		MessageContext messageContext = createSaajMessageContext();
+		Object result = this.resolver.resolveArgument(messageContext, this.soapHeaderParameter);
 
-		Object result = resolver.resolveArgument(messageContext, soapHeaderParameter);
-
-		assertEquals(((SoapMessage)messageContext.getRequest()).getSoapHeader(), result);
+		assertThat(result).isEqualTo(((SoapMessage) messageContext.getRequest()).getSoapHeader());
 	}
 
 	public void soapMessage(SoapMessage soapMessage) {
@@ -108,4 +111,5 @@ public class SoapMethodArgumentResolverTest extends AbstractMethodArgumentResolv
 
 	public void soapHeader(SoapHeader soapHeader) {
 	}
+
 }

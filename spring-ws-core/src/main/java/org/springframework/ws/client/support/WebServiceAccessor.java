@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,14 +28,16 @@ import org.springframework.ws.transport.WebServiceMessageSender;
 import org.springframework.xml.transform.TransformerObjectSupport;
 
 /**
- * Base class for {@code WebServiceTemplate} and other WS-accessing helpers. Defines common properties like the
- * {@link WebServiceMessageFactory} and {@link WebServiceMessageSender}.
- *
- * <p>Not intended to be used directly. See {@link org.springframework.ws.client.core.WebServiceTemplate}.
+ * Base class for {@code WebServiceTemplate} and other WS-accessing helpers. Defines
+ * common properties like the {@link WebServiceMessageFactory} and
+ * {@link WebServiceMessageSender}.
+ * <p>
+ * Not intended to be used directly. See
+ * {@link org.springframework.ws.client.core.WebServiceTemplate}.
  *
  * @author Arjen Poutsma
- * @see org.springframework.ws.client.core.WebServiceTemplate
  * @since 1.0.0
+ * @see org.springframework.ws.client.core.WebServiceTemplate
  */
 public abstract class WebServiceAccessor extends TransformerObjectSupport implements InitializingBean {
 
@@ -45,7 +47,7 @@ public abstract class WebServiceAccessor extends TransformerObjectSupport implem
 
 	/** Returns the message factory used for creating messages. */
 	public WebServiceMessageFactory getMessageFactory() {
-		return messageFactory;
+		return this.messageFactory;
 	}
 
 	/** Sets the message factory used for creating messages. */
@@ -53,28 +55,28 @@ public abstract class WebServiceAccessor extends TransformerObjectSupport implem
 		this.messageFactory = messageFactory;
 	}
 
-	/** Returns the message senders used for sending messages. */
+	/**
+	 * Return the {@link WebServiceMessageSender message senders} to consider for sending
+	 * messages.
+	 */
 	public WebServiceMessageSender[] getMessageSenders() {
-		return messageSenders;
+		return this.messageSenders;
 	}
 
 	/**
-	 * Sets the single message sender used for sending messages.
-	 *
-	 * <p>This message sender will be used to resolve an URI to a {@link WebServiceConnection}.
-	 *
+	 * Set the {@linkplain WebServiceMessageSender message sender} to use.
 	 * @see #createConnection(URI)
 	 */
 	public void setMessageSender(WebServiceMessageSender messageSender) {
 		Assert.notNull(messageSender, "'messageSender' must not be null");
-		messageSenders = new WebServiceMessageSender[]{messageSender};
+		this.messageSenders = new WebServiceMessageSender[] { messageSender };
 	}
 
 	/**
-	 * Sets the message senders used for sending messages.
-	 *
-	 * <p>These message senders will be used to resolve an URI to a {@link WebServiceConnection}.
-	 *
+	 * Set the {@linkplain WebServiceMessageSender message senders} to use. The first
+	 * instance that {@linkplain WebServiceMessageSender#supports(URI) supports} a given
+	 * URI is used. This allows for using a singe instance with various transport
+	 * implementations. {@link WebServiceConnection}.
 	 * @see #createConnection(URI)
 	 */
 	public void setMessageSenders(WebServiceMessageSender[] messageSenders) {
@@ -89,16 +91,17 @@ public abstract class WebServiceAccessor extends TransformerObjectSupport implem
 	}
 
 	/**
-	 * Creates a connection to the given URI, or throws an exception when it cannot be resolved.
-	 *
-	 * <p>Default implementation iterates over all configured {@link WebServiceMessageSender} objects, and calls {@link
-	 * WebServiceMessageSender#supports(URI)} for each of them. If the sender supports the parameter URI, it creates a
-	 * connection using {@link WebServiceMessageSender#createConnection(URI)} .
-	 *
+	 * Creates a connection to the given URI, or throws an exception when it cannot be
+	 * resolved.
+	 * <p>
+	 * Default implementation iterates over all configured {@link WebServiceMessageSender}
+	 * objects, and calls {@link WebServiceMessageSender#supports(URI)} for each of them.
+	 * If the sender supports the parameter URI, it creates a connection using
+	 * {@link WebServiceMessageSender#createConnection(URI)} .
 	 * @param uri the URI to open a connection to
 	 * @return the created connection
 	 * @throws IllegalArgumentException when the uri cannot be resolved
-	 * @throws IOException				when an I/O error occurs
+	 * @throws IOException when an I/O error occurs
 	 */
 	protected WebServiceConnection createConnection(URI uri) throws IOException {
 		Assert.notEmpty(getMessageSenders(), "Property 'messageSenders' is required");
@@ -106,11 +109,11 @@ public abstract class WebServiceAccessor extends TransformerObjectSupport implem
 		for (WebServiceMessageSender messageSender : messageSenders) {
 			if (messageSender.supports(uri)) {
 				WebServiceConnection connection = messageSender.createConnection(uri);
-				if (logger.isDebugEnabled()) {
+				if (this.logger.isDebugEnabled()) {
 					try {
-						logger.debug("Opening [" + connection + "] to [" + connection.getUri() + "]");
+						this.logger.debug("Opening [" + connection + "] to [" + connection.getUri() + "]");
 					}
-					catch (URISyntaxException e) {
+					catch (URISyntaxException ex) {
 						// ignore
 					}
 				}

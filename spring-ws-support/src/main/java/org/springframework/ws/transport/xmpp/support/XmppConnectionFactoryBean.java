@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Factory to make {@link org.jivesoftware.smack.XMPPConnection} and perform connection and login on the XMPP server
+ * Factory to make {@link org.jivesoftware.smack.XMPPConnection} and perform connection
+ * and login on the XMPP server.
  *
  * @author Gildas Cuisinier
  * @author Arjen Poutsma
@@ -63,8 +64,8 @@ public class XmppConnectionFactoryBean implements FactoryBean<XMPPTCPConnection>
 
 	/**
 	 * Sets the server port to connect to.
-	 *
-	 * <p>Defaults to {@code 5222}.
+	 * <p>
+	 * Defaults to {@code 5222}.
 	 */
 	public void setPort(int port) {
 		Assert.isTrue(port > 0, "'port' must be larger than 0");
@@ -90,32 +91,35 @@ public class XmppConnectionFactoryBean implements FactoryBean<XMPPTCPConnection>
 
 	@Override
 	public void afterPropertiesSet() throws XMPPException, IOException, SmackException {
-		XMPPTCPConnectionConfiguration configuration = createConnectionConfiguration(host, port, serviceName);
+		XMPPTCPConnectionConfiguration configuration = createConnectionConfiguration(this.host, this.port,
+				this.serviceName);
 		Assert.notNull(configuration, "'configuration' must not be null");
-		Assert.hasText(username, "'username' must not be empty");
-		Assert.hasText(password, "'password' must not be empty");
+		Assert.hasText(this.username, "'username' must not be empty");
+		Assert.hasText(this.password, "'password' must not be empty");
 
-		connection = new XMPPTCPConnection(configuration);
+		this.connection = new XMPPTCPConnection(configuration);
 		try {
-			connection.connect();
-			if (StringUtils.hasText(resource)) {
-				connection.login(username, password, Resourcepart.from(resource));
-			} else {
-				connection.login(username, password);
+			this.connection.connect();
+			if (StringUtils.hasText(this.resource)) {
+				this.connection.login(this.username, this.password, Resourcepart.from(this.resource));
 			}
-		} catch (InterruptedException e) {
-			throw new IOException(e);
+			else {
+				this.connection.login(this.username, this.password);
+			}
+		}
+		catch (InterruptedException ex) {
+			throw new IOException(ex);
 		}
 	}
 
 	@Override
 	public void destroy() {
-		connection.disconnect();
+		this.connection.disconnect();
 	}
 
 	@Override
 	public XMPPTCPConnection getObject() {
-		return connection;
+		return this.connection;
 	}
 
 	@Override
@@ -130,27 +134,23 @@ public class XmppConnectionFactoryBean implements FactoryBean<XMPPTCPConnection>
 
 	/**
 	 * Creates the {@code ConnectionConfiguration} from the given parameters.
-	 *
-	 * @param host		  the host to connect to
-	 * @param port		  the port to connect to
+	 * @param host the host to connect to
+	 * @param port the port to connect to
 	 * @param serviceName the name of the service to connect to. May be {@code null}
 	 */
-	protected XMPPTCPConnectionConfiguration createConnectionConfiguration(String host, int port, String serviceName) throws XmppStringprepException {
+	protected XMPPTCPConnectionConfiguration createConnectionConfiguration(String host, int port, String serviceName)
+			throws XmppStringprepException {
 		Assert.hasText(host, "'host' must not be empty");
 		if (StringUtils.hasText(serviceName)) {
 			return XMPPTCPConnectionConfiguration.builder()
-					.setHost(host)
-					.setPort(port)
-					.setXmppDomain(serviceName)
-					.build();
+				.setHost(host)
+				.setPort(port)
+				.setXmppDomain(serviceName)
+				.build();
 		}
 		else {
-			return XMPPTCPConnectionConfiguration.builder()
-					.setHost(host)
-					.setPort(port)
-					.build();
+			return XMPPTCPConnectionConfiguration.builder().setHost(host).setPort(port).build();
 		}
 	}
-
 
 }

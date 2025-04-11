@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,8 @@ import org.springframework.xml.xsd.XsdSchema;
 import org.springframework.xml.xsd.XsdSchemaCollection;
 
 /**
- * Implementation of {@link TypesProvider} that inlines a {@link XsdSchema} or {@link XsdSchemaCollection} into the
- * WSDL.
+ * Implementation of {@link TypesProvider} that inlines a {@link XsdSchema} or
+ * {@link XsdSchemaCollection} into the WSDL.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
@@ -53,14 +53,14 @@ public class InliningXsdSchemaTypesProvider extends TransformerObjectSupport imp
 	private XsdSchemaCollection schemaCollection;
 
 	/**
-	 * Sets the single XSD schema to inline. Either this property, or {@link #setSchemaCollection(XsdSchemaCollection)
-	 * schemaCollection} must be set.
+	 * Sets the single XSD schema to inline. Either this property, or
+	 * {@link #setSchemaCollection(XsdSchemaCollection) schemaCollection} must be set.
 	 */
 	public void setSchema(final XsdSchema schema) {
 		this.schemaCollection = new XsdSchemaCollection() {
 
 			public XsdSchema[] getXsdSchemas() {
-				return new XsdSchema[]{schema};
+				return new XsdSchema[] { schema };
 			}
 
 			public XmlValidator createValidator() {
@@ -71,12 +71,12 @@ public class InliningXsdSchemaTypesProvider extends TransformerObjectSupport imp
 
 	/** Returns the XSD schema collection to inline. */
 	public XsdSchemaCollection getSchemaCollection() {
-		return schemaCollection;
+		return this.schemaCollection;
 	}
 
 	/**
-	 * Sets the XSD schema collection to inline. Either this property, or {@link #setSchema(XsdSchema) schema} must be
-	 * set.
+	 * Sets the XSD schema collection to inline. Either this property, or
+	 * {@link #setSchema(XsdSchema) schema} must be set.
 	 */
 	public void setSchemaCollection(XsdSchemaCollection schemaCollection) {
 		this.schemaCollection = schemaCollection;
@@ -86,7 +86,7 @@ public class InliningXsdSchemaTypesProvider extends TransformerObjectSupport imp
 	public void addTypes(Definition definition) throws WSDLException {
 		Assert.notNull(getSchemaCollection(), "setting 'schema' or 'schemaCollection' is required");
 		Types types = definition.createTypes();
-		XsdSchema[] schemas = schemaCollection.getXsdSchemas();
+		XsdSchema[] schemas = this.schemaCollection.getXsdSchemas();
 		for (int i = 0; i < schemas.length; i++) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Inlining " + schemas[i]);
@@ -100,7 +100,7 @@ public class InliningXsdSchemaTypesProvider extends TransformerObjectSupport imp
 			}
 			Element schemaElement = getSchemaElement(schemas[i]);
 			Schema schema = (Schema) definition.getExtensionRegistry()
-					.createExtension(Types.class, new QName("http://www.w3.org/2001/XMLSchema", "schema"));
+				.createExtension(Types.class, new QName("http://www.w3.org/2001/XMLSchema", "schema"));
 			types.addExtensibilityElement(schema);
 			schema.setElement(schemaElement);
 		}
@@ -114,7 +114,7 @@ public class InliningXsdSchemaTypesProvider extends TransformerObjectSupport imp
 			Document schemaDocument = (Document) result.getNode();
 			return schemaDocument.getDocumentElement();
 		}
-		catch (TransformerException e) {
+		catch (TransformerException ex) {
 			throw new WsdlDefinitionException("Could not transform schema source to Document");
 		}
 	}

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,12 @@
 package org.springframework.ws.server;
 
 /**
- * Endpoint invocation chain, consisting of an endpoint object and any preprocessing interceptors.
+ * Endpoint invocation chain, consisting of an endpoint object and any preprocessing
+ * interceptors.
  *
  * @author Arjen Poutsma
- * @see EndpointInterceptor
  * @since 1.0.0
+ * @see EndpointInterceptor
  */
 public class EndpointInvocationChain {
 
@@ -31,7 +32,6 @@ public class EndpointInvocationChain {
 
 	/**
 	 * Create new {@code EndpointInvocationChain}.
-	 *
 	 * @param endpoint the endpoint object to invoke
 	 */
 	public EndpointInvocationChain(Object endpoint) {
@@ -40,8 +40,7 @@ public class EndpointInvocationChain {
 
 	/**
 	 * Create new {@code EndpointInvocationChain}.
-	 *
-	 * @param endpoint	   the endpoint object to invoke
+	 * @param endpoint the endpoint object to invoke
 	 * @param interceptors the array of interceptors to apply
 	 */
 	public EndpointInvocationChain(Object endpoint, EndpointInterceptor[] interceptors) {
@@ -51,20 +50,18 @@ public class EndpointInvocationChain {
 
 	/**
 	 * Returns the endpoint object to invoke.
-	 *
 	 * @return the endpoint object
 	 */
 	public Object getEndpoint() {
-		return endpoint;
+		return this.endpoint;
 	}
 
 	/**
 	 * Returns the array of interceptors to apply before the handler executes.
-	 *
 	 * @return the array of interceptors
 	 */
 	public EndpointInterceptor[] getInterceptors() {
-		return interceptors;
+		return this.interceptors;
 	}
 
 }

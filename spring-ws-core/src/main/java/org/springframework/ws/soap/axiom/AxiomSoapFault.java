@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,11 @@ import org.apache.axiom.soap.SOAPProcessingException;
 import org.springframework.ws.soap.SoapFault;
 import org.springframework.ws.soap.SoapFaultDetail;
 
-/** @author Arjen Poutsma */
+/**
+ * Axiom implementation of {@link SoapFault}.
+ *
+ * @author Arjen Poutsma
+ */
 abstract class AxiomSoapFault extends AxiomSoapElement implements SoapFault {
 
 	protected AxiomSoapFault(SOAPFault axiomFault, SOAPFactory axiomFactory) {
@@ -36,7 +40,7 @@ abstract class AxiomSoapFault extends AxiomSoapElement implements SoapFault {
 	@Override
 	public String getFaultActorOrRole() {
 		SOAPFaultRole faultRole = getAxiomFault().getRole();
-		return faultRole != null ? faultRole.getRoleValue() : null;
+		return (faultRole != null) ? faultRole.getRoleValue() : null;
 	}
 
 	@Override
@@ -55,7 +59,7 @@ abstract class AxiomSoapFault extends AxiomSoapElement implements SoapFault {
 	public SoapFaultDetail getFaultDetail() {
 		try {
 			SOAPFaultDetail axiomFaultDetail = getAxiomFault().getDetail();
-			return axiomFaultDetail != null ? new AxiomSoapFaultDetail(axiomFaultDetail, getAxiomFactory()) : null;
+			return (axiomFaultDetail != null) ? new AxiomSoapFaultDetail(axiomFaultDetail, getAxiomFactory()) : null;
 		}
 		catch (OMException ex) {
 			throw new AxiomSoapFaultException(ex);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,14 +22,15 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 /**
- * Abstract base class for {@link WebServiceConnection} implementations used for receiving requests.
+ * Abstract base class for {@link WebServiceConnection} implementations used for receiving
+ * requests.
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
  * @since 1.0.0
  */
-public abstract class AbstractReceiverConnection extends AbstractWebServiceConnection implements
-		HeadersAwareReceiverWebServiceConnection {
+public abstract class AbstractReceiverConnection extends AbstractWebServiceConnection
+		implements HeadersAwareReceiverWebServiceConnection {
 
 	private TransportInputStream requestInputStream;
 
@@ -37,23 +38,22 @@ public abstract class AbstractReceiverConnection extends AbstractWebServiceConne
 
 	@Override
 	protected final TransportInputStream createTransportInputStream() throws IOException {
-		if (requestInputStream == null) {
-			requestInputStream = new RequestTransportInputStream();
+		if (this.requestInputStream == null) {
+			this.requestInputStream = new RequestTransportInputStream();
 		}
-		return requestInputStream;
+		return this.requestInputStream;
 	}
 
 	@Override
 	protected final TransportOutputStream createTransportOutputStream() throws IOException {
-		if (responseOutputStream == null) {
-			responseOutputStream = new ResponseTransportOutputStream();
+		if (this.responseOutputStream == null) {
+			this.responseOutputStream = new ResponseTransportOutputStream();
 		}
-		return responseOutputStream;
+		return this.responseOutputStream;
 	}
 
 	/**
 	 * Template method invoked from {@link #close()}. Default implementation is empty.
-	 *
 	 * @throws IOException if an I/O error occurs when closing this connection
 	 */
 	@Override
@@ -67,7 +67,7 @@ public abstract class AbstractReceiverConnection extends AbstractWebServiceConne
 	protected abstract OutputStream getResponseOutputStream() throws IOException;
 
 	/** Implementation of {@code TransportInputStream} for receiving-side connections. */
-	private class RequestTransportInputStream extends TransportInputStream {
+	private final class RequestTransportInputStream extends TransportInputStream {
 
 		@Override
 		protected InputStream createInputStream() throws IOException {
@@ -87,7 +87,7 @@ public abstract class AbstractReceiverConnection extends AbstractWebServiceConne
 	}
 
 	/** Implementation of {@code TransportOutputStream} for sending-side connections. */
-	private class ResponseTransportOutputStream extends TransportOutputStream {
+	private final class ResponseTransportOutputStream extends TransportOutputStream {
 
 		@Override
 		public void addHeader(String name, String value) throws IOException {
@@ -100,6 +100,5 @@ public abstract class AbstractReceiverConnection extends AbstractWebServiceConne
 		}
 
 	}
-
 
 }

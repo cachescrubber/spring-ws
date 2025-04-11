@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,40 +16,41 @@
 
 package org.springframework.ws.client.core;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.ws.FaultAwareWebServiceMessage;
 import org.springframework.ws.client.WebServiceFaultException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SimpleFaultMessageResolverTest {
 
 	private SimpleFaultMessageResolver resolver;
 
-	@Before
-	public void setUp() throws Exception {
-		resolver = new SimpleFaultMessageResolver();
+	@BeforeEach
+	public void setUp() {
+		this.resolver = new SimpleFaultMessageResolver();
 	}
 
 	@Test
-	public void testResolveFault() throws Exception {
+	public void testResolveFault() {
+
 		FaultAwareWebServiceMessage messageMock = createMock(FaultAwareWebServiceMessage.class);
 		String message = "message";
 		expect(messageMock.getFaultReason()).andReturn(message);
 
 		replay(messageMock);
 
-		try {
-			resolver.resolveFault(messageMock);
-			Assert.fail("WebServiceFaultExcpetion expected");
-		}
-		catch (WebServiceFaultException ex) {
-			// expected
-			Assert.assertEquals("Invalid exception message", message, ex.getMessage());
-		}
+		assertThatExceptionOfType(WebServiceFaultException.class)
+			.isThrownBy(() -> this.resolver.resolveFault(messageMock))
+			.withMessage(message);
+
 		verify(messageMock);
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,34 +36,32 @@ public class SoapFaultClientException extends WebServiceFaultException {
 
 	/**
 	 * Create a new instance of the {@code SoapFaultClientException} class.
-	 *
 	 * @param faultMessage the fault message
 	 */
 	public SoapFaultClientException(SoapMessage faultMessage) {
 		super(faultMessage);
 		SoapBody body = faultMessage.getSoapBody();
-		soapFault = body != null ? body.getFault() : null;
+		this.soapFault = (body != null) ? body.getFault() : null;
 	}
 
 	/** Returns the {@link SoapFault}. */
 	public SoapFault getSoapFault() {
-		return soapFault;
+		return this.soapFault;
 	}
 
 	/** Returns the fault code. */
 	public QName getFaultCode() {
-		return soapFault != null ? soapFault.getFaultCode() : null;
+		return (this.soapFault != null) ? this.soapFault.getFaultCode() : null;
 	}
 
 	/**
-	 * Returns the fault string or reason. For SOAP 1.1, this returns the fault string. For SOAP 1.2, this returns the
-	 * fault reason for the default locale.
-	 *
-	 * <p>Note that this message returns the same as {@link #getMessage()}.
+	 * Returns the fault string or reason. For SOAP 1.1, this returns the fault string.
+	 * For SOAP 1.2, this returns the fault reason for the default locale.
+	 * <p>
+	 * Note that this message returns the same as {@link #getMessage()}.
 	 */
 	public String getFaultStringOrReason() {
-		return soapFault != null ? soapFault.getFaultStringOrReason() : null;
+		return (this.soapFault != null) ? this.soapFault.getFaultStringOrReason() : null;
 	}
-
 
 }

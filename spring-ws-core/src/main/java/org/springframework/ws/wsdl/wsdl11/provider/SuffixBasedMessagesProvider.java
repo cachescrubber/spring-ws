@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,16 +45,14 @@ public class SuffixBasedMessagesProvider extends DefaultMessagesProvider {
 
 	/**
 	 * Returns the suffix used to detect request elements in the schema.
-	 *
 	 * @see #DEFAULT_REQUEST_SUFFIX
 	 */
 	public String getRequestSuffix() {
-		return requestSuffix;
+		return this.requestSuffix;
 	}
 
 	/**
 	 * Sets the suffix used to detect request elements in the schema.
-	 *
 	 * @see #DEFAULT_REQUEST_SUFFIX
 	 */
 	public void setRequestSuffix(String requestSuffix) {
@@ -64,16 +62,14 @@ public class SuffixBasedMessagesProvider extends DefaultMessagesProvider {
 
 	/**
 	 * Returns the suffix used to detect response elements in the schema.
-	 *
 	 * @see #DEFAULT_RESPONSE_SUFFIX
 	 */
 	public String getResponseSuffix() {
-		return responseSuffix;
+		return this.responseSuffix;
 	}
 
 	/**
 	 * Sets the suffix used to detect response elements in the schema.
-	 *
 	 * @see #DEFAULT_RESPONSE_SUFFIX
 	 */
 	public void setResponseSuffix(String responseSuffix) {
@@ -83,16 +79,14 @@ public class SuffixBasedMessagesProvider extends DefaultMessagesProvider {
 
 	/**
 	 * Returns the suffix used to detect fault elements in the schema.
-	 *
 	 * @see #DEFAULT_FAULT_SUFFIX
 	 */
 	public String getFaultSuffix() {
-		return faultSuffix;
+		return this.faultSuffix;
 	}
 
 	/**
 	 * Sets the suffix used to detect fault elements in the schema.
-	 *
 	 * @see #DEFAULT_FAULT_SUFFIX
 	 */
 	public void setFaultSuffix(String faultSuffix) {
@@ -105,11 +99,12 @@ public class SuffixBasedMessagesProvider extends DefaultMessagesProvider {
 		if (super.isMessageElement(element)) {
 			String elementName = getElementName(element);
 			Assert.hasText(elementName, "Element has no name");
-			return elementName.endsWith(getRequestSuffix()) || elementName.endsWith(getResponseSuffix()) ||
-					elementName.endsWith(getFaultSuffix());
+			return elementName.endsWith(getRequestSuffix()) || elementName.endsWith(getResponseSuffix())
+					|| elementName.endsWith(getFaultSuffix());
 		}
 		else {
 			return false;
 		}
 	}
+
 }

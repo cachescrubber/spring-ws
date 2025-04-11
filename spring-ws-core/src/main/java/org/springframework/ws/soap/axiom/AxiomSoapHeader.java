@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.soap.axiom;
 
 import java.util.Iterator;
+
 import javax.xml.namespace.QName;
 import javax.xml.transform.Result;
 
@@ -51,9 +52,7 @@ abstract class AxiomSoapHeader extends AxiomSoapElement implements SoapHeader {
 	@Override
 	public SoapHeaderElement addHeaderElement(QName name) {
 		try {
-			OMNamespace namespace =
-					getAxiomFactory().createOMNamespace(name.getNamespaceURI(),
-							name.getPrefix());
+			OMNamespace namespace = getAxiomFactory().createOMNamespace(name.getNamespaceURI(), name.getPrefix());
 			SOAPHeaderBlock axiomHeaderBlock = getAxiomHeader().addHeaderBlock(name.getLocalPart(), namespace);
 			return new AxiomSoapHeaderElement(axiomHeaderBlock, getAxiomFactory());
 		}
@@ -122,13 +121,13 @@ abstract class AxiomSoapHeader extends AxiomSoapElement implements SoapHeader {
 
 		@Override
 		public boolean hasNext() {
-			return axiomIterator.hasNext();
+			return this.axiomIterator.hasNext();
 		}
 
 		@Override
 		public SoapHeaderElement next() {
 			try {
-				OMElement axiomHeaderBlock = axiomIterator.next();
+				OMElement axiomHeaderBlock = this.axiomIterator.next();
 				return new AxiomSoapHeaderElement(axiomHeaderBlock, getAxiomFactory());
 			}
 			catch (OMException ex) {
@@ -138,7 +137,9 @@ abstract class AxiomSoapHeader extends AxiomSoapElement implements SoapHeader {
 
 		@Override
 		public void remove() {
-			axiomIterator.remove();
+			this.axiomIterator.remove();
 		}
+
 	}
+
 }

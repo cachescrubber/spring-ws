@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,25 +18,31 @@ package org.springframework.ws.soap.addressing.messageid;
 
 import java.net.URI;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UuidMessageIdStrategyTest {
 
 	private MessageIdStrategy strategy;
 
-	@Before
-	public final void setUp() throws Exception {
-		strategy = new UuidMessageIdStrategy();
+	@BeforeEach
+	public final void setUp() {
+		this.strategy = new UuidMessageIdStrategy();
 	}
 
 	@Test
 	public void testStrategy() {
-		URI messageId1 = strategy.newMessageId(null);
-		Assert.assertNotNull("Empty messageId", messageId1);
-		URI messageId2 = strategy.newMessageId(null);
-		Assert.assertNotNull("Empty messageId", messageId2);
-		Assert.assertFalse("Equal messageIds", messageId1.equals(messageId2));
+
+		URI messageId1 = this.strategy.newMessageId(null);
+
+		assertThat(messageId1).isNotNull();
+
+		URI messageId2 = this.strategy.newMessageId(null);
+
+		assertThat(messageId2).isNotNull();
+		assertThat(messageId2).isNotEqualTo(messageId1);
 	}
+
 }

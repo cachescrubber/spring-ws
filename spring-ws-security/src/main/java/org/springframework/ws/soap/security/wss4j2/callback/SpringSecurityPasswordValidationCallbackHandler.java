@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.wss4j.common.ext.WSPasswordCallback;
 import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,10 +37,12 @@ import org.springframework.ws.soap.security.callback.CleanupCallback;
 import org.springframework.ws.soap.security.support.SpringSecurityUtils;
 
 /**
- * Callback handler that validates a plain text or digest password using an Spring Security {@code UserDetailsService}.
- *
- * <p>An Spring Security {@link UserDetailsService} is used to load {@link UserDetails} from. The digest of the
- * password contained in this details object is then compared with the digest in the message.
+ * Callback handler that validates a plain text or digest password using an Spring
+ * Security {@code UserDetailsService}.
+ * <p>
+ * An Spring Security {@link UserDetailsService} is used to load {@link UserDetails} from.
+ * The digest of the password contained in this details object is then compared with the
+ * digest in the message.
  *
  * @author Arjen Poutsma
  * @author Jamin Hitchcock
@@ -64,17 +67,16 @@ public class SpringSecurityPasswordValidationCallbackHandler extends AbstractWsP
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(userDetailsService, "userDetailsService is required");
+		Assert.notNull(this.userDetailsService, "userDetailsService is required");
 	}
-	
-
 
 	/**
 	 * Invoked when the callback has a {@link WSPasswordCallback#USERNAME_TOKEN} usage.
-	 *
-	 * <p>This method is invoked when WSS4J needs the password to fill in or to verify a UsernameToken.
-	 *
-	 * <p>Default implementation throws an {@link UnsupportedCallbackException}.
+	 * <p>
+	 * This method is invoked when WSS4J needs the password to fill in or to verify a
+	 * UsernameToken.
+	 * <p>
+	 * Default implementation throws an {@link UnsupportedCallbackException}.
 	 */
 	protected void handleUsernameToken(WSPasswordCallback callback) throws IOException, UnsupportedCallbackException {
 		UserDetails user = loadUserDetails(callback.getIdentifier());
@@ -89,11 +91,12 @@ public class SpringSecurityPasswordValidationCallbackHandler extends AbstractWsP
 			throws IOException, UnsupportedCallbackException {
 		UserDetails user = loadUserDetails(callback.getPrincipal().getName());
 		WSUsernameTokenPrincipalImpl principal = callback.getPrincipal();
-		UsernamePasswordAuthenticationToken authRequest =
-				new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), user.getAuthorities());
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success: " + authRequest.toString());
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(principal,
+				principal.getPassword(), user.getAuthorities());
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication success: " + authRequest);
 		}
+		authRequest.setDetails(user);
 		SecurityContextHolder.getContext().setAuthentication(authRequest);
 	}
 
@@ -103,20 +106,21 @@ public class SpringSecurityPasswordValidationCallbackHandler extends AbstractWsP
 	}
 
 	private UserDetails loadUserDetails(String username) throws DataAccessException {
-		UserDetails user = userCache.getUserFromCache(username);
+		UserDetails user = this.userCache.getUserFromCache(username);
 
 		if (user == null) {
 			try {
-				user = userDetailsService.loadUserByUsername(username);
+				user = this.userDetailsService.loadUserByUsername(username);
 			}
 			catch (UsernameNotFoundException notFound) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Username '" + username + "' not found");
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("Username '" + username + "' not found");
 				}
 				return null;
 			}
-			userCache.putUserInCache(user);
+			this.userCache.putUserInCache(user);
 		}
 		return user;
 	}
+
 }

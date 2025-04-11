@@ -1,11 +1,11 @@
 /*
- * Copyright 2008 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.ws.transport.http;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
@@ -33,21 +34,20 @@ import org.springframework.xml.transform.TraxUtils;
  * @author Arjen Poutsma
  * @since 1.5.3
  */
-class LastModifiedHelper {
+final class LastModifiedHelper {
 
 	private LastModifiedHelper() {
 	}
 
 	/**
 	 * Returns the last modified date of the given {@link Source}.
-	 *
 	 * @param source the source
 	 * @return the last modified date, as a long
 	 */
 	static long getLastModified(Source source) {
 		if (source instanceof DOMSource) {
 			Document document = TraxUtils.getDocument((DOMSource) source);
-			return document != null ? getLastModified(document.getDocumentURI()) : -1;
+			return (document != null) ? getLastModified(document.getDocumentURI()) : -1;
 		}
 		else {
 			return getLastModified(source.getSystemId());
@@ -65,7 +65,7 @@ class LastModifiedHelper {
 					}
 				}
 			}
-			catch (URISyntaxException e) {
+			catch (URISyntaxException ex) {
 				// ignore
 			}
 		}

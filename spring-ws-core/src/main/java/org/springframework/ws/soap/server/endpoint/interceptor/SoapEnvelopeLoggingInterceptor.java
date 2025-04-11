@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,15 +26,16 @@ import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.server.SoapEndpointInterceptor;
 
 /**
- * SOAP-specific {@code EndpointInterceptor} that logs the complete request and response envelope of
- * {@code SoapMessage} messages. By default, request, response and fault messages are logged, but this behaviour
- * can be changed using the {@code logRequest}, {@code logResponse}, {@code logFault} properties.
+ * SOAP-specific {@code EndpointInterceptor} that logs the complete request and response
+ * envelope of {@code SoapMessage} messages. By default, request, response and fault
+ * messages are logged, but this behaviour can be changed using the {@code logRequest},
+ * {@code logResponse}, {@code logFault} properties.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #setLogRequest(boolean)
  * @see #setLogResponse(boolean)
  * @see #setLogFault(boolean)
- * @since 1.0.0
  */
 public class SoapEnvelopeLoggingInterceptor extends AbstractLoggingInterceptor implements SoapEndpointInterceptor {
 
@@ -47,7 +48,7 @@ public class SoapEnvelopeLoggingInterceptor extends AbstractLoggingInterceptor i
 
 	@Override
 	public boolean handleFault(MessageContext messageContext, Object endpoint) throws Exception {
-		if (logFault && isLogEnabled()) {
+		if (this.logFault && isLogEnabled()) {
 			logMessageSource("Fault: ", getSource(messageContext.getResponse()));
 		}
 		return true;
@@ -60,12 +61,12 @@ public class SoapEnvelopeLoggingInterceptor extends AbstractLoggingInterceptor i
 
 	@Override
 	protected Source getSource(WebServiceMessage message) {
-		if (message instanceof SoapMessage) {
-			SoapMessage soapMessage = (SoapMessage) message;
+		if (message instanceof SoapMessage soapMessage) {
 			return soapMessage.getEnvelope().getSource();
 		}
 		else {
 			return null;
 		}
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.ws.client.support.interceptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.client.WebServiceClientException;
 import org.springframework.ws.context.MessageContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Greg Turnquist
@@ -31,11 +33,13 @@ public class ClientInterceptorAdapterTest {
 
 	@Test
 	public void handleEmptyInterceptor() {
-		ClientInterceptor interceptor = new ClientInterceptorAdapter() {};
 
-		Assert.assertTrue(interceptor.handleRequest(null));
-		Assert.assertTrue(interceptor.handleResponse(null));
-		Assert.assertTrue(interceptor.handleFault(null));
+		ClientInterceptor interceptor = new ClientInterceptorAdapter() {
+		};
+
+		assertThat(interceptor.handleRequest(null)).isTrue();
+		assertThat(interceptor.handleResponse(null)).isTrue();
+		assertThat(interceptor.handleFault(null)).isTrue();
 
 		interceptor.afterCompletion(null, null);
 	}
@@ -44,18 +48,16 @@ public class ClientInterceptorAdapterTest {
 	public void handleTestAdapter() {
 		TestClientInterceptorAdapter interceptor = new TestClientInterceptorAdapter(new ArrayList<>());
 
-		Assert.assertFalse(interceptor.handleRequest(null));
-		Assert.assertFalse(interceptor.handleResponse(null));
-		Assert.assertFalse(interceptor.handleFault(null));
+		assertThat(interceptor.handleRequest(null)).isFalse();
+		assertThat(interceptor.handleResponse(null)).isFalse();
+		assertThat(interceptor.handleFault(null)).isFalse();
 
 		interceptor.afterCompletion(null, null);
 
 		List<String> bits = interceptor.getBits();
 
-		Assert.assertTrue(bits.contains("handled request"));
-		Assert.assertTrue(bits.contains("handled response"));
-		Assert.assertTrue(bits.contains("handled fault"));
-		Assert.assertTrue(bits.contains("handled afterCompletion"));
+		assertThat(bits).containsExactly("handled request", "handled response", "handled fault",
+				"handled afterCompletion");
 	}
 
 	static class TestClientInterceptorAdapter extends ClientInterceptorAdapter {
@@ -67,31 +69,35 @@ public class ClientInterceptorAdapterTest {
 		}
 
 		public List<String> getBits() {
-			return bits;
+			return this.bits;
 		}
 
 		@Override
 		public boolean handleRequest(MessageContext messageContext) throws WebServiceClientException {
-			bits.add("handled request");
+
+			this.bits.add("handled request");
 			return false;
 		}
 
 		@Override
 		public boolean handleResponse(MessageContext messageContext) throws WebServiceClientException {
-			bits.add("handled response");
+
+			this.bits.add("handled response");
 			return false;
 		}
 
 		@Override
 		public boolean handleFault(MessageContext messageContext) throws WebServiceClientException {
-			bits.add("handled fault");
+
+			this.bits.add("handled fault");
 			return false;
 		}
 
 		@Override
 		public void afterCompletion(MessageContext messageContext, Exception ex) throws WebServiceClientException {
-			bits.add("handled afterCompletion");
+			this.bits.add("handled afterCompletion");
 		}
+
 	}
 
 }

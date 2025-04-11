@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,29 +29,33 @@ import org.springframework.ws.soap.soap12.Soap12Body;
 import org.springframework.ws.soap.soap12.Soap12Fault;
 
 /**
- * Abstract base class for SOAP-based {@link EndpointExceptionResolver} implementations that depend on {@link
- * SoapFaultDefinition}. Provides a default endpoint property, and a template method that provides the definition for a
- * given exception.
+ * Abstract base class for SOAP-based {@link EndpointExceptionResolver} implementations
+ * that depend on {@link SoapFaultDefinition}. Provides a default endpoint property, and a
+ * template method that provides the definition for a given exception.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #setDefaultFault(SoapFaultDefinition)
  * @see #getFaultDefinition(Object,Exception)
- * @since 1.0.0
  */
 public abstract class AbstractSoapFaultDefinitionExceptionResolver extends AbstractEndpointExceptionResolver {
 
 	private SoapFaultDefinition defaultFault;
 
-	/** Set the default fault. This fault will be returned if no specific mapping was found. */
+	/**
+	 * Set the default fault. This fault will be returned if no specific mapping was
+	 * found.
+	 */
 	public void setDefaultFault(SoapFaultDefinition defaultFault) {
 		this.defaultFault = defaultFault;
 	}
 
 	/**
-	 * Template method that returns the {@link SoapFaultDefinition} for the given exception.
-	 *
-	 * @param endpoint the executed endpoint, or {@code null}  if none chosen at the time of the exception
-	 * @param ex	   the exception to be handled
+	 * Template method that returns the {@link SoapFaultDefinition} for the given
+	 * exception.
+	 * @param endpoint the executed endpoint, or {@code null} if none chosen at the time
+	 * of the exception
+	 * @param ex the exception to be handled
 	 * @return the definition mapped to the exception, or {@code null} if none is found.
 	 */
 	protected abstract SoapFaultDefinition getFaultDefinition(Object endpoint, Exception ex);
@@ -63,7 +67,7 @@ public abstract class AbstractSoapFaultDefinitionExceptionResolver extends Abstr
 
 		SoapFaultDefinition definition = getFaultDefinition(endpoint, ex);
 		if (definition == null) {
-			definition = defaultFault;
+			definition = this.defaultFault;
 		}
 		if (definition == null) {
 			return false;
@@ -71,28 +75,26 @@ public abstract class AbstractSoapFaultDefinitionExceptionResolver extends Abstr
 
 		String faultStringOrReason = definition.getFaultStringOrReason();
 		if (!StringUtils.hasLength(faultStringOrReason)) {
-			faultStringOrReason = StringUtils.hasLength(ex.getMessage()) ? ex.getMessage() : ex.toString();
+			faultStringOrReason = (StringUtils.hasLength(ex.getMessage())) ? ex.getMessage() : ex.toString();
 		}
 		SoapBody soapBody = ((SoapMessage) messageContext.getResponse()).getSoapBody();
 		SoapFault fault;
 
-		if (SoapFaultDefinition.SERVER.equals(definition.getFaultCode()) ||
-				SoapFaultDefinition.RECEIVER.equals(definition.getFaultCode())) {
+		if (SoapFaultDefinition.SERVER.equals(definition.getFaultCode())
+				|| SoapFaultDefinition.RECEIVER.equals(definition.getFaultCode())) {
 			fault = soapBody.addServerOrReceiverFault(faultStringOrReason, definition.getLocale());
 		}
-		else if (SoapFaultDefinition.CLIENT.equals(definition.getFaultCode()) ||
-				SoapFaultDefinition.SENDER.equals(definition.getFaultCode())) {
+		else if (SoapFaultDefinition.CLIENT.equals(definition.getFaultCode())
+				|| SoapFaultDefinition.SENDER.equals(definition.getFaultCode())) {
 			fault = soapBody.addClientOrSenderFault(faultStringOrReason, definition.getLocale());
 		}
 		else {
-			if (soapBody instanceof Soap11Body) {
-				Soap11Body soap11Body = (Soap11Body) soapBody;
+			if (soapBody instanceof Soap11Body soap11Body) {
 				fault = soap11Body.addFault(definition.getFaultCode(), faultStringOrReason, definition.getLocale());
 			}
-			else if (soapBody instanceof Soap12Body) {
-				Soap12Body soap12Body = (Soap12Body) soapBody;
-				Soap12Fault soap12Fault = soap12Body.addServerOrReceiverFault(faultStringOrReason, definition
-						.getLocale());
+			else if (soapBody instanceof Soap12Body soap12Body) {
+				Soap12Fault soap12Fault = soap12Body.addServerOrReceiverFault(faultStringOrReason,
+						definition.getLocale());
 				soap12Fault.addFaultSubcode(definition.getFaultCode());
 				fault = soap12Fault;
 			}
@@ -107,14 +109,15 @@ public abstract class AbstractSoapFaultDefinitionExceptionResolver extends Abstr
 	}
 
 	/**
-	 * Customize the {@link SoapFault} created by this resolver. Called for each created fault
-	 *
-	 * <p>The default implementation is empty. Can be overridden in subclasses to customize the properties of the fault,
-	 * such as adding details, etc.
-	 *
-	 * @param endpoint the executed endpoint, or {@code null}  if none chosen at the time of the exception
-	 * @param ex	   the exception to be handled
-	 * @param fault	   the created fault
+	 * Customize the {@link SoapFault} created by this resolver. Called for each created
+	 * fault
+	 * <p>
+	 * The default implementation is empty. Can be overridden in subclasses to customize
+	 * the properties of the fault, such as adding details, etc.
+	 * @param endpoint the executed endpoint, or {@code null} if none chosen at the time
+	 * of the exception
+	 * @param ex the exception to be handled
+	 * @param fault the created fault
 	 */
 	protected void customizeFault(Object endpoint, Exception ex, SoapFault fault) {
 	}

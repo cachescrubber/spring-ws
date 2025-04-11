@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,53 +19,53 @@ package org.springframework.xml.validation;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 
+import org.junit.jupiter.api.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SchemaLoaderUtilsTest {
 
 	@Test
 	public void testLoadSchema() throws Exception {
+
 		Resource resource = new ClassPathResource("schema.xsd", getClass());
 		Schema schema = SchemaLoaderUtils.loadSchema(resource, XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Assert.assertNotNull("No schema returned", schema);
-		Assert.assertFalse("Resource not closed", resource.isOpen());
+
+		assertThat(schema).isNotNull();
+		assertThat(resource.isOpen()).isFalse();
 	}
 
 	@Test
-	public void testLoadNonExistantSchema() throws Exception {
-		try {
-			Resource nonExistant = new ClassPathResource("bla");
-			SchemaLoaderUtils.loadSchema(nonExistant, XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Assert.fail("Should have thrown an IllegalArgumentException");
-		}
-		catch (IllegalArgumentException e) {
-			// expected
-		}
+	public void testLoadNonExistantSchema() {
+
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			Resource nonExistent = new ClassPathResource("bla");
+			SchemaLoaderUtils.loadSchema(nonExistent, XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		});
 	}
 
 	@Test
-	public void testLoadNullSchema() throws Exception {
-		try {
-			SchemaLoaderUtils.loadSchema((Resource) null, XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Assert.fail("Should have thrown an IllegalArgumentException");
-		}
-		catch (IllegalArgumentException e) {
-			// expected
-		}
+	public void testLoadNullSchema() {
+
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> SchemaLoaderUtils.loadSchema((Resource) null, XMLConstants.W3C_XML_SCHEMA_NS_URI));
 	}
 
 	@Test
 	public void testLoadMultipleSchemas() throws Exception {
+
 		Resource envelope = new ClassPathResource("envelope.xsd", getClass());
 		Resource encoding = new ClassPathResource("encoding.xsd", getClass());
-		Schema schema =
-				SchemaLoaderUtils.loadSchema(new Resource[]{envelope, encoding}, XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Assert.assertNotNull("No schema returned", schema);
-		Assert.assertFalse("Resource not closed", envelope.isOpen());
-		Assert.assertFalse("Resource not closed", encoding.isOpen());
+		Schema schema = SchemaLoaderUtils.loadSchema(new Resource[] { envelope, encoding },
+				XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+		assertThat(schema).isNotNull();
+		assertThat(envelope.isOpen()).isFalse();
+		assertThat(encoding.isOpen()).isFalse();
 	}
+
 }

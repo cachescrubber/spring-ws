@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package org.springframework.ws.soap.addressing.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Collections;
@@ -24,16 +25,20 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 /**
- * Represents a set of Message Addressing Properties, as defined in the WS-Addressing specification.
- *
- * <p>In earlier versions of the spec, these properties were called Message Information Headers.
+ * Represents a set of Message Addressing Properties, as defined in the WS-Addressing
+ * specification.
+ * <p>
+ * In earlier versions of the spec, these properties were called Message Information
+ * Headers.
  *
  * @author Arjen Poutsma
- * @see <a href="http://www.w3.org/TR/ws-addr-core/#msgaddrprops">Message Addressing Properties</a>
  * @since 1.5.0
+ * @see <a href="http://www.w3.org/TR/ws-addr-core/#msgaddrprops">Message Addressing
+ * Properties</a>
  */
 public final class MessageAddressingProperties implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -6980663311446506672L;
 
 	private final URI to;
@@ -56,20 +61,15 @@ public final class MessageAddressingProperties implements Serializable {
 
 	/**
 	 * Constructs a new {@link MessageAddressingProperties} with the given parameters.
-	 *
-	 * @param to		the value of the destination property
-	 * @param from		the value of the source endpoint property
-	 * @param replyTo	the value of the reply endpoint property
-	 * @param faultTo	the value of the fault endpoint property
-	 * @param action	the value of the action property
+	 * @param to the value of the destination property
+	 * @param from the value of the source endpoint property
+	 * @param replyTo the value of the reply endpoint property
+	 * @param faultTo the value of the fault endpoint property
+	 * @param action the value of the action property
 	 * @param messageId the value of the message id property
 	 */
-	public MessageAddressingProperties(URI to,
-									   EndpointReference from,
-									   EndpointReference replyTo,
-									   EndpointReference faultTo,
-									   URI action,
-									   URI messageId) {
+	public MessageAddressingProperties(URI to, EndpointReference from, EndpointReference replyTo,
+			EndpointReference faultTo, URI action, URI messageId) {
 		this.to = to;
 		this.from = from;
 		this.replyTo = replyTo;
@@ -82,10 +82,10 @@ public final class MessageAddressingProperties implements Serializable {
 	}
 
 	/**
-	 * Constructs a new {@link MessageAddressingProperties} that forms a reply to the given EPR.
-	 *
-	 * @param epr		the endpoint reference to create a reply for
-	 * @param action	the value of the action property
+	 * Constructs a new {@link MessageAddressingProperties} that forms a reply to the
+	 * given EPR.
+	 * @param epr the endpoint reference to create a reply for
+	 * @param action the value of the action property
 	 * @param messageId the value of the message id property
 	 * @param relatesTo the value of the relates to property
 	 */
@@ -103,59 +103,61 @@ public final class MessageAddressingProperties implements Serializable {
 
 	/** Returns the value of the destination property. */
 	public URI getTo() {
-		return to;
+		return this.to;
 	}
 
 	/** Returns the value of the source endpoint property. */
 	public EndpointReference getFrom() {
-		return from;
+		return this.from;
 	}
 
 	/** Returns the value of the reply endpoint property. */
 	public EndpointReference getReplyTo() {
-		return replyTo;
+		return this.replyTo;
 	}
 
 	/** Returns the value of the fault endpoint property. */
 	public EndpointReference getFaultTo() {
-		return faultTo;
+		return this.faultTo;
 	}
 
 	/** Returns the value of the action property. */
 	public URI getAction() {
-		return action;
+		return this.action;
 	}
 
 	/** Returns the value of the message id property. */
 	public URI getMessageId() {
-		return messageId;
+		return this.messageId;
 	}
 
 	/** Returns the value of the relationship property. */
 	public URI getRelatesTo() {
-		return relatesTo;
+		return this.relatesTo;
 	}
 
 	/** Returns the endpoint properties. Returns an empty list of none are set. */
 	public List<Node> getReferenceProperties() {
-		return Collections.unmodifiableList(referenceProperties);
+		return Collections.unmodifiableList(this.referenceProperties);
 	}
 
 	/** Returns the endpoint parameters. Returns an empty list of none are set. */
 	public List<Node> getReferenceParameters() {
-		return Collections.unmodifiableList(referenceParameters);
+		return Collections.unmodifiableList(this.referenceParameters);
 	}
 
 	/**
-	 * Creates a {@link MessageAddressingProperties} that can be used for creating a reply to the given {@link
-	 * EndpointReference}. The {@link #getTo() destination} property will be populated with the {@link
-	 * EndpointReference#getAddress() address} of the given EPR, and the {@link #getRelatesTo() relationship} property
-	 * will be set to the {@link #getMessageId() message id} property of this instance. the action is specified, the
-	 *
-	 * @param epr	 the endpoint reference to create a reply to
+	 * Creates a {@link MessageAddressingProperties} that can be used for creating a reply
+	 * to the given {@link EndpointReference}. The {@link #getTo() destination} property
+	 * will be populated with the {@link EndpointReference#getAddress() address} of the
+	 * given EPR, and the {@link #getRelatesTo() relationship} property will be set to the
+	 * {@link #getMessageId() message id} property of this instance. the action is
+	 * specified, the
+	 * @param epr the endpoint reference to create a reply to
 	 * @param action the action
 	 */
 	public MessageAddressingProperties getReplyProperties(EndpointReference epr, URI action, URI messageId) {
 		return new MessageAddressingProperties(epr, action, messageId, this.messageId);
 	}
+
 }

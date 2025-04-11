@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2011 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,9 +27,10 @@ import org.springframework.ws.server.endpoint.support.PayloadRootUtils;
 import org.springframework.xml.transform.TransformerHelper;
 
 /**
- * Implementation of the {@link org.springframework.ws.soap.server.SmartSoapEndpointInterceptor
- * SmartSoapEndpointInterceptor} interface that only intercepts requests that have a specified namespace URI or local
- * part (or both) as payload root.
+ * Implementation of the
+ * {@link org.springframework.ws.soap.server.SmartSoapEndpointInterceptor
+ * SmartSoapEndpointInterceptor} interface that only intercepts requests that have a
+ * specified namespace URI or local part (or both) as payload root.
  *
  * @author Arjen Poutsma
  * @since 2.0
@@ -42,9 +43,8 @@ public class PayloadRootSmartSoapEndpointInterceptor extends DelegatingSmartSoap
 
 	private final String localPart;
 
-	public PayloadRootSmartSoapEndpointInterceptor(EndpointInterceptor delegate,
-												   String namespaceUri,
-												   String localPart) {
+	public PayloadRootSmartSoapEndpointInterceptor(EndpointInterceptor delegate, String namespaceUri,
+			String localPart) {
 		super(delegate);
 		Assert.hasLength(namespaceUri, "namespaceUri can not be empty");
 		this.namespaceUri = namespaceUri;
@@ -58,15 +58,17 @@ public class PayloadRootSmartSoapEndpointInterceptor extends DelegatingSmartSoap
 	@Override
 	protected boolean shouldIntercept(WebServiceMessage request, Object endpoint) {
 		try {
-			QName payloadRootName = PayloadRootUtils.getPayloadRootQName(request.getPayloadSource(), transformerHelper);
-			if (payloadRootName == null || !namespaceUri.equals(payloadRootName.getNamespaceURI())) {
+			QName payloadRootName = PayloadRootUtils.getPayloadRootQName(request.getPayloadSource(),
+					this.transformerHelper);
+			if (payloadRootName == null || !this.namespaceUri.equals(payloadRootName.getNamespaceURI())) {
 				return false;
 			}
-			return !StringUtils.hasLength(localPart) || localPart.equals(payloadRootName.getLocalPart());
+			return !StringUtils.hasLength(this.localPart) || this.localPart.equals(payloadRootName.getLocalPart());
 
 		}
-		catch (TransformerException e) {
+		catch (TransformerException ex) {
 			return false;
 		}
 	}
+
 }

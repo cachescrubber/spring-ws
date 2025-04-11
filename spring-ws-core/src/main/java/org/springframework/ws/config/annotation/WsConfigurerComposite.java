@@ -1,3 +1,19 @@
+/*
+ * Copyright 2005-2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.ws.config.annotation;
 
 import java.util.ArrayList;
@@ -8,14 +24,17 @@ import org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResol
 import org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler;
 
 /**
- * An {@link WsConfigurer} implementation that delegates to other {@link WsConfigurer} instances.
+ * An {@link WsConfigurer} implementation that delegates to other {@link WsConfigurer}
+ * instances.
  *
  * @author Arjen Poutsma
  * @since 2.2
+ * @deprecated since 4.0.12 with no replacement
  */
+@Deprecated(since = "4.0.12", forRemoval = true)
 public class WsConfigurerComposite implements WsConfigurer {
 
-	private List<WsConfigurer> delegates = new ArrayList<WsConfigurer>();
+	private List<WsConfigurer> delegates = new ArrayList<>();
 
 	public void addWsConfigurers(List<WsConfigurer> configurers) {
 		if (configurers != null) {
@@ -25,22 +44,21 @@ public class WsConfigurerComposite implements WsConfigurer {
 
 	@Override
 	public void addInterceptors(List<EndpointInterceptor> interceptors) {
-		for (WsConfigurer delegate : delegates) {
+		for (WsConfigurer delegate : this.delegates) {
 			delegate.addInterceptors(interceptors);
 		}
 	}
 
 	@Override
 	public void addArgumentResolvers(List<MethodArgumentResolver> argumentResolvers) {
-		for (WsConfigurer delegate : delegates) {
+		for (WsConfigurer delegate : this.delegates) {
 			delegate.addArgumentResolvers(argumentResolvers);
 		}
 	}
 
 	@Override
-	public void addReturnValueHandlers(
-			List<MethodReturnValueHandler> returnValueHandlers) {
-		for (WsConfigurer delegate : delegates) {
+	public void addReturnValueHandlers(List<MethodReturnValueHandler> returnValueHandlers) {
+		for (WsConfigurer delegate : this.delegates) {
 			delegate.addReturnValueHandlers(returnValueHandlers);
 		}
 	}

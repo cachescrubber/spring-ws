@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +17,25 @@
 package org.springframework.ws.soap.saaj.support;
 
 import java.util.Iterator;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBodyElement;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPMessage;
+
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.Name;
+import jakarta.xml.soap.SOAPBodyElement;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPEnvelope;
+import jakarta.xml.soap.SOAPMessage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.xml.transform.StringSource;
 import org.springframework.xml.transform.TransformerFactoryUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SaajContentHandlerTest {
 
@@ -43,33 +45,43 @@ public class SaajContentHandlerTest {
 
 	private SOAPEnvelope envelope;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
+
 		MessageFactory messageFactory = MessageFactory.newInstance();
 		SOAPMessage message = messageFactory.createMessage();
-		envelope = message.getSOAPPart().getEnvelope();
-		handler = new SaajContentHandler(envelope.getBody());
-		transformer = TransformerFactoryUtils.newInstance().newTransformer();
+		this.envelope = message.getSOAPPart().getEnvelope();
+		this.handler = new SaajContentHandler(this.envelope.getBody());
+		this.transformer = TransformerFactoryUtils.newInstance().newTransformer();
 	}
 
 	@Test
 	public void testHandler() throws Exception {
-		String content = "<Root xmlns='http://springframework.org/spring-ws/1' " +
-				"xmlns:child='http://springframework.org/spring-ws/2'>" +
-				"<child:Child attribute='value'>Content</child:Child></Root>";
+
+		String content = "<Root xmlns='http://springframework.org/spring-ws/1' "
+				+ "xmlns:child='http://springframework.org/spring-ws/2'>"
+				+ "<child:Child attribute='value'>Content</child:Child></Root>";
 		Source source = new StringSource(content);
-		Result result = new SAXResult(handler);
-		transformer.transform(source, result);
-		Name rootName = envelope.createName("Root", "", "http://springframework.org/spring-ws/1");
-		Iterator<?> iterator = envelope.getBody().getChildElements(rootName);
-		Assert.assertTrue("No child found", iterator.hasNext());
+		Result result = new SAXResult(this.handler);
+		this.transformer.transform(source, result);
+		Name rootName = this.envelope.createName("Root", "", "http://springframework.org/spring-ws/1");
+		Iterator<?> iterator = this.envelope.getBody().getChildElements(rootName);
+
+		assertThat(iterator.hasNext()).isTrue();
+
 		SOAPBodyElement rootElement = (SOAPBodyElement) iterator.next();
-		Name childName = envelope.createName("Child", "child", "http://springframework.org/spring-ws/2");
+		Name childName = this.envelope.createName("Child", "child", "http://springframework.org/spring-ws/2");
 		iterator = rootElement.getChildElements(childName);
-		Assert.assertTrue("No child found", iterator.hasNext());
+
+		assertThat(iterator.hasNext()).isTrue();
+
 		SOAPElement childElement = (SOAPElement) iterator.next();
-		Assert.assertEquals("Invalid contents", "Content", childElement.getValue());
-		Name attributeName = envelope.createName("attribute");
-		Assert.assertEquals("Invalid attribute value", "value", childElement.getAttributeValue(attributeName));
+
+		assertThat(childElement.getValue()).isEqualTo("Content");
+
+		Name attributeName = this.envelope.createName("attribute");
+
+		assertThat(childElement.getAttributeValue(attributeName)).isEqualTo("value");
 	}
+
 }

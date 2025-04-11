@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,12 +28,16 @@ import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.handler.WSHandler;
 import org.w3c.dom.Document;
 
+import org.springframework.util.StringUtils;
 import org.springframework.ws.context.MessageContext;
 
 /**
+ * {@link WSHandler} implementation.
+ *
  * @author Tareq Abed Rabbo
  * @author Arjen Poutsma
  * @author Jamin Hitchcock
+ * @author Lars Uffmann
  * @since 2.3.0
  */
 class Wss4jHandler extends WSHandler {
@@ -49,17 +53,13 @@ class Wss4jHandler extends WSHandler {
 
 	Wss4jHandler() {
 		// set up default handler properties
-		options.setProperty(ConfigurationConstants.MUST_UNDERSTAND, Boolean.toString(true));
-		options.setProperty(ConfigurationConstants.ENABLE_SIGNATURE_CONFIRMATION, Boolean.toString(true));
+		this.options.setProperty(ConfigurationConstants.MUST_UNDERSTAND, Boolean.toString(true));
+		this.options.setProperty(ConfigurationConstants.ENABLE_SIGNATURE_CONFIRMATION, Boolean.toString(true));
 	}
-	
+
 	@Override
-	public void doSenderAction(
-            Document doc,
-            RequestData reqData, 
-            List<HandlerAction> actions,
-            boolean isRequest) throws WSSecurityException
-	{
+	public void doSenderAction(Document doc, RequestData reqData, List<HandlerAction> actions, boolean isRequest)
+			throws WSSecurityException {
 		super.doSenderAction(doc, reqData, actions, isRequest);
 	}
 
@@ -69,16 +69,16 @@ class Wss4jHandler extends WSHandler {
 	}
 
 	void setOption(String key, String value) {
-		options.setProperty(key, value);
+		this.options.setProperty(key, value);
 	}
 
 	void setOption(String key, boolean value) {
-		options.setProperty(key, Boolean.toString(value));
+		this.options.setProperty(key, Boolean.toString(value));
 	}
 
 	@Override
 	public Object getOption(String key) {
-		return options.getProperty(key);
+		return this.options.getProperty(key);
 	}
 
 	void setSecurementPassword(String securementPassword) {
@@ -95,7 +95,12 @@ class Wss4jHandler extends WSHandler {
 
 	@Override
 	public String getPassword(Object msgContext) {
-		return securementPassword;
+		String contextPassword = (String) getProperty(msgContext,
+				Wss4jSecurityInterceptor.SECUREMENT_PASSWORD_PROPERTY_NAME);
+		if (StringUtils.hasLength(contextPassword)) {
+			return contextPassword;
+		}
+		return this.securementPassword;
 	}
 
 	@Override
@@ -105,21 +110,22 @@ class Wss4jHandler extends WSHandler {
 
 	@Override
 	protected Crypto loadEncryptionCrypto(RequestData reqData) throws WSSecurityException {
-		return securementEncryptionCrypto;
+		return this.securementEncryptionCrypto;
 	}
 
 	@Override
 	public Crypto loadSignatureCrypto(RequestData reqData) throws WSSecurityException {
-		return securementSignatureCrypto;
+		return this.securementSignatureCrypto;
 	}
 
 	@Override
 	public void setPassword(Object msgContext, String password) {
-		securementPassword = password;
+		this.securementPassword = password;
 	}
 
 	@Override
 	public void setProperty(Object msgContext, String key, Object value) {
 		((MessageContext) msgContext).setProperty(key, value);
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,14 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
-import org.springframework.util.Assert;
-import org.springframework.util.xml.StaxUtils;
-import org.springframework.ws.soap.axiom.support.AxiomUtils;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPFactory;
+
+import org.springframework.util.Assert;
+import org.springframework.util.xml.StaxUtils;
+import org.springframework.ws.soap.axiom.support.AxiomUtils;
 
 /**
  * Abstract base class for {@link Payload} implementations.
@@ -76,11 +76,11 @@ abstract class AbstractPayload extends Payload {
 	protected abstract Result getResultInternal();
 
 	public SOAPFactory getAxiomFactory() {
-		return axiomFactory;
+		return this.axiomFactory;
 	}
 
 	protected SOAPBody getAxiomBody() {
-		return axiomBody;
+		return this.axiomBody;
 	}
 
 	protected OMElement getPayloadElement() throws OMException {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,12 +38,13 @@ import org.springframework.ws.transport.context.TransportContext;
 import org.springframework.ws.transport.context.TransportContextHolder;
 
 /**
- * Convenience base class for server-side transport objects. Contains a {@link WebServiceMessageFactory}, and has
- * methods for handling incoming {@link WebServiceConnection}s.
+ * Convenience base class for server-side transport objects. Contains a
+ * {@link WebServiceMessageFactory}, and has methods for handling incoming
+ * {@link WebServiceConnection}s.
  *
  * @author Arjen Poutsma
- * @see #handleConnection
  * @since 1.0.0
+ * @see #handleConnection
  */
 public abstract class WebServiceMessageReceiverObjectSupport implements InitializingBean {
 
@@ -54,7 +55,7 @@ public abstract class WebServiceMessageReceiverObjectSupport implements Initiali
 
 	/** Returns the {@code WebServiceMessageFactory}. */
 	public WebServiceMessageFactory getMessageFactory() {
-		return messageFactory;
+		return this.messageFactory;
 	}
 
 	/** Sets the {@code WebServiceMessageFactory}. */
@@ -64,18 +65,20 @@ public abstract class WebServiceMessageReceiverObjectSupport implements Initiali
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(messageFactory, "messageFactory is required");
+		Assert.notNull(this.messageFactory, "messageFactory is required");
 	}
 
 	/**
-	 * Handles an incoming connection by {@link WebServiceConnection#receive(WebServiceMessageFactory) receving} a
-	 * message from it, passing it to the {@link WebServiceMessageReceiver#receive(MessageContext) receiver}, and {@link
-	 * WebServiceConnection#send(WebServiceMessage) sending} the response (if any).
-	 *
-	 * <p>Stores the given connection in the {@link TransportContext}.
-	 *
+	 * Handles an incoming connection by
+	 * {@link WebServiceConnection#receive(WebServiceMessageFactory) receving} a message
+	 * from it, passing it to the {@link WebServiceMessageReceiver#receive(MessageContext)
+	 * receiver}, and {@link WebServiceConnection#send(WebServiceMessage) sending} the
+	 * response (if any).
+	 * <p>
+	 * Stores the given connection in the {@link TransportContext}.
 	 * @param connection the incoming connection
-	 * @param receiver	 the handler of the message, typically a {@link org.springframework.ws.server.MessageDispatcher}
+	 * @param receiver the handler of the message, typically a
+	 * {@link org.springframework.ws.server.MessageDispatcher}
 	 */
 	protected final void handleConnection(WebServiceConnection connection, WebServiceMessageReceiver receiver)
 			throws Exception {
@@ -89,10 +92,8 @@ public abstract class WebServiceMessageReceiverObjectSupport implements Initiali
 			receiver.receive(messageContext);
 			if (messageContext.hasResponse()) {
 				WebServiceMessage response = messageContext.getResponse();
-				if (response instanceof FaultAwareWebServiceMessage &&
-						connection instanceof FaultAwareWebServiceConnection) {
-					FaultAwareWebServiceMessage faultResponse = (FaultAwareWebServiceMessage) response;
-					FaultAwareWebServiceConnection faultConnection = (FaultAwareWebServiceConnection) connection;
+				if (response instanceof FaultAwareWebServiceMessage faultResponse
+						&& connection instanceof FaultAwareWebServiceConnection faultConnection) {
 					faultConnection.setFaultCode(faultResponse.getFaultCode());
 				}
 				connection.send(messageContext.getResponse());
@@ -109,18 +110,16 @@ public abstract class WebServiceMessageReceiverObjectSupport implements Initiali
 
 	/**
 	 * Template method for handling {@code NoEndpointFoundException}s.
-	 *
-	 * <p>Default implementation calls
+	 * <p>
+	 * Default implementation calls
 	 * {@link EndpointAwareWebServiceConnection#endpointNotFound()} on the given
 	 * connection, if possible.
-	 *
 	 * @param ex the {@code NoEndpointFoundException}
 	 * @param connection the current {@code WebServiceConnection}
 	 * @param receiver the {@code WebServiceMessageReceiver}
 	 * @throws Exception in case of errors
 	 */
-	protected void handleNoEndpointFoundException(NoEndpointFoundException ex,
-			WebServiceConnection connection,
+	protected void handleNoEndpointFoundException(NoEndpointFoundException ex, WebServiceConnection connection,
 			WebServiceMessageReceiver receiver) throws Exception {
 		if (connection instanceof EndpointAwareWebServiceConnection) {
 			((EndpointAwareWebServiceConnection) connection).endpointNotFound();
@@ -128,11 +127,11 @@ public abstract class WebServiceMessageReceiverObjectSupport implements Initiali
 	}
 
 	private void logUri(WebServiceConnection connection) {
-		if (logger.isDebugEnabled()) {
+		if (this.logger.isDebugEnabled()) {
 			try {
-				logger.debug("Accepting incoming [" + connection + "] at [" + connection.getUri() + "]");
+				this.logger.debug("Accepting incoming [" + connection + "] at [" + connection.getUri() + "]");
 			}
-			catch (URISyntaxException e) {
+			catch (URISyntaxException ex) {
 				// ignore
 			}
 		}

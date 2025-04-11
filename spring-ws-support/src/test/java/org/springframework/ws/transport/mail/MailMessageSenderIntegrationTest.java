@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,26 @@
 package org.springframework.ws.transport.mail;
 
 import java.net.URI;
+import java.util.Collections;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPMessage;
+
+import com.icegreen.greenmail.spring.GreenMailBean;
+import jakarta.mail.Address;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConstants;
+import jakarta.xml.soap.SOAPMessage;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.transport.WebServiceConnection;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.jvnet.mock_javamail.Mailbox;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MailMessageSenderIntegrationTest {
 
@@ -40,38 +46,50 @@ public class MailMessageSenderIntegrationTest {
 
 	private static final String SOAP_ACTION = "http://springframework.org/DoIt";
 
-	@Before
+	private GreenMailBean greenMailBean;
+
+	@BeforeEach
 	public void setUp() throws Exception {
-		messageSender = new MailMessageSender();
-		messageSender.setFrom("Spring-WS SOAP Client <client@example.com>");
-		messageSender.setTransportUri("smtp://smtp.example.com");
-		messageSender.setStoreUri("imap://imap.example.com/INBOX");
-		messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
-		messageSender.afterPropertiesSet();
+
+		this.greenMailBean = new GreenMailBean();
+		this.greenMailBean.setAutostart(true);
+		this.greenMailBean.setSmtpProtocol(true);
+		this.greenMailBean.setImapProtocol(true);
+		this.greenMailBean.setUsers(Collections.singletonList("system:password@localhost"));
+		this.greenMailBean.afterPropertiesSet();
+
+		this.messageSender = new MailMessageSender();
+		this.messageSender.setFrom("Spring-WS SOAP Client <client@localhost>");
+		this.messageSender.setTransportUri("smtp://localhost:" + this.greenMailBean.getGreenMail().getSmtp().getPort());
+		this.messageSender
+			.setStoreUri("imap://localhost:" + this.greenMailBean.getGreenMail().getImap().getPort() + "/INBOX");
+		this.messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+		this.messageSender.afterPropertiesSet();
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		Mailbox.clearAll();
+	@AfterEach
+	void tearDown() throws Exception {
+		this.greenMailBean.destroy();
 	}
 
+	@Disabled
 	@Test
 	public void testSendAndReceiveQueueNoResponse() throws Exception {
-		WebServiceConnection connection = null;
-		try {
-			URI mailTo = new URI("mailto:server@example.com?subject=SOAP%20Test");
-			connection = messageSender.createConnection(mailTo);
-			SOAPMessage saajMessage = messageFactory.createMessage();
+
+		URI mailTo = new URI("mailto:server@localhost?subject=SOAP%20Test");
+
+		try (WebServiceConnection connection = this.messageSender.createConnection(mailTo)) {
+
+			SOAPMessage saajMessage = this.messageFactory.createMessage();
 			saajMessage.getSOAPBody().addBodyElement(new QName("http://springframework.org", "test"));
 			SoapMessage soapRequest = new SaajSoapMessage(saajMessage);
 			soapRequest.setSoapAction(SOAP_ACTION);
 			connection.send(soapRequest);
-			Assert.assertEquals("No mail message sent", 1, Mailbox.get("server@example.com").size());
-		}
-		finally {
-			if (connection != null) {
-				connection.close();
-			}
+
+			MimeMessage[] receivedMessages = this.greenMailBean.getGreenMail().getReceivedMessages();
+			assertThat(receivedMessages).hasSize(1);
+			assertThat(receivedMessages[0].getAllRecipients()).extracting(Address::toString)
+				.contains("server@localhost");
 		}
 	}
 

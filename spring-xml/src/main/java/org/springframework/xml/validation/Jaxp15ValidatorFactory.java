@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.xml.validation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;
@@ -34,8 +35,8 @@ import org.xml.sax.SAXParseException;
 import org.springframework.core.io.Resource;
 
 /**
- * Internal class that uses JAXP 1.5 features to create an {@code XmlValidator} with settings to prevent
- * external entity access.
+ * Internal class that uses JAXP 1.5 features to create an {@code XmlValidator} with
+ * settings to prevent external entity access.
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
@@ -44,7 +45,6 @@ import org.springframework.core.io.Resource;
 abstract class Jaxp15ValidatorFactory {
 
 	private static final Log log = LogFactory.getLog(Jaxp15ValidatorFactory.class);
-
 
 	static XmlValidator createValidator(Resource[] resources, String schemaLanguage) throws IOException {
 		try {
@@ -56,11 +56,11 @@ abstract class Jaxp15ValidatorFactory {
 		}
 	}
 
-	private static class Jaxp15Validator implements XmlValidator {
+	private static final class Jaxp15Validator implements XmlValidator {
 
 		private Schema schema;
 
-		public Jaxp15Validator(Schema schema) {
+		Jaxp15Validator(Schema schema) {
 			this.schema = schema;
 		}
 
@@ -74,21 +74,25 @@ abstract class Jaxp15ValidatorFactory {
 			if (errorHandler == null) {
 				errorHandler = new DefaultValidationErrorHandler();
 			}
-			Validator validator = schema.newValidator();
+			Validator validator = this.schema.newValidator();
 
 			try {
 				validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+			}
+			catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
 				if (log.isWarnEnabled()) {
-					log.warn(XMLConstants.ACCESS_EXTERNAL_DTD + " property not supported by " + validator.getClass().getCanonicalName());
+					log.warn(XMLConstants.ACCESS_EXTERNAL_DTD + " property not supported by "
+							+ validator.getClass().getCanonicalName());
 				}
 			}
 
 			try {
 				validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+			}
+			catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
 				if (log.isWarnEnabled()) {
-					log.warn(XMLConstants.ACCESS_EXTERNAL_SCHEMA + " property not supported by " + validator.getClass().getCanonicalName());
+					log.warn(XMLConstants.ACCESS_EXTERNAL_SCHEMA + " property not supported by "
+							+ validator.getClass().getCanonicalName());
 				}
 			}
 
@@ -101,16 +105,19 @@ abstract class Jaxp15ValidatorFactory {
 				throw new XmlValidationException("Could not validate source: " + ex.getMessage(), ex);
 			}
 		}
+
 	}
 
-	/** {@code ErrorHandler} implementation that stores errors and fatal errors in a list. */
-	private static class DefaultValidationErrorHandler implements ValidationErrorHandler {
+	/**
+	 * {@code ErrorHandler} implementation that stores errors and fatal errors in a list.
+	 */
+	private static final class DefaultValidationErrorHandler implements ValidationErrorHandler {
 
-		private List<SAXParseException> errors = new ArrayList<SAXParseException>();
+		private List<SAXParseException> errors = new ArrayList<>();
 
 		@Override
 		public SAXParseException[] getErrors() {
-			return errors.toArray(new SAXParseException[errors.size()]);
+			return this.errors.toArray(new SAXParseException[0]);
 		}
 
 		@Override
@@ -119,12 +126,14 @@ abstract class Jaxp15ValidatorFactory {
 
 		@Override
 		public void error(SAXParseException ex) throws SAXException {
-			errors.add(ex);
+			this.errors.add(ex);
 		}
 
 		@Override
 		public void fatalError(SAXParseException ex) throws SAXException {
-			errors.add(ex);
+			this.errors.add(ex);
 		}
+
 	}
+
 }

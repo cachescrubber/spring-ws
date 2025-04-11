@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +28,10 @@ import org.springframework.ws.transport.http.MessageDispatcherServlet;
  * Base class for {@link WebApplicationInitializer} implementations that register a
  * {@link MessageDispatcherServlet} configured with annotated classes, e.g. Spring's
  * {@link Configuration @Configuration} classes.
- *
- * <p>Concrete implementations are required to implement {@link #getRootConfigClasses()}
- * and {@link #getServletConfigClasses()} as well as {@link #getServletMappings()}.
- * Further template and customization methods are provided by
+ * <p>
+ * Concrete implementations are required to implement {@link #getRootConfigClasses()} and
+ * {@link #getServletConfigClasses()} as well as {@link #getServletMappings()}. Further
+ * template and customization methods are provided by
  * {@link AbstractDispatcherServletInitializer}.
  *
  * @author Arjen Poutsma
@@ -42,7 +42,8 @@ public abstract class AbstractAnnotationConfigMessageDispatcherServletInitialize
 
 	/**
 	 * {@inheritDoc}
-	 * <p>This implementation creates an {@link AnnotationConfigWebApplicationContext},
+	 * <p>
+	 * This implementation creates an {@link AnnotationConfigWebApplicationContext},
 	 * providing it the annotated classes returned by {@link #getRootConfigClasses()}.
 	 * Returns {@code null} if {@link #getRootConfigClasses()} returns {@code null}.
 	 */
@@ -61,7 +62,8 @@ public abstract class AbstractAnnotationConfigMessageDispatcherServletInitialize
 
 	/**
 	 * {@inheritDoc}
-	 * <p>This implementation creates an {@link AnnotationConfigWebApplicationContext},
+	 * <p>
+	 * This implementation creates an {@link AnnotationConfigWebApplicationContext},
 	 * providing it the annotated classes returned by {@link #getServletConfigClasses()}.
 	 */
 	@Override
@@ -77,7 +79,8 @@ public abstract class AbstractAnnotationConfigMessageDispatcherServletInitialize
 	/**
 	 * Specify {@link org.springframework.context.annotation.Configuration @Configuration}
 	 * and/or {@link org.springframework.stereotype.Component @Component} classes to be
-	 * provided to the {@linkplain #createRootApplicationContext() root application context}.
+	 * provided to the {@linkplain #createRootApplicationContext() root application
+	 * context}.
 	 * @return the configuration classes for the root application context, or {@code null}
 	 * if creation and registration of a root context is not desired
 	 */

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.soap.security.support;
 
 import java.security.KeyStore;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 
@@ -26,14 +27,14 @@ import org.springframework.util.StringUtils;
 
 /**
  * Spring factory bean for an array of {@link KeyManager}s.
- *
- * <p>Uses the {@link KeyManagerFactory} to create the {@code KeyManager}s.
+ * <p>
+ * Uses the {@link KeyManagerFactory} to create the {@code KeyManager}s.
  *
  * @author Stephen More
  * @author Arjen Poutsma
+ * @since 2.1.2
  * @see KeyManager
  * @see KeyManagerFactory
- * @since 2.1.2
  */
 public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, InitializingBean {
 
@@ -48,8 +49,8 @@ public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, Initia
 	private char[] password;
 
 	/**
-	 * Sets the password to use for integrity checking. If this property is not set, then integrity checking is not
-	 * performed.
+	 * Sets the password to use for integrity checking. If this property is not set, then
+	 * integrity checking is not performed.
 	 */
 	public void setPassword(String password) {
 		if (password != null) {
@@ -58,15 +59,16 @@ public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, Initia
 	}
 
 	/**
-	 * Sets the provider of the key manager to use. If this is not set, the default is used.
+	 * Sets the provider of the key manager to use. If this is not set, the default is
+	 * used.
 	 */
 	public void setProvider(String provider) {
 		this.provider = provider;
 	}
 
 	/**
-	 * Sets the algorithm of the {@code KeyManager} to use. If this is not set, the default is used.
-	 *
+	 * Sets the algorithm of the {@code KeyManager} to use. If this is not set, the
+	 * default is used.
 	 * @see KeyManagerFactory#getDefaultAlgorithm()
 	 */
 	public void setAlgorithm(String algorithm) {
@@ -75,7 +77,6 @@ public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, Initia
 
 	/**
 	 * Sets the source of key material.
-	 *
 	 * @see KeyManagerFactory#init(KeyStore, char[])
 	 */
 	public void setKeyStore(KeyStore keyStore) {
@@ -84,7 +85,7 @@ public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, Initia
 
 	@Override
 	public KeyManager[] getObject() throws Exception {
-		return keyManagers;
+		return this.keyManagers;
 	}
 
 	@Override
@@ -99,15 +100,15 @@ public class KeyManagersFactoryBean implements FactoryBean<KeyManager[]>, Initia
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		String algorithm =
-				StringUtils.hasLength(this.algorithm) ? this.algorithm : KeyManagerFactory.getDefaultAlgorithm();
+		String algorithm = StringUtils.hasLength(this.algorithm) ? this.algorithm
+				: KeyManagerFactory.getDefaultAlgorithm();
 
-		KeyManagerFactory keyManagerFactory =
-				StringUtils.hasLength(this.provider) ? KeyManagerFactory.getInstance(algorithm, this.provider) :
-						KeyManagerFactory.getInstance(algorithm);
+		KeyManagerFactory keyManagerFactory = StringUtils.hasLength(this.provider)
+				? KeyManagerFactory.getInstance(algorithm, this.provider) : KeyManagerFactory.getInstance(algorithm);
 
-		keyManagerFactory.init(keyStore, password);
+		keyManagerFactory.init(this.keyStore, this.password);
 
 		this.keyManagers = keyManagerFactory.getKeyManagers();
 	}
+
 }

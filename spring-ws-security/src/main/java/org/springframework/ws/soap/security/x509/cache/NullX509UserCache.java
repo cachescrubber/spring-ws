@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,15 +20,18 @@ import java.security.cert.X509Certificate;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 /**
  * "Cache" that doesn't do any caching.
- * <p>Migrated from Spring Security 2 since it has been removed in Spring Security 3.</p>
+ * <p>
+ * Migrated from Spring Security 2 since it has been removed in Spring Security 3.
+ * </p>
  *
  * @author Luke Taylor
  */
 public class NullX509UserCache implements X509UserCache {
-	//~ Methods ========================================================================================================
+
+	// ~ Methods
+	// ========================================================================================================
 
 	@Override
 	public UserDetails getUserFromCache(X509Certificate certificate) {
@@ -36,8 +39,11 @@ public class NullX509UserCache implements X509UserCache {
 	}
 
 	@Override
-	public void putUserInCache(X509Certificate certificate, UserDetails user) {}
+	public void putUserInCache(X509Certificate certificate, UserDetails user) {
+	}
 
 	@Override
-	public void removeUserFromCache(X509Certificate certificate) {}
+	public void removeUserFromCache(X509Certificate certificate) {
+	}
+
 }

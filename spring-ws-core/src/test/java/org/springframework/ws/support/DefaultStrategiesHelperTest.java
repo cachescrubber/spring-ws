@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,7 @@ package org.springframework.ws.support;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -30,10 +29,13 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 public class DefaultStrategiesHelperTest {
 
 	@Test
-	public void testGetDefaultStrategies() throws Exception {
+	public void testGetDefaultStrategies() {
 
 		Properties strategies = new Properties();
 		strategies.put(Strategy.class.getName(),
@@ -45,18 +47,22 @@ public class DefaultStrategiesHelperTest {
 		applicationContext.registerSingleton("strategy2", ContextAwareStrategyImpl.class);
 
 		List<Strategy> result = helper.getDefaultStrategies(Strategy.class, applicationContext);
-		Assert.assertNotNull("No result", result);
-		Assert.assertEquals("Invalid amount of strategies", 2, result.size());
-		Assert.assertTrue("Result not a Strategy implementation", result.get(0) != null);
-		Assert.assertTrue("Result not a Strategy implementation", result.get(1) != null);
-		Assert.assertTrue("Result not a StrategyImpl implementation", result.get(0) instanceof StrategyImpl);
-		Assert.assertTrue("Result not a StrategyImpl implementation", result.get(1) instanceof ContextAwareStrategyImpl);
+
+		assertThat(result).isNotNull();
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0)).isNotNull();
+		assertThat(result.get(1)).isNotNull();
+		assertThat(result.get(0)).isInstanceOf(StrategyImpl.class);
+		assertThat(result.get(1)).isInstanceOf(ContextAwareStrategyImpl.class);
+
 		ContextAwareStrategyImpl impl = (ContextAwareStrategyImpl) result.get(1);
-		Assert.assertNotNull("No application context injected", impl.getApplicationContext());
+
+		assertThat(impl.getApplicationContext()).isNotNull();
 	}
 
 	@Test
-	public void testGetDefaultStrategy() throws Exception {
+	public void testGetDefaultStrategy() {
+
 		Properties strategies = new Properties();
 		strategies.put(Strategy.class.getName(), StrategyImpl.class.getName());
 		DefaultStrategiesHelper helper = new DefaultStrategiesHelper(strategies);
@@ -66,13 +72,15 @@ public class DefaultStrategiesHelperTest {
 		applicationContext.registerSingleton("strategy2", ContextAwareStrategyImpl.class);
 
 		Object result = helper.getDefaultStrategy(Strategy.class, applicationContext);
-		Assert.assertNotNull("No result", result);
-		Assert.assertTrue("Result not a Strategy implementation", result instanceof Strategy);
-		Assert.assertTrue("Result not a StrategyImpl implementation", result instanceof StrategyImpl);
+
+		assertThat(result).isNotNull();
+		assertThat(result).isInstanceOf(Strategy.class);
+		assertThat(result).isInstanceOf(StrategyImpl.class);
 	}
 
 	@Test
-	public void testGetDefaultStrategyMoreThanOne() throws Exception {
+	public void testGetDefaultStrategyMoreThanOne() {
+
 		Properties strategies = new Properties();
 		strategies.put(Strategy.class.getName(),
 				StrategyImpl.class.getName() + "," + ContextAwareStrategyImpl.class.getName());
@@ -82,17 +90,13 @@ public class DefaultStrategiesHelperTest {
 		applicationContext.registerSingleton("strategy1", StrategyImpl.class);
 		applicationContext.registerSingleton("strategy2", ContextAwareStrategyImpl.class);
 
-		try {
-			helper.getDefaultStrategy(Strategy.class, applicationContext);
-			Assert.fail("Expected BeanInitializationException");
-		}
-		catch (BeanInitializationException ex) {
-			// expected
-		}
+		assertThatExceptionOfType(BeanInitializationException.class)
+			.isThrownBy(() -> helper.getDefaultStrategy(Strategy.class, applicationContext));
 	}
 
 	@Test
-	public void testResourceConstructor() throws Exception {
+	public void testResourceConstructor() {
+
 		Resource resource = new ClassPathResource("strategies.properties", getClass());
 		new DefaultStrategiesHelper(resource);
 	}
@@ -101,21 +105,23 @@ public class DefaultStrategiesHelperTest {
 
 	}
 
-	private static class StrategyImpl implements Strategy {
+	private static final class StrategyImpl implements Strategy {
 
 	}
 
-	private static class ContextAwareStrategyImpl implements Strategy, ApplicationContextAware {
+	private static final class ContextAwareStrategyImpl implements Strategy, ApplicationContextAware {
 
 		private ApplicationContext applicationContext;
 
 		public ApplicationContext getApplicationContext() {
-			return applicationContext;
+			return this.applicationContext;
 		}
 
 		@Override
 		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 			this.applicationContext = applicationContext;
 		}
+
 	}
+
 }

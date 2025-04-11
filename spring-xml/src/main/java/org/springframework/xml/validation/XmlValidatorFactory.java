@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2011 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.xml.validation;
 
 import java.io.IOException;
+
 import javax.xml.validation.Validator;
 
 import org.apache.commons.logging.Log;
@@ -27,15 +28,16 @@ import org.springframework.util.Assert;
 import org.springframework.xml.JaxpVersion;
 
 /**
- * Factory for {@link XmlValidator} objects, being aware of JAXP 1.3 {@link Validator}s, and JAXP 1.0 parsing
- * capabilities. Mainly for internal use within the framework.
- *
- * <p>The goal of this class is to avoid runtime dependencies on JAXP 1.3 by using the best validation implementation that
- * is available. Prefers JAXP 1.3 {@link XmlValidator} implementations to a custom, SAX-based implementation.
+ * Factory for {@link XmlValidator} objects, being aware of JAXP 1.3 {@link Validator}s,
+ * and JAXP 1.0 parsing capabilities. Mainly for internal use within the framework.
+ * <p>
+ * The goal of this class is to avoid runtime dependencies on JAXP 1.3 by using the best
+ * validation implementation that is available. Prefers JAXP 1.3 {@link XmlValidator}
+ * implementations to a custom, SAX-based implementation.
  *
  * @author Arjen Poutsma
- * @see XmlValidator
  * @since 1.0.0
+ * @see XmlValidator
  */
 public abstract class XmlValidatorFactory {
 
@@ -48,34 +50,33 @@ public abstract class XmlValidatorFactory {
 	public static final String SCHEMA_RELAX_NG = "http://relaxng.org/ns/structure/1.0";
 
 	/**
-	 * Create a {@link XmlValidator} with the given schema resource and schema language type. The schema language must
-	 * be one of the {@code SCHEMA_XXX} constants.
-	 *
+	 * Create a {@link XmlValidator} with the given schema resource and schema language
+	 * type. The schema language must be one of the {@code SCHEMA_XXX} constants.
 	 * @param schemaResource a resource that locates the schema to validate against
 	 * @param schemaLanguage the language of the schema
 	 * @return a validator
-	 * @throws IOException				if the schema resource cannot be read
+	 * @throws IOException if the schema resource cannot be read
 	 * @throws IllegalArgumentException if the schema language is not supported
-	 * @throws IllegalStateException	if JAXP 1.0 cannot be located
-	 * @throws XmlValidationException	if a {@code XmlValidator} cannot be created
+	 * @throws IllegalStateException if JAXP 1.0 cannot be located
+	 * @throws XmlValidationException if a {@code XmlValidator} cannot be created
 	 * @see #SCHEMA_RELAX_NG
 	 * @see #SCHEMA_W3C_XML
 	 */
 	public static XmlValidator createValidator(Resource schemaResource, String schemaLanguage) throws IOException {
-		return createValidator(new Resource[]{schemaResource}, schemaLanguage);
+		return createValidator(new Resource[] { schemaResource }, schemaLanguage);
 	}
 
 	/**
-	 * Create a {@link XmlValidator} with the given schema resources and schema language type. The schema language must
-	 * be one of the {@code SCHEMA_XXX} constants.
-	 *
-	 * @param schemaResources an array of resource that locate the schemas to validate against
-	 * @param schemaLanguage  the language of the schemas
+	 * Create a {@link XmlValidator} with the given schema resources and schema language
+	 * type. The schema language must be one of the {@code SCHEMA_XXX} constants.
+	 * @param schemaResources an array of resource that locate the schemas to validate
+	 * against
+	 * @param schemaLanguage the language of the schemas
 	 * @return a validator
-	 * @throws IOException				if the schema resource cannot be read
+	 * @throws IOException if the schema resource cannot be read
 	 * @throws IllegalArgumentException if the schema language is not supported
-	 * @throws IllegalStateException	if JAXP 1.0 cannot be located
-	 * @throws XmlValidationException	if a {@code XmlValidator} cannot be created
+	 * @throws IllegalStateException if JAXP 1.0 cannot be located
+	 * @throws XmlValidationException if a {@code XmlValidator} cannot be created
 	 * @see #SCHEMA_RELAX_NG
 	 * @see #SCHEMA_W3C_XML
 	 */

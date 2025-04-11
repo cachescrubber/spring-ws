@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,42 +18,46 @@ package org.springframework.xml.xsd.commons;
 
 import javax.xml.transform.dom.DOMSource;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.xml.sax.SaxUtils;
-import org.springframework.xml.xsd.AbstractXsdSchemaTestCase;
-import org.springframework.xml.xsd.XsdSchema;
-
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.xml.sax.SaxUtils;
+import org.springframework.xml.xsd.AbstractXsdSchemaTest;
+import org.springframework.xml.xsd.XsdSchema;
 
-public class CommonsXsdSchemaTest extends AbstractXsdSchemaTestCase {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CommonsXsdSchemaTest extends AbstractXsdSchemaTest {
 
 	@Override
 	protected XsdSchema createSchema(Resource resource) throws Exception {
+
 		XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
 		XmlSchema schema = schemaCollection.read(SaxUtils.createInputSource(resource));
+
 		return new CommonsXsdSchema(schema);
 	}
 
 	@Test
 	public void testXmime() throws Exception {
-		Resource resource = new ClassPathResource("xmime.xsd", AbstractXsdSchemaTestCase.class);
+
+		Resource resource = new ClassPathResource("xmime.xsd", AbstractXsdSchemaTest.class);
 		XsdSchema schema = createSchema(resource);
 		String namespace = "urn:test";
-		assertEquals("Invalid target namespace", namespace, schema.getTargetNamespace());
+
+		assertThat(schema.getTargetNamespace()).isEqualTo(namespace);
+
 		Document result = (Document) ((DOMSource) schema.getSource()).getNode();
 		Element schemaElement = result.getDocumentElement();
 		Element elementElement = (Element) schemaElement.getFirstChild();
-		assertNotNull("No expectedContentTypes found",
-				elementElement.getAttributeNS("http://www.w3.org/2005/05/xmlmime", "expectedContentTypes"));
-	}
 
+		assertThat(elementElement.getAttributeNS("http://www.w3.org/2005/05/xmlmime", "expectedContentTypes"))
+			.isNotNull();
+	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ package org.springframework.ws.soap.addressing.server;
 import org.springframework.ws.soap.addressing.version.Addressing200408;
 import org.springframework.ws.soap.addressing.version.AddressingVersion;
 
-public class AddressingInterceptor200408Test extends AbstractAddressingInterceptorTestCase {
+public class AddressingInterceptor200408Test extends AbstractAddressingInterceptorTest {
 
 	@Override
 	protected AddressingVersion getVersion() {
@@ -32,7 +32,8 @@ public class AddressingInterceptor200408Test extends AbstractAddressingIntercept
 	}
 
 	@Override
-	public void testNoneReplyTo() throws Exception {
+	public void testNoneReplyTo() {
 		// This version of the spec does not have none addresses
 	}
+
 }

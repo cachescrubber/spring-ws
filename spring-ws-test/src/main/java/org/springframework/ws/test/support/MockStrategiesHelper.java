@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,9 @@ package org.springframework.ws.test.support;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -26,9 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Helper class for for loading default implementations of an interface.
@@ -43,8 +43,8 @@ public class MockStrategiesHelper {
 	private final ApplicationContext applicationContext;
 
 	/**
-	 * Creates a new instance of the {@code MockStrategiesHelper} with the given application context.
-	 *
+	 * Creates a new instance of the {@code MockStrategiesHelper} with the given
+	 * application context.
 	 * @param applicationContext the application context
 	 */
 	public MockStrategiesHelper(ApplicationContext applicationContext) {
@@ -56,19 +56,18 @@ public class MockStrategiesHelper {
 	 * Returns the application context.
 	 */
 	public ApplicationContext getApplicationContext() {
-		return applicationContext;
+		return this.applicationContext;
 	}
 
 	/**
 	 * Returns a single strategy found in the given application context.
-	 *
 	 * @param type the type of bean to be found in the application context
 	 * @return the bean, or {@code null} if no bean of the given type can be found
 	 * @throws BeanInitializationException if there is more than 1 beans of the given type
 	 */
 	public <T> T getStrategy(Class<T> type) {
 		Assert.notNull(type, "'type' must not be null");
-		Map<String, T> map = applicationContext.getBeansOfType(type);
+		Map<String, T> map = this.applicationContext.getBeansOfType(type);
 		if (map.isEmpty()) {
 			return null;
 		}
@@ -86,12 +85,13 @@ public class MockStrategiesHelper {
 	}
 
 	/**
-	 * Returns a single strategy found in the given application context, or instantiates a default strategy if no
-	 * applicable strategy was found.
-	 *
+	 * Returns a single strategy found in the given application context, or instantiates a
+	 * default strategy if no applicable strategy was found.
 	 * @param type the type of bean to be found in the application context
-	 * @param defaultType the type to instantiate and return when no bean of the specified type could be found
-	 * @return the bean found in the application context, or the default type if no bean of the given type can be found
+	 * @param defaultType the type to instantiate and return when no bean of the specified
+	 * type could be found
+	 * @return the bean found in the application context, or the default type if no bean
+	 * of the given type can be found
 	 * @throws BeanInitializationException if there is more than 1 beans of the given type
 	 */
 	public <T, D extends T> T getStrategy(Class<T> type, Class<D> defaultType) {
@@ -102,16 +102,14 @@ public class MockStrategiesHelper {
 		}
 		else {
 			if (logger.isDebugEnabled()) {
-				logger.debug("No " + ClassUtils.getShortName(type) + " found, using default " +
-						ClassUtils.getShortName(defaultType));
+				logger.debug("No " + ClassUtils.getShortName(type) + " found, using default "
+						+ ClassUtils.getShortName(defaultType));
 			}
 			T defaultStrategy = BeanUtils.instantiateClass(defaultType);
-			if (defaultStrategy instanceof ApplicationContextAware) {
-				ApplicationContextAware applicationContextAware = (ApplicationContextAware) defaultStrategy;
-				applicationContextAware.setApplicationContext(applicationContext);
+			if (defaultStrategy instanceof ApplicationContextAware applicationContextAware) {
+				applicationContextAware.setApplicationContext(this.applicationContext);
 			}
-			if (defaultStrategy instanceof InitializingBean) {
-				InitializingBean initializingBean = (InitializingBean) defaultStrategy;
+			if (defaultStrategy instanceof InitializingBean initializingBean) {
 				try {
 					initializingBean.afterPropertiesSet();
 				}
@@ -122,6 +120,5 @@ public class MockStrategiesHelper {
 			return defaultStrategy;
 		}
 	}
-
 
 }

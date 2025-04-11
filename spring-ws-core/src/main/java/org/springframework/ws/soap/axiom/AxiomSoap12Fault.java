@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMNamespace;
@@ -37,7 +38,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.ws.soap.axiom.support.AxiomUtils;
 import org.springframework.ws.soap.soap12.Soap12Fault;
 
-/** Axiom-specific version of {@code org.springframework.ws.soap.Soap12Fault}. */
+/**
+ * Axiom-specific version of {@code org.springframework.ws.soap.Soap12Fault}.
+ *
+ * @author Arjen Poutsma
+ */
 class AxiomSoap12Fault extends AxiomSoapFault implements Soap12Fault {
 
 	AxiomSoap12Fault(SOAPFault axiomFault, SOAPFactory axiomFactory) {
@@ -96,8 +101,7 @@ class AxiomSoap12Fault extends AxiomSoapFault implements Soap12Fault {
 			if (namespace == null) {
 				throw new IllegalArgumentException("Could not resolve namespace of code [" + code + "]");
 			}
-			code = new QName(code.getNamespaceURI(), code.getLocalPart(),
-					namespace.getPrefix());
+			code = new QName(code.getNamespaceURI(), code.getLocalPart(), namespace.getPrefix());
 		}
 		faultValue.setText(prefix + ":" + code.getLocalPart());
 	}
@@ -135,7 +139,7 @@ class AxiomSoap12Fault extends AxiomSoapFault implements Soap12Fault {
 		SOAPFaultReason faultReason = getAxiomFault().getReason();
 		String language = AxiomUtils.toLanguage(locale);
 		SOAPFaultText faultText = faultReason.getSOAPFaultText(language);
-		return faultText != null ? faultText.getText() : null;
+		return (faultText != null) ? faultText.getText() : null;
 	}
 
 	@Override

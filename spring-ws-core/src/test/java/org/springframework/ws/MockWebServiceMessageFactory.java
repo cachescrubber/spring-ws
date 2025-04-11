@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
@@ -30,6 +31,7 @@ public class MockWebServiceMessageFactory implements WebServiceMessageFactory {
 
 	@Override
 	public MockWebServiceMessage createWebServiceMessage(InputStream inputStream) throws IOException {
+
 		try {
 			return new MockWebServiceMessage(new StreamSource(inputStream));
 		}
@@ -37,4 +39,5 @@ public class MockWebServiceMessageFactory implements WebServiceMessageFactory {
 			throw new IOException(ex.getMessage());
 		}
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,10 @@ import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import org.springframework.xml.transform.StringSource;
 
-/** @author Arjen Poutsma */
-public class SourcePayloadMethodProcessorTest extends AbstractPayloadMethodProcessorTestCase {
+/**
+ * @author Arjen Poutsma
+ */
+public class SourcePayloadMethodProcessorTest extends AbstractPayloadMethodProcessorTest {
 
 	@Override
 	protected AbstractPayloadSourceMethodProcessor createProcessor() {
@@ -37,24 +39,26 @@ public class SourcePayloadMethodProcessorTest extends AbstractPayloadMethodProce
 
 	@Override
 	protected MethodParameter[] createSupportedParameters() throws NoSuchMethodException {
-		return new MethodParameter[]{new MethodParameter(getClass().getMethod("source", Source.class), 0),
+
+		return new MethodParameter[] { new MethodParameter(getClass().getMethod("source", Source.class), 0),
 				new MethodParameter(getClass().getMethod("dom", DOMSource.class), 0),
 				new MethodParameter(getClass().getMethod("sax", SAXSource.class), 0),
 				new MethodParameter(getClass().getMethod("stream", StreamSource.class), 0),
-				new MethodParameter(getClass().getMethod("stax", StAXSource.class), 0)};
+				new MethodParameter(getClass().getMethod("stax", StAXSource.class), 0) };
 	}
 
 	@Override
 	protected MethodParameter[] createSupportedReturnTypes() throws NoSuchMethodException {
-		return new MethodParameter[]{new MethodParameter(getClass().getMethod("source", Source.class), -1),
+
+		return new MethodParameter[] { new MethodParameter(getClass().getMethod("source", Source.class), -1),
 				new MethodParameter(getClass().getMethod("dom", DOMSource.class), -1),
 				new MethodParameter(getClass().getMethod("sax", SAXSource.class), -1),
 				new MethodParameter(getClass().getMethod("stream", StreamSource.class), -1),
-		new MethodParameter(getClass().getMethod("stax", StAXSource.class), -1)};
+				new MethodParameter(getClass().getMethod("stax", StAXSource.class), -1) };
 	}
 
 	@Override
-	protected Object getReturnValue(MethodParameter returnType) throws Exception {
+	protected Object getReturnValue(MethodParameter returnType) {
 		return new StringSource(XML);
 	}
 
@@ -82,4 +86,5 @@ public class SourcePayloadMethodProcessorTest extends AbstractPayloadMethodProce
 	public StAXSource stax(@RequestPayload StAXSource source) {
 		return source;
 	}
+
 }

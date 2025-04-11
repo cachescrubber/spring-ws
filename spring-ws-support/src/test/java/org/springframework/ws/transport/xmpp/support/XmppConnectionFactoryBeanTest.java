@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2016 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,36 +16,41 @@
 
 package org.springframework.ws.transport.xmpp.support;
 
-import java.io.IOException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-/** @author Arjen Poutsma */
+/**
+ * @author Arjen Poutsma
+ */
 public class XmppConnectionFactoryBeanTest {
 
 	private XmppConnectionFactoryBean factoryBean;
 
-	@Before
+	@BeforeEach
 	public void createFactoryBean() {
-		factoryBean = new XmppConnectionFactoryBean();
-	}
-	@Test(expected = IllegalArgumentException.class)
-	public void noHost() throws XMPPException, IOException, SmackException {
-		factoryBean.afterPropertiesSet();
+		this.factoryBean = new XmppConnectionFactoryBean();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void noUsername() throws XMPPException, IOException, SmackException {
-		factoryBean.setHost("jabber.org");
-		factoryBean.afterPropertiesSet();
+	@Test
+	public void noHost() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factoryBean.afterPropertiesSet());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void wrongPort() throws XMPPException {
-		factoryBean.setPort(-10);
+	@Test
+	public void noUsername() {
+
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+
+			this.factoryBean.setHost("jabber.org");
+			this.factoryBean.afterPropertiesSet();
+		});
+	}
+
+	@Test
+	public void wrongPort() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factoryBean.setPort(-10));
 	}
 
 }

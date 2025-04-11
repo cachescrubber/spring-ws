@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,14 +31,15 @@ import org.springframework.util.StringUtils;
 
 /**
  * Spring factory bean for a {@link KeyStore}.
- *
- * <p>To load an existing key store, you must set the {@code location} property. If this property is not set, a new,
- * empty key store is created, which is most likely not what you want.
+ * <p>
+ * To load an existing key store, you must set the {@code location} property. If this
+ * property is not set, a new, empty key store is created, which is most likely not what
+ * you want.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #setLocation(org.springframework.core.io.Resource)
  * @see KeyStore
- * @since 1.0.0
  */
 public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingBean {
 
@@ -55,8 +56,8 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 	private char[] password;
 
 	/**
-	 * Sets the location of the key store to use. If this is not set, a new, empty key store will be used.
-	 *
+	 * Sets the location of the key store to use. If this is not set, a new, empty key
+	 * store will be used.
 	 * @see KeyStore#load(java.io.InputStream,char[])
 	 */
 	public void setLocation(Resource location) {
@@ -64,8 +65,8 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 	}
 
 	/**
-	 * Sets the password to use for integrity checking. If this property is not set, then integrity checking is not
-	 * performed.
+	 * Sets the password to use for integrity checking. If this property is not set, then
+	 * integrity checking is not performed.
 	 */
 	public void setPassword(String password) {
 		if (password != null) {
@@ -73,14 +74,16 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 		}
 	}
 
-	/** Sets the provider of the key store to use. If this is not set, the default is used. */
+	/**
+	 * Sets the provider of the key store to use. If this is not set, the default is used.
+	 */
 	public void setProvider(String provider) {
 		this.provider = provider;
 	}
 
 	/**
-	 * Sets the type of the {@code KeyStore} to use. If this is not set, the default is used.
-	 *
+	 * Sets the type of the {@code KeyStore} to use. If this is not set, the default is
+	 * used.
 	 * @see KeyStore#getDefaultType()
 	 */
 	public void setType(String type) {
@@ -89,7 +92,7 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 
 	@Override
 	public KeyStore getObject() {
-		return keyStore;
+		return this.keyStore;
 	}
 
 	@Override
@@ -104,27 +107,27 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 
 	@Override
 	public final void afterPropertiesSet() throws GeneralSecurityException, IOException {
-		if (StringUtils.hasLength(provider) && StringUtils.hasLength(type)) {
-			keyStore = KeyStore.getInstance(type, provider);
+		if (StringUtils.hasLength(this.provider) && StringUtils.hasLength(this.type)) {
+			this.keyStore = KeyStore.getInstance(this.type, this.provider);
 		}
-		else if (StringUtils.hasLength(type)) {
-			keyStore = KeyStore.getInstance(type);
+		else if (StringUtils.hasLength(this.type)) {
+			this.keyStore = KeyStore.getInstance(this.type);
 		}
 		else {
-			keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 		}
 		InputStream is = null;
 		try {
-			if (location != null && location.exists()) {
-				is = location.getInputStream();
+			if (this.location != null && this.location.exists()) {
+				is = this.location.getInputStream();
 				if (logger.isInfoEnabled()) {
-					logger.info("Loading key store from " + location);
+					logger.info("Loading key store from " + this.location);
 				}
 			}
 			else if (logger.isWarnEnabled()) {
 				logger.warn("Creating empty key store");
 			}
-			keyStore.load(is, password);
+			this.keyStore.load(is, this.password);
 		}
 		finally {
 			if (is != null) {
@@ -132,4 +135,5 @@ public class KeyStoreFactoryBean implements FactoryBean<KeyStore>, InitializingB
 			}
 		}
 	}
+
 }

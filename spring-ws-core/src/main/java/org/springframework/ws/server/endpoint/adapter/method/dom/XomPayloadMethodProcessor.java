@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.ws.server.endpoint.adapter.method.dom;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,8 +38,10 @@ import org.springframework.ws.server.endpoint.adapter.method.AbstractPayloadSour
 import org.springframework.xml.DocumentBuilderFactoryUtils;
 
 /**
- * Implementation of {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
- * MethodArgumentResolver} and {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
+ * Implementation of
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodArgumentResolver
+ * MethodArgumentResolver} and
+ * {@link org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler
  * MethodReturnValueHandler} that supports XOM {@linkplain Element elements}.
  *
  * @author Arjen Poutsma
@@ -86,7 +89,7 @@ public class XomPayloadMethodProcessor extends AbstractPayloadSourceMethodProces
 		if (document == null) {
 			document = new Document(returnedElement);
 		}
-		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		DocumentBuilder documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
 		DOMImplementation domImplementation = documentBuilder.getDOMImplementation();
 		org.w3c.dom.Document w3cDocument = DOMConverter.convert(document, domImplementation);
 		return new DOMSource(w3cDocument);
@@ -97,11 +100,11 @@ public class XomPayloadMethodProcessor extends AbstractPayloadSourceMethodProces
 	}
 
 	/**
-	 * Create a {@code DocumentBuilderFactory} that this resolver will use to create response payloads.
-	 *
-	 * <p>Can be overridden in subclasses, adding further initialization of the factory. The resulting factory is cached,
-	 * so this method will only be called once.
-	 *
+	 * Create a {@code DocumentBuilderFactory} that this resolver will use to create
+	 * response payloads.
+	 * <p>
+	 * Can be overridden in subclasses, adding further initialization of the factory. The
+	 * resulting factory is cached, so this method will only be called once.
 	 * @return the created factory
 	 */
 	protected DocumentBuilderFactory createDocumentBuilderFactory() {

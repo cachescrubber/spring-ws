@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,15 @@
 package org.springframework.ws.soap.saaj;
 
 import java.util.Iterator;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.Node;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
+
+import jakarta.xml.soap.Node;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPHeader;
+import jakarta.xml.soap.SOAPHeaderElement;
 
 import org.springframework.util.Assert;
 import org.springframework.ws.soap.SoapHeader;
@@ -31,7 +33,8 @@ import org.springframework.ws.soap.SoapHeaderElement;
 import org.springframework.ws.soap.SoapHeaderException;
 
 /**
- * SAAJ-specific implementation of the {@code SoapHeader} interface. Wraps a {@link javax.xml.soap.SOAPHeader}.
+ * SAAJ-specific implementation of the {@code SoapHeader} interface. Wraps a
+ * {@link jakarta.xml.soap.SOAPHeader}.
  *
  * @author Arjen Poutsma
  * @since 1.0.0
@@ -58,9 +61,9 @@ abstract class SaajSoapHeader extends SaajSoapElement<SOAPHeader> implements Soa
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Iterator<SoapHeaderElement> examineMustUnderstandHeaderElements(String actorOrRole) throws SoapHeaderException {
-		Iterator<SOAPHeaderElement> iterator =
-				getSaajHeader().examineMustUnderstandHeaderElements(actorOrRole);
+	public Iterator<SoapHeaderElement> examineMustUnderstandHeaderElements(String actorOrRole)
+			throws SoapHeaderException {
+		Iterator<SOAPHeaderElement> iterator = getSaajHeader().examineMustUnderstandHeaderElements(actorOrRole);
 		return new SaajSoapHeaderElementIterator(iterator);
 	}
 
@@ -105,23 +108,25 @@ abstract class SaajSoapHeader extends SaajSoapElement<SOAPHeader> implements Soa
 
 		@Override
 		public boolean hasNext() {
-			return iterator.hasNext();
+			return this.iterator.hasNext();
 		}
 
 		@Override
 		public SoapHeaderElement next() {
-			Node saajHeaderElement = iterator.next();
+			Node saajHeaderElement = this.iterator.next();
 			if (saajHeaderElement instanceof SOAPHeaderElement) {
 				return new SaajSoapHeaderElement((SOAPHeaderElement) saajHeaderElement);
-			} else {
+			}
+			else {
 				throw new RuntimeException("saajHeaderElement is not an instance of SOAPHeaderElement");
 			}
 		}
 
 		@Override
 		public void remove() {
-			iterator.remove();
+			this.iterator.remove();
 		}
+
 	}
 
 }

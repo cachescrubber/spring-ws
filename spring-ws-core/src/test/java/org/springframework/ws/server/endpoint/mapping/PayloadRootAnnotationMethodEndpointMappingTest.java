@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,24 +18,22 @@ package org.springframework.ws.server.endpoint.mapping;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPMessage;
 import org.apache.commons.logging.LogFactory;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.ws.context.DefaultMessageContext;
 import org.springframework.ws.context.MessageContext;
-import org.springframework.ws.server.EndpointAdapter;
-import org.springframework.ws.server.EndpointMapping;
 import org.springframework.ws.server.MessageDispatcher;
 import org.springframework.ws.server.endpoint.MethodEndpoint;
 import org.springframework.ws.server.endpoint.adapter.DefaultMethodEndpointAdapter;
@@ -47,9 +45,11 @@ import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 import org.springframework.ws.soap.server.SoapMessageDispatcher;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("payloadRootAnnotationMethodEndpointMapping.xml")
-public class PayloadRootAnnotationMethodEndpointMappingTest	 {
+public class PayloadRootAnnotationMethodEndpointMappingTest {
 
 	@Autowired
 	private PayloadRootAnnotationMethodEndpointMapping mapping;
@@ -59,45 +59,57 @@ public class PayloadRootAnnotationMethodEndpointMappingTest	 {
 
 	@Test
 	public void registrationSingle() throws NoSuchMethodException {
-		MethodEndpoint endpoint = mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request"));
-		assertNotNull("MethodEndpoint not registered", endpoint);
+
+		MethodEndpoint endpoint = this.mapping
+			.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request"));
+
+		assertThat(endpoint).isNotNull();
+
 		Method doIt = MyEndpoint.class.getMethod("doIt", Source.class);
-		MethodEndpoint expected = new MethodEndpoint("endpoint", applicationContext, doIt);
-		assertEquals("Invalid endpoint registered", expected, endpoint);
+		MethodEndpoint expected = new MethodEndpoint("endpoint", this.applicationContext, doIt);
+
+		assertThat(endpoint).isEqualTo(expected);
 	}
 
 	@Test
 	public void registrationMultiple() throws NoSuchMethodException {
+
 		Method doItMultiple = MyEndpoint.class.getMethod("doItMultiple");
-		MethodEndpoint expected = new MethodEndpoint("endpoint", applicationContext, doItMultiple);
+		MethodEndpoint expected = new MethodEndpoint("endpoint", this.applicationContext, doItMultiple);
 
-		MethodEndpoint endpoint = mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request1"));
-		assertNotNull("MethodEndpoint not registered", endpoint);
-		assertEquals("Invalid endpoint registered", expected, endpoint);
+		MethodEndpoint endpoint = this.mapping
+			.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request1"));
 
-		endpoint = mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request2"));
-		assertNotNull("MethodEndpoint not registered", endpoint);
-		assertEquals("Invalid endpoint registered", expected, endpoint);
+		assertThat(endpoint).isNotNull();
+		assertThat(endpoint).isEqualTo(expected);
+
+		endpoint = this.mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request2"));
+
+		assertThat(endpoint).isNotNull();
+		assertThat(endpoint).isEqualTo(expected);
 	}
 
 	@Test
 	public void registrationRepeatable() throws NoSuchMethodException {
+
 		Method doItMultiple = MyEndpoint.class.getMethod("doItRepeatable");
-		MethodEndpoint expected = new MethodEndpoint("endpoint", applicationContext, doItMultiple);
+		MethodEndpoint expected = new MethodEndpoint("endpoint", this.applicationContext, doItMultiple);
 
-		MethodEndpoint endpoint = mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request3"));
-		assertNotNull("MethodEndpoint not registered", endpoint);
-		assertEquals("Invalid endpoint registered", expected, endpoint);
+		MethodEndpoint endpoint = this.mapping
+			.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request3"));
 
-		endpoint = mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request4"));
-		assertNotNull("MethodEndpoint not registered", endpoint);
-		assertEquals("Invalid endpoint registered", expected, endpoint);
+		assertThat(endpoint).isNotNull();
+		assertThat(endpoint).isEqualTo(expected);
+
+		endpoint = this.mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Request4"));
+
+		assertThat(endpoint).isNotNull();
+		assertThat(endpoint).isEqualTo(expected);
 	}
 
 	@Test
 	public void registrationInvalid() {
-		assertNull("Invalid endpoint registered",
-				mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Invalid")));
+		assertThat(this.mapping.lookupEndpoint(new QName("http://springframework.org/spring-ws", "Invalid"))).isNull();
 	}
 
 	@Test
@@ -106,23 +118,23 @@ public class PayloadRootAnnotationMethodEndpointMappingTest	 {
 		MessageFactory messageFactory = MessageFactory.newInstance();
 		SOAPMessage request = messageFactory.createMessage();
 		request.getSOAPBody().addBodyElement(QName.valueOf("{http://springframework.org/spring-ws}Request"));
-		MessageContext messageContext =
-				new DefaultMessageContext(new SaajSoapMessage(request), new SaajSoapMessageFactory(messageFactory));
+		MessageContext messageContext = new DefaultMessageContext(new SaajSoapMessage(request),
+				new SaajSoapMessageFactory(messageFactory));
 		DefaultMethodEndpointAdapter adapter = new DefaultMethodEndpointAdapter();
 		adapter.afterPropertiesSet();
 
 		MessageDispatcher messageDispatcher = new SoapMessageDispatcher();
-		messageDispatcher.setApplicationContext(applicationContext);
-		messageDispatcher.setEndpointMappings(Collections.<EndpointMapping>singletonList(mapping));
-		messageDispatcher.setEndpointAdapters(Collections.<EndpointAdapter>singletonList(adapter));
+		messageDispatcher.setApplicationContext(this.applicationContext);
+		messageDispatcher.setEndpointMappings(Collections.singletonList(this.mapping));
+		messageDispatcher.setEndpointAdapters(Collections.singletonList(adapter));
 
 		messageDispatcher.receive(messageContext);
 
-		MyEndpoint endpoint = applicationContext.getBean("endpoint", MyEndpoint.class);
-		assertTrue("doIt() not invoked on endpoint", endpoint.isDoItInvoked());
+		MyEndpoint endpoint = this.applicationContext.getBean("endpoint", MyEndpoint.class);
+		assertThat(endpoint.isDoItInvoked()).isTrue();
 
-		LogAspect aspect = (LogAspect) applicationContext.getBean("logAspect");
-		assertTrue("log() not invoked on aspect", aspect.isLogInvoked());
+		LogAspect aspect = (LogAspect) this.applicationContext.getBean("logAspect");
+		assertThat(aspect.isLogInvoked()).isTrue();
 	}
 
 	@Endpoint
@@ -133,27 +145,24 @@ public class PayloadRootAnnotationMethodEndpointMappingTest	 {
 		private boolean doItInvoked = false;
 
 		public boolean isDoItInvoked() {
-			return doItInvoked;
+			return this.doItInvoked;
 		}
 
 		@PayloadRoot(localPart = "Request", namespace = "http://springframework.org/spring-ws")
 		@Log
 		public void doIt(@RequestPayload Source payload) {
-			doItInvoked = true;
+
+			this.doItInvoked = true;
 			logger.info("In doIt()");
 		}
 
-		@PayloadRoots({@PayloadRoot(localPart = "Request1",
-				namespace = "http://springframework.org/spring-ws"),
-				@PayloadRoot(localPart = "Request2",
-						namespace = "http://springframework.org/spring-ws")})
+		@PayloadRoots({ @PayloadRoot(localPart = "Request1", namespace = "http://springframework.org/spring-ws"),
+				@PayloadRoot(localPart = "Request2", namespace = "http://springframework.org/spring-ws") })
 		public void doItMultiple() {
 		}
 
-		@PayloadRoot(localPart = "Request3",
-				namespace = "http://springframework.org/spring-ws")
-		@PayloadRoot(localPart = "Request4",
-				namespace = "http://springframework.org/spring-ws")
+		@PayloadRoot(localPart = "Request3", namespace = "http://springframework.org/spring-ws")
+		@PayloadRoot(localPart = "Request4", namespace = "http://springframework.org/spring-ws")
 		public void doItRepeatable() {
 
 		}
@@ -168,4 +177,5 @@ public class PayloadRootAnnotationMethodEndpointMappingTest	 {
 		}
 
 	}
+
 }

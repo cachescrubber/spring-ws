@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,10 @@ package org.springframework.ws.server.endpoint.mapping;
 
 import java.net.URI;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.ws.MockWebServiceMessageFactory;
 import org.springframework.ws.context.DefaultMessageContext;
 import org.springframework.ws.context.MessageContext;
@@ -25,12 +29,11 @@ import org.springframework.ws.transport.WebServiceConnection;
 import org.springframework.ws.transport.context.DefaultTransportContext;
 import org.springframework.ws.transport.context.TransportContextHolder;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class UriEndpointMappingTest {
 
@@ -38,19 +41,21 @@ public class UriEndpointMappingTest {
 
 	private MessageContext context;
 
-	@Before
-	public void setUp() throws Exception {
-		mapping = new UriEndpointMapping();
-		context = new DefaultMessageContext(new MockWebServiceMessageFactory());
+	@BeforeEach
+	public void setUp() {
+
+		this.mapping = new UriEndpointMapping();
+		this.context = new DefaultMessageContext(new MockWebServiceMessageFactory());
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		TransportContextHolder.setTransportContext(null);
 	}
 
 	@Test
 	public void getLookupKeyForMessage() throws Exception {
+
 		WebServiceConnection connectionMock = createMock(WebServiceConnection.class);
 		TransportContextHolder.setTransportContext(new DefaultTransportContext(connectionMock));
 
@@ -59,14 +64,15 @@ public class UriEndpointMappingTest {
 
 		replay(connectionMock);
 
-		Assert.assertEquals("Invalid lookup key", uri.toString(), mapping.getLookupKeyForMessage(context));
+		assertThat(this.mapping.getLookupKeyForMessage(this.context)).isEqualTo(uri.toString());
 
 		verify(connectionMock);
 	}
 
 	@Test
 	public void getLookupKeyForMessagePath() throws Exception {
-		mapping.setUsePath(true);
+
+		this.mapping.setUsePath(true);
 
 		WebServiceConnection connectionMock = createMock(WebServiceConnection.class);
 		TransportContextHolder.setTransportContext(new DefaultTransportContext(connectionMock));
@@ -76,14 +82,16 @@ public class UriEndpointMappingTest {
 
 		replay(connectionMock);
 
-		Assert.assertEquals("Invalid lookup key", "/foo/bar", mapping.getLookupKeyForMessage(context));
+		assertThat(this.mapping.getLookupKeyForMessage(this.context)).isEqualTo("/foo/bar");
 
 		verify(connectionMock);
 	}
 
 	@Test
-	public void testValidateLookupKey() throws Exception {
-		Assert.assertTrue("URI not valid", mapping.validateLookupKey("http://example.com/services"));
-		Assert.assertFalse("URI not valid", mapping.validateLookupKey("some string"));
+	public void testValidateLookupKey() {
+
+		assertThat(this.mapping.validateLookupKey("http://example.com/services")).isTrue();
+		assertThat(this.mapping.validateLookupKey("some string")).isFalse();
 	}
+
 }

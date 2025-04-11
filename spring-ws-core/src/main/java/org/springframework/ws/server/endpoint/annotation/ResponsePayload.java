@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,9 @@ import java.lang.annotation.Target;
 import javax.xml.XMLConstants;
 
 /**
+ * Annotation which indicates that a method return value should be bound to the
+ * {@linkplain org.springframework.ws.WebServiceMessage#getPayloadSource() response
+ * payload}. Supported for annotated endpoint methods.
  * Annotation which indicates that a method return value should be bound to the {@linkplain
  * org.springframework.ws.WebServiceMessage#getPayloadSource() response payload}. Supported for annotated endpoint
  * methods. The namespace and localPart properties are only relevant when the return value is a JAXB2 object annotated
@@ -32,8 +35,8 @@ import javax.xml.XMLConstants;
  *
  * @author Arjen Poutsma
  * @author Lars Uffmann
- * @see RequestPayload
  * @since 2.0
+ * @see RequestPayload
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

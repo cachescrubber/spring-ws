@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,22 @@
 
 package org.springframework.ws.soap.saaj;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConstants;
+import jakarta.xml.soap.SOAPMessage;
+import org.xmlunit.assertj.XmlAssert;
+
 import org.springframework.ws.soap.SoapMessage;
-import org.springframework.ws.soap.soap12.AbstractSoap12MessageTestCase;
+import org.springframework.ws.soap.soap12.AbstractSoap12MessageTest;
 import org.springframework.xml.transform.StringResult;
 import org.springframework.xml.transform.StringSource;
 
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class SaajSoap12MessageTest extends AbstractSoap12MessageTestCase {
+public class SaajSoap12MessageTest extends AbstractSoap12MessageTest {
 
 	@Override
 	protected String getNS() {
@@ -47,35 +47,42 @@ public class SaajSoap12MessageTest extends AbstractSoap12MessageTestCase {
 
 	@Override
 	protected SoapMessage createSoapMessage() throws Exception {
+
 		MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-		saajMessage = messageFactory.createMessage();
-		saajMessage.getSOAPHeader().detachNode();
-		return new SaajSoapMessage(saajMessage, true, messageFactory);
+		this.saajMessage = messageFactory.createMessage();
+		this.saajMessage.getSOAPHeader().detachNode();
+		return new SaajSoapMessage(this.saajMessage, true, messageFactory);
 	}
 
 	public void testGetPayloadSource() throws Exception {
-		saajMessage.getSOAPBody().addChildElement("child");
-		Source source = soapMessage.getPayloadSource();
+
+		this.saajMessage.getSOAPBody().addChildElement("child");
+		Source source = this.soapMessage.getPayloadSource();
 		StringResult result = new StringResult();
-		transformer.transform(source, result);
-		assertXMLEqual("Invalid source", "<child/>", result.toString());
+		this.transformer.transform(source, result);
+
+		XmlAssert.assertThat(result.toString()).and("<child/>").ignoreWhitespace().areIdentical();
 	}
 
 	public void testGetPayloadSourceText() throws Exception {
-		saajMessage.getSOAPBody().addTextNode(" ");
-		saajMessage.getSOAPBody().addChildElement("child");
-		Source source = soapMessage.getPayloadSource();
+
+		this.saajMessage.getSOAPBody().addTextNode(" ");
+		this.saajMessage.getSOAPBody().addChildElement("child");
+		Source source = this.soapMessage.getPayloadSource();
 		StringResult result = new StringResult();
-		transformer.transform(source, result);
-		assertXMLEqual("Invalid source", "<child/>", result.toString());
+		this.transformer.transform(source, result);
+
+		XmlAssert.assertThat(result.toString()).and("<child/>").ignoreWhitespace().areIdentical();
 	}
 
 	public void testGetPayloadResult() throws Exception {
+
 		StringSource source = new StringSource("<child/>");
-		Result result = soapMessage.getPayloadResult();
-		transformer.transform(source, result);
-		assertTrue("No child nodes created", saajMessage.getSOAPBody().hasChildNodes());
-		assertEquals("Invalid child node created", "child", saajMessage.getSOAPBody().getFirstChild().getLocalName());
+		Result result = this.soapMessage.getPayloadResult();
+		this.transformer.transform(source, result);
+
+		assertThat(this.saajMessage.getSOAPBody().hasChildNodes()).isTrue();
+		assertThat(this.saajMessage.getSOAPBody().getFirstChild().getLocalName()).isEqualTo("child");
 	}
 
 }

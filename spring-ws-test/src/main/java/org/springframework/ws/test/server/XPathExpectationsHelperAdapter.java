@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,8 @@ import java.util.Map;
 import org.springframework.ws.test.support.matcher.XPathExpectationsHelper;
 
 /**
- * Adapts {@link XPathExpectationsHelper} into the {@link ResponseXPathExpectations} contract.
+ * Adapts {@link XPathExpectationsHelper} into the {@link ResponseXPathExpectations}
+ * contract.
  *
  * @author Arjen Poutsma
  * @since 2.0
@@ -31,37 +32,37 @@ class XPathExpectationsHelperAdapter implements ResponseXPathExpectations {
 	private final XPathExpectationsHelper helper;
 
 	XPathExpectationsHelperAdapter(String expression, Map<String, String> namespaces) {
-		helper = new XPathExpectationsHelper(expression, namespaces);
+		this.helper = new XPathExpectationsHelper(expression, namespaces);
 	}
 
 	@Override
 	public ResponseMatcher exists() {
-		return new WebServiceMessageMatcherAdapter(helper.exists());
+		return new WebServiceMessageMatcherAdapter(this.helper.exists());
 	}
 
 	@Override
 	public ResponseMatcher doesNotExist() {
-		return new WebServiceMessageMatcherAdapter(helper.doesNotExist());
+		return new WebServiceMessageMatcherAdapter(this.helper.doesNotExist());
 	}
 
 	@Override
 	public ResponseMatcher evaluatesTo(boolean expectedValue) {
-		return new WebServiceMessageMatcherAdapter(helper.evaluatesTo(expectedValue));
+		return new WebServiceMessageMatcherAdapter(this.helper.evaluatesTo(expectedValue));
 	}
 
 	@Override
 	public ResponseMatcher evaluatesTo(int expectedValue) {
-		return new WebServiceMessageMatcherAdapter(helper.evaluatesTo(expectedValue));
+		return new WebServiceMessageMatcherAdapter(this.helper.evaluatesTo(expectedValue));
 	}
 
 	@Override
 	public ResponseMatcher evaluatesTo(double expectedValue) {
-		return new WebServiceMessageMatcherAdapter(helper.evaluatesTo(expectedValue));
+		return new WebServiceMessageMatcherAdapter(this.helper.evaluatesTo(expectedValue));
 	}
 
 	@Override
 	public ResponseMatcher evaluatesTo(String expectedValue) {
-		return new WebServiceMessageMatcherAdapter(helper.evaluatesTo(expectedValue));
+		return new WebServiceMessageMatcherAdapter(this.helper.evaluatesTo(expectedValue));
 	}
 
 }

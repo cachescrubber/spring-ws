@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,15 @@
 package org.springframework.ws.soap.security.callback;
 
 import java.io.IOException;
+
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * Represents a chain of {@code CallbackHandler}s. For each callback, each of the handlers is called in term. If a
- * handler throws a {@code UnsupportedCallbackException}, the next handler is tried.
+ * Represents a chain of {@code CallbackHandler}s. For each callback, each of the handlers
+ * is called in term. If a handler throws a {@code UnsupportedCallbackException}, the next
+ * handler is tried.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
@@ -37,15 +39,15 @@ public class CallbackHandlerChain extends AbstractCallbackHandler {
 	}
 
 	public CallbackHandler[] getCallbackHandlers() {
-		return callbackHandlers;
+		return this.callbackHandlers;
 	}
 
 	@Override
 	protected void handleInternal(Callback callback) throws IOException, UnsupportedCallbackException {
 		boolean allUnsupported = true;
-		for (CallbackHandler callbackHandler : callbackHandlers) {
+		for (CallbackHandler callbackHandler : this.callbackHandlers) {
 			try {
-				callbackHandler.handle(new Callback[]{callback});
+				callbackHandler.handle(new Callback[] { callback });
 				allUnsupported = false;
 			}
 			catch (UnsupportedCallbackException ex) {
@@ -56,4 +58,5 @@ public class CallbackHandlerChain extends AbstractCallbackHandler {
 			throw new UnsupportedCallbackException(callback);
 		}
 	}
+
 }

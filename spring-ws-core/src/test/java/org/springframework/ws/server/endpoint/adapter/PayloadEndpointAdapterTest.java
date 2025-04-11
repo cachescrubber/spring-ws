@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@ package org.springframework.ws.server.endpoint.adapter;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.xmlunit.assertj.XmlAssert;
 
 import org.springframework.ws.MockWebServiceMessage;
 import org.springframework.ws.MockWebServiceMessageFactory;
@@ -34,8 +35,12 @@ import org.springframework.ws.context.MessageContext;
 import org.springframework.ws.server.endpoint.PayloadEndpoint;
 import org.springframework.xml.transform.TransformerFactoryUtils;
 
-import static org.custommonkey.xmlunit.XMLAssert.*;
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class PayloadEndpointAdapterTest {
 
@@ -43,50 +48,57 @@ public class PayloadEndpointAdapterTest {
 
 	private PayloadEndpoint endpointMock;
 
-	@Before
-	public void setUp() throws Exception {
-		adapter = new PayloadEndpointAdapter();
-		endpointMock = createMock(PayloadEndpoint.class);
+	@BeforeEach
+	public void setUp() {
+
+		this.adapter = new PayloadEndpointAdapter();
+		this.endpointMock = createMock(PayloadEndpoint.class);
 	}
 
 	@Test
-	public void testSupports() throws Exception {
-		Assert.assertTrue("PayloadEndpointAdapter does not support PayloadEndpoint", adapter.supports(endpointMock));
+	public void testSupports() {
+		assertThat(this.adapter.supports(this.endpointMock)).isTrue();
 	}
 
 	@Test
 	public void testInvoke() throws Exception {
+
 		MockWebServiceMessage request = new MockWebServiceMessage("<request/>");
 		final Transformer transformer = TransformerFactoryUtils.newInstance().newTransformer();
-		PayloadEndpoint endpoint = new PayloadEndpoint() {
-			public Source invoke(Source request) throws Exception {
-				StringWriter writer = new StringWriter();
-				transformer.transform(request, new StreamResult(writer));
-				assertXMLEqual("Invalid request", "<request/>", writer.toString());
-				return new StreamSource(new StringReader("<response/>"));
-			}
+
+		PayloadEndpoint endpoint = request1 -> {
+
+			StringWriter writer = new StringWriter();
+			transformer.transform(request1, new StreamResult(writer));
+			XmlAssert.assertThat(writer.toString()).and("<request/>").ignoreWhitespace().areIdentical();
+			return new StreamSource(new StringReader("<response/>"));
 		};
+
 		endpoint.invoke(request.getPayloadSource());
+
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
-		adapter.invoke(messageContext, endpoint);
+		this.adapter.invoke(messageContext, endpoint);
+
 		MockWebServiceMessage response = (MockWebServiceMessage) messageContext.getResponse();
-		Assert.assertNotNull("No response created", response);
-		assertXMLEqual("Invalid payload", "<response/>", response.getPayloadAsString());
+
+		assertThat(response).isNotNull();
+		XmlAssert.assertThat(response.getPayloadAsString()).and("<response/>").ignoreWhitespace().areIdentical();
 	}
 
 	@Test
 	public void testInvokeNoResponse() throws Exception {
+
 		MockWebServiceMessage request = new MockWebServiceMessage("<request/>");
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
-		expect(endpointMock.invoke(isA(Source.class))).andReturn(null);
+		expect(this.endpointMock.invoke(isA(Source.class))).andReturn(null);
 
-		replay(endpointMock);
+		replay(this.endpointMock);
 
-		adapter.invoke(messageContext, endpointMock);
+		this.adapter.invoke(messageContext, this.endpointMock);
 
-		verify(endpointMock);
+		verify(this.endpointMock);
 
-		Assert.assertFalse("Response created", messageContext.hasResponse());
+		assertThat(messageContext.hasResponse()).isFalse();
 	}
 
 }

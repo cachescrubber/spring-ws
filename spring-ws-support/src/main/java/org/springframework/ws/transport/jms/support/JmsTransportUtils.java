@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,29 +25,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Topic;
+
+import jakarta.jms.DeliveryMode;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Queue;
+import jakarta.jms.Topic;
 
 import org.springframework.ws.transport.jms.JmsTransportConstants;
 
 /**
- * Collection of utility methods to work with JMS transports. Includes methods to retrieve JMS properties from an {@link
- * URI}.
+ * Collection of utility methods to work with JMS transports. Includes methods to retrieve
+ * JMS properties from an {@link URI}.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
  */
 public abstract class JmsTransportUtils {
 
-	private static final String[] CONVERSION_TABLE = new String[]{JmsTransportConstants.HEADER_CONTENT_TYPE,
+	private static final String[] CONVERSION_TABLE = new String[] { JmsTransportConstants.HEADER_CONTENT_TYPE,
 			JmsTransportConstants.PROPERTY_CONTENT_TYPE, JmsTransportConstants.HEADER_CONTENT_LENGTH,
 			JmsTransportConstants.PROPERTY_CONTENT_LENGTH, JmsTransportConstants.HEADER_SOAP_ACTION,
 			JmsTransportConstants.PROPERTY_SOAP_ACTION, JmsTransportConstants.HEADER_ACCEPT_ENCODING,
-			JmsTransportConstants.PROPERTY_ACCEPT_ENCODING};
+			JmsTransportConstants.PROPERTY_ACCEPT_ENCODING };
 
 	private static final Pattern DESTINATION_NAME_PATTERN = Pattern.compile("^([^\\?]+)");
 
@@ -65,8 +66,8 @@ public abstract class JmsTransportUtils {
 	}
 
 	/**
-	 * Converts the given transport header to a JMS property name. Returns the given header name if no match is found.
-	 *
+	 * Converts the given transport header to a JMS property name. Returns the given
+	 * header name if no match is found.
 	 * @param headerName the header name to transform
 	 * @return the JMS property name
 	 */
@@ -77,12 +78,11 @@ public abstract class JmsTransportUtils {
 			}
 		}
 		return headerName;
-			}
+	}
 
 	/**
-	 * Converts the given JMS property name to a transport header name. Returns the given property name if no match is
-	 * found.
-	 *
+	 * Converts the given JMS property name to a transport header name. Returns the given
+	 * property name if no match is found.
 	 * @param propertyName the JMS property name to transform
 	 * @return the transport header name
 	 */
@@ -92,12 +92,11 @@ public abstract class JmsTransportUtils {
 				return CONVERSION_TABLE[i - 1];
 			}
 		}
-			return propertyName;
+		return propertyName;
 	}
 
 	/**
 	 * Converts the given JMS destination into a {@code jms} URI.
-	 *
 	 * @param destination the destination
 	 * @return a jms URI
 	 */
@@ -109,8 +108,7 @@ public abstract class JmsTransportUtils {
 		if (destination instanceof Queue) {
 			destinationName = ((Queue) destination).getQueueName();
 		}
-		else if (destination instanceof Topic) {
-			Topic topic = (Topic) destination;
+		else if (destination instanceof Topic topic) {
 			destinationName = topic.getTopicName();
 		}
 		else {
@@ -131,12 +129,12 @@ public abstract class JmsTransportUtils {
 	}
 
 	/**
-	 * Returns an iterator over all header names in the given message. Delegates to {@link
-	 * #jmsPropertyToHeader(String)}.
+	 * Returns an iterator over all header names in the given message. Delegates to
+	 * {@link #jmsPropertyToHeader(String)}.
 	 */
 	public static Iterator<String> getHeaderNames(Message message) throws JMSException {
 		Enumeration<?> properties = message.getPropertyNames();
-		List<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<>();
 		while (properties.hasMoreElements()) {
 			String property = (String) properties.nextElement();
 			if (property.startsWith(JmsTransportConstants.PROPERTY_PREFIX)) {
@@ -148,8 +146,8 @@ public abstract class JmsTransportUtils {
 	}
 
 	/**
-	 * Returns an iterator over all the header values of the given message and header name. Delegates to {@link
-	 * #headerToJmsProperty(String)}.
+	 * Returns an iterator over all the header values of the given message and header
+	 * name. Delegates to {@link #headerToJmsProperty(String)}.
 	 */
 	public static Iterator<String> getHeaders(Message message, String name) throws JMSException {
 		String propertyName = headerToJmsProperty(name);
@@ -158,13 +156,12 @@ public abstract class JmsTransportUtils {
 			return Collections.singletonList(value).iterator();
 		}
 		else {
-			return Collections.<String>emptyList().iterator();
+			return Collections.emptyIterator();
 		}
 	}
 
 	/**
 	 * Returns the delivery mode of the given URI.
-	 *
 	 * @see DeliveryMode#NON_PERSISTENT
 	 * @see DeliveryMode#PERSISTENT
 	 * @see Message#DEFAULT_DELIVERY_MODE
@@ -183,8 +180,8 @@ public abstract class JmsTransportUtils {
 	}
 
 	/**
-	 * Returns the message type of the given URI. Defaults to {@link JmsTransportConstants#BYTES_MESSAGE_TYPE}.
-	 *
+	 * Returns the message type of the given URI. Defaults to
+	 * {@link JmsTransportConstants#BYTES_MESSAGE_TYPE}.
 	 * @see JmsTransportConstants#BYTES_MESSAGE_TYPE
 	 * @see JmsTransportConstants#TEXT_MESSAGE_TYPE
 	 */
@@ -200,7 +197,6 @@ public abstract class JmsTransportUtils {
 
 	/**
 	 * Returns the lifetime, in milliseconds, of the given URI.
-	 *
 	 * @see Message#DEFAULT_TIME_TO_LIVE
 	 */
 	public static long getTimeToLive(URI uri) {
@@ -209,7 +205,6 @@ public abstract class JmsTransportUtils {
 
 	/**
 	 * Returns the priority of the given URI.
-	 *
 	 * @see Message#DEFAULT_PRIORITY
 	 */
 	public static int getPriority(URI uri) {
@@ -218,7 +213,6 @@ public abstract class JmsTransportUtils {
 
 	/**
 	 * Returns the reply-to name of the given URI.
-	 *
 	 * @see Message#setJMSReplyTo(Destination)
 	 */
 	public static String getReplyToName(URI uri) {

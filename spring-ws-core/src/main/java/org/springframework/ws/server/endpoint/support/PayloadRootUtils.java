@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.Reader;
 
 import javax.xml.bind.annotation.XmlType;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamConstants;
@@ -145,9 +146,9 @@ public abstract class PayloadRootUtils {
 
 	/**
 	 * Returns the root qualified name of the given source, transforming it if necessary.
-	 *
-	 * @param source             the source to get the root element from
-	 * @param transformerFactory a transformer factory, necessary if the given source is not a {@code DOMSource}
+	 * @param source the source to get the root element from
+	 * @param transformerFactory a transformer factory, necessary if the given source is
+	 * not a {@code DOMSource}
 	 * @return the root element, or {@code null} if {@code source} is {@code null}
 	 */
 	public static QName getPayloadRootQName(Source source, TransformerFactory transformerFactory)
@@ -182,18 +183,18 @@ public abstract class PayloadRootUtils {
 		}
 	}
 
-	private static class PayloadRootSourceCallback implements TraxUtils.SourceCallback {
+	private static final class PayloadRootSourceCallback implements TraxUtils.SourceCallback {
 
 		private QName result;
 
 		@Override
 		public void domSource(Node node) throws Exception {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				result = QNameUtils.getQNameForNode(node);
+				this.result = QNameUtils.getQNameForNode(node);
 			}
 			else if (node.getNodeType() == Node.DOCUMENT_NODE) {
 				Document document = (Document) node;
-				result = QNameUtils.getQNameForNode(document.getDocumentElement());
+				this.result = QNameUtils.getQNameForNode(document.getDocumentElement());
 			}
 		}
 
@@ -205,10 +206,10 @@ public abstract class PayloadRootUtils {
 			}
 			if (event != null) {
 				if (event.isStartElement()) {
-					result = event.asStartElement().getName();
+					this.result = event.asStartElement().getName();
 				}
 				else if (event.isEndElement()) {
-					result = event.asEndElement().getName();
+					this.result = event.asEndElement().getName();
 				}
 			}
 		}
@@ -223,9 +224,9 @@ public abstract class PayloadRootUtils {
 					throw new IllegalStateException("Could not read next tag: " + ex.getMessage(), ex);
 				}
 			}
-			if (streamReader.getEventType() == XMLStreamConstants.START_ELEMENT ||
-					streamReader.getEventType() == XMLStreamConstants.END_ELEMENT) {
-				result = streamReader.getName();
+			if (streamReader.getEventType() == XMLStreamConstants.START_ELEMENT
+					|| streamReader.getEventType() == XMLStreamConstants.END_ELEMENT) {
+				this.result = streamReader.getName();
 			}
 		}
 
@@ -248,7 +249,7 @@ public abstract class PayloadRootUtils {
 		public void source(String systemId) throws Exception {
 			// Do nothing
 		}
-	}
 
+	}
 
 }

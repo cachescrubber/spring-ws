@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,32 +16,40 @@
 
 package org.springframework.ws.soap.security.x509;
 
+import java.io.Serial;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-
 /**
  * {@code Authentication} implementation for X.509 client-certificate authentication.
- * <p>Migrated from Spring Security 2 since it has been removed in Spring Security 3.</p>
+ * <p>
+ * Migrated from Spring Security 2 since it has been removed in Spring Security 3.
+ * </p>
  *
  * @author Luke Taylor
  */
 public class X509AuthenticationToken extends AbstractAuthenticationToken {
-	//~ Instance fields ================================================================================================
 
+	// ~ Instance fields
+	// ================================================================================================
+
+	@Serial
 	private static final long serialVersionUID = 1L;
+
 	private Object principal;
+
 	private X509Certificate credentials;
 
-	//~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
 	/**
-	 * Used for an authentication request.	The {@link org.springframework.security.core.Authentication#isAuthenticated()} will return
-	 * {@code false}.
-	 *
+	 * Used for an authentication request. The
+	 * {@link org.springframework.security.core.Authentication#isAuthenticated()} will
+	 * return {@code false}.
 	 * @param credentials the certificate
 	 */
 	public X509AuthenticationToken(X509Certificate credentials) {
@@ -50,30 +58,32 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Used for an authentication response object. The {@link org.springframework.security.core.Authentication#isAuthenticated()}
-	 * will return {@code true}.
-	 *
-	 * @param principal the principal, which is generally a
-	 *		  {@code UserDetails}
+	 * Used for an authentication response object. The
+	 * {@link org.springframework.security.core.Authentication#isAuthenticated()} will
+	 * return {@code true}.
+	 * @param principal the principal, which is generally a {@code UserDetails}
 	 * @param credentials the certificate
 	 * @param authorities the authorities
 	 */
-	public X509AuthenticationToken(Object principal, X509Certificate credentials, Collection<? extends GrantedAuthority> authorities) {
+	public X509AuthenticationToken(Object principal, X509Certificate credentials,
+			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
 		this.credentials = credentials;
 		setAuthenticated(true);
 	}
 
-	//~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
 	@Override
 	public Object getCredentials() {
-		return credentials;
+		return this.credentials;
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
+
 }

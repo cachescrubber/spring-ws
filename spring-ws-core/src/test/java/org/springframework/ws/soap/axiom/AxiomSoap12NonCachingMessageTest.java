@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,11 @@ import org.apache.axiom.om.OMSourcedElement;
 import org.springframework.ws.soap.SoapBody;
 import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.SoapVersion;
-import org.springframework.ws.soap.soap12.AbstractSoap12MessageTestCase;
+import org.springframework.ws.soap.soap12.AbstractSoap12MessageTest;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class AxiomSoap12NonCachingMessageTest extends AbstractSoap12MessageTestCase {
+public class AxiomSoap12NonCachingMessageTest extends AbstractSoap12MessageTest {
 
 	@Override
 	protected String getNS() {
@@ -33,7 +33,8 @@ public class AxiomSoap12NonCachingMessageTest extends AbstractSoap12MessageTestC
 	}
 
 	@Override
-	protected SoapMessage createSoapMessage() throws Exception {
+	protected SoapMessage createSoapMessage() {
+
 		AxiomSoapMessageFactory messageFactory = new AxiomSoapMessageFactory();
 		messageFactory.setPayloadCaching(false);
 		messageFactory.setSoapVersion(SoapVersion.SOAP_12);
@@ -43,14 +44,19 @@ public class AxiomSoap12NonCachingMessageTest extends AbstractSoap12MessageTestC
 
 	@Override
 	public void testWriteToTransportOutputStream() throws Exception {
+
 		super.testWriteToTransportOutputStream();
 
-		SoapBody body = soapMessage.getSoapBody();
-		OMSourcedElement axiomPayloadEle =
-				(OMSourcedElement) ((AxiomSoapBody) body).getAxiomElement().getFirstElement();
-		assertFalse("Non-cached body should not be expanded now", axiomPayloadEle.isExpanded());
+		SoapBody body = this.soapMessage.getSoapBody();
+		OMSourcedElement axiomPayloadEle = (OMSourcedElement) ((AxiomSoapBody) body).getAxiomElement()
+			.getFirstElement();
+
+		assertThat(axiomPayloadEle.isExpanded()).isFalse();
+
 		axiomPayloadEle.getFirstElement();
-		assertTrue("Non-cached body should now be expanded", axiomPayloadEle.isExpanded());
-		assertEquals("Invalid payload", "payload", axiomPayloadEle.getLocalName());
+
+		assertThat(axiomPayloadEle.isExpanded()).isTrue();
+		assertThat(axiomPayloadEle.getLocalName()).isEqualTo("payload");
 	}
+
 }

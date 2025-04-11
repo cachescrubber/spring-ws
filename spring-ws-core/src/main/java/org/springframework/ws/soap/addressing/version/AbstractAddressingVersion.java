@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -48,15 +49,15 @@ import org.springframework.ws.soap.addressing.core.MessageAddressingProperties;
 import org.springframework.ws.soap.soap11.Soap11Body;
 import org.springframework.ws.soap.soap12.Soap12Body;
 import org.springframework.ws.soap.soap12.Soap12Fault;
+import org.springframework.xml.DocumentBuilderFactoryUtils;
 import org.springframework.xml.namespace.QNameUtils;
 import org.springframework.xml.transform.TransformerObjectSupport;
 import org.springframework.xml.xpath.XPathExpression;
 import org.springframework.xml.xpath.XPathExpressionFactory;
-import org.springframework.xml.DocumentBuilderFactoryUtils;
 
 /**
- * Abstract base class for {@link AddressingVersion} implementations. Uses {@link XPathExpression}s to retrieve
- * addressing information.
+ * Abstract base class for {@link AddressingVersion} implementations. Uses
+ * {@link XPathExpression}s to retrieve addressing information.
  *
  * @author Arjen Poutsma
  * @since 1.5.0
@@ -84,26 +85,26 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	private final XPathExpression referenceParametersExpression;
 
 	protected AbstractAddressingVersion() {
-		Map<String, String> namespaces = new HashMap<String, String>();
+		Map<String, String> namespaces = new HashMap<>();
 		namespaces.put(getNamespacePrefix(), getNamespaceUri());
-		toExpression = createNormalizedExpression(getToName(), namespaces);
-		actionExpression = createNormalizedExpression(getActionName(), namespaces);
-		messageIdExpression = createNormalizedExpression(getMessageIdName(), namespaces);
-		fromExpression = createExpression(getFromName(), namespaces);
-		replyToExpression = createExpression(getReplyToName(), namespaces);
-		faultToExpression = createExpression(getFaultToName(), namespaces);
-		addressExpression = createNormalizedExpression(getAddressName(), namespaces);
+		this.toExpression = createNormalizedExpression(getToName(), namespaces);
+		this.actionExpression = createNormalizedExpression(getActionName(), namespaces);
+		this.messageIdExpression = createNormalizedExpression(getMessageIdName(), namespaces);
+		this.fromExpression = createExpression(getFromName(), namespaces);
+		this.replyToExpression = createExpression(getReplyToName(), namespaces);
+		this.faultToExpression = createExpression(getFaultToName(), namespaces);
+		this.addressExpression = createNormalizedExpression(getAddressName(), namespaces);
 		if (getReferencePropertiesName() != null) {
-			referencePropertiesExpression = createChildrenExpression(getReferencePropertiesName(), namespaces);
+			this.referencePropertiesExpression = createChildrenExpression(getReferencePropertiesName(), namespaces);
 		}
 		else {
-			referencePropertiesExpression = null;
+			this.referencePropertiesExpression = null;
 		}
 		if (getReferenceParametersName() != null) {
-			referenceParametersExpression = createChildrenExpression(getReferenceParametersName(), namespaces);
+			this.referenceParametersExpression = createChildrenExpression(getReferenceParametersName(), namespaces);
 		}
 		else {
-			referenceParametersExpression = null;
+			this.referenceParametersExpression = null;
 		}
 	}
 
@@ -125,21 +126,21 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	@Override
 	public MessageAddressingProperties getMessageAddressingProperties(SoapMessage message) {
 		Element headerElement = getSoapHeaderElement(message);
-		URI to = getUri(headerElement, toExpression);
+		URI to = getUri(headerElement, this.toExpression);
 		if (to == null) {
 			to = getDefaultTo();
 		}
-		EndpointReference from = getEndpointReference(fromExpression.evaluateAsNode(headerElement));
-		EndpointReference replyTo = getEndpointReference(replyToExpression.evaluateAsNode(headerElement));
+		EndpointReference from = getEndpointReference(this.fromExpression.evaluateAsNode(headerElement));
+		EndpointReference replyTo = getEndpointReference(this.replyToExpression.evaluateAsNode(headerElement));
 		if (replyTo == null) {
 			replyTo = getDefaultReplyTo(from);
 		}
-		EndpointReference faultTo = getEndpointReference(faultToExpression.evaluateAsNode(headerElement));
+		EndpointReference faultTo = getEndpointReference(this.faultToExpression.evaluateAsNode(headerElement));
 		if (faultTo == null) {
 			faultTo = replyTo;
 		}
-		URI action = getUri(headerElement, actionExpression);
-		URI messageId = getUri(headerElement, messageIdExpression);
+		URI action = getUri(headerElement, this.actionExpression);
+		URI messageId = getUri(headerElement, this.messageIdExpression);
 		return new MessageAddressingProperties(to, from, replyTo, faultTo, action, messageId);
 	}
 
@@ -151,15 +152,14 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 		try {
 			return new URI(messageId);
 		}
-		catch (URISyntaxException e) {
+		catch (URISyntaxException ex) {
 			return null;
 		}
 	}
 
 	private Element getSoapHeaderElement(SoapMessage message) {
 		Source source = message.getSoapHeader().getSource();
-		if (source instanceof DOMSource) {
-			DOMSource domSource = (DOMSource) source;
+		if (source instanceof DOMSource domSource) {
 			if (domSource.getNode() != null && domSource.getNode().getNodeType() == Node.ELEMENT_NODE) {
 				return (Element) domSource.getNode();
 			}
@@ -180,16 +180,14 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 		if (node == null) {
 			return null;
 		}
-		URI address = getUri(node, addressExpression);
+		URI address = getUri(node, this.addressExpression);
 		if (address == null) {
 			return null;
 		}
-		List<Node> referenceProperties =
-				referencePropertiesExpression != null ? referencePropertiesExpression.evaluateAsNodeList(node) :
-						Collections.<Node>emptyList();
-		List<Node> referenceParameters =
-				referenceParametersExpression != null ? referenceParametersExpression.evaluateAsNodeList(node) :
-						Collections.<Node>emptyList();
+		List<Node> referenceProperties = (this.referencePropertiesExpression != null)
+				? this.referencePropertiesExpression.evaluateAsNodeList(node) : Collections.emptyList();
+		List<Node> referenceParameters = (this.referenceParametersExpression != null)
+				? this.referenceParametersExpression.evaluateAsNodeList(node) : Collections.emptyList();
 		return new EndpointReference(address, referenceProperties, referenceParameters);
 	}
 
@@ -201,14 +199,13 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 		if (map.getTo() != null) {
 			SoapHeaderElement to = header.addHeaderElement(getToName());
 			to.setText(map.getTo().toString());
-			to.setMustUnderstand(true);
 		}
 		// From
 		if (map.getFrom() != null) {
 			SoapHeaderElement from = header.addHeaderElement(getFromName());
 			addEndpointReference(from, map.getFrom());
 		}
-		//ReplyTo
+		// ReplyTo
 		if (map.getReplyTo() != null) {
 			SoapHeaderElement replyTo = header.addHeaderElement(getReplyToName());
 			addEndpointReference(replyTo, map.getReplyTo());
@@ -297,23 +294,18 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	}
 
 	private SoapFault addAddressingFault(SoapMessage message, QName subcode, String reason) {
-		if (message.getSoapBody() instanceof Soap11Body) {
-			Soap11Body soapBody = (Soap11Body) message.getSoapBody();
+		if (message.getSoapBody() instanceof Soap11Body soapBody) {
 			return soapBody.addFault(subcode, reason, Locale.ENGLISH);
 		}
-		else if (message.getSoapBody() instanceof Soap12Body) {
-			Soap12Body soapBody = (Soap12Body) message.getSoapBody();
-			Soap12Fault soapFault =
-					soapBody.addClientOrSenderFault(reason, Locale.ENGLISH);
+		else if (message.getSoapBody() instanceof Soap12Body soapBody) {
+			Soap12Fault soapFault = soapBody.addClientOrSenderFault(reason, Locale.ENGLISH);
 			soapFault.addFaultSubcode(subcode);
 			return soapFault;
 		}
 		return null;
 	}
 
-	/*
-	* Address URIs
-	*/
+	// Address URIs
 
 	@Override
 	public final boolean hasAnonymousAddress(EndpointReference epr) {
@@ -327,7 +319,10 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 		return none != null && none.equals(epr.getAddress());
 	}
 
-	/** Returns the prefix associated with the WS-Addressing namespace handled by this specification. */
+	/**
+	 * Returns the prefix associated with the WS-Addressing namespace handled by this
+	 * specification.
+	 */
 	protected String getNamespacePrefix() {
 		return "wsa";
 	}
@@ -380,16 +375,18 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	}
 
 	/**
-	 * Returns the qualified name of the {@code ReferenceProperties} in the endpoint reference. Returns
-	 * {@code null} when reference properties are not supported by this version of the spec.
+	 * Returns the qualified name of the {@code ReferenceProperties} in the endpoint
+	 * reference. Returns {@code null} when reference properties are not supported by this
+	 * version of the spec.
 	 */
 	protected QName getReferencePropertiesName() {
 		return new QName(getNamespaceUri(), "ReferenceProperties", getNamespacePrefix());
 	}
 
 	/**
-	 * Returns the qualified name of the {@code ReferenceParameters} in the endpoint reference. Returns
-	 * {@code null} when reference parameters are not supported by this version of the spec.
+	 * Returns the qualified name of the {@code ReferenceParameters} in the endpoint
+	 * reference. Returns {@code null} when reference parameters are not supported by this
+	 * version of the spec.
 	 */
 	protected QName getReferenceParametersName() {
 		return new QName(getNamespaceUri(), "ReferenceParameters", getNamespacePrefix());
@@ -407,7 +404,10 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	/** Returns the default To URI. */
 	protected abstract URI getDefaultTo();
 
-	/** Returns the default ReplyTo EPR. Can be based on the From EPR, or the anonymous URI. */
+	/**
+	 * Returns the default ReplyTo EPR. Can be based on the From EPR, or the anonymous
+	 * URI.
+	 */
 	protected abstract EndpointReference getDefaultReplyTo(EndpointReference from);
 
 	/*
@@ -424,15 +424,22 @@ public abstract class AbstractAddressingVersion extends TransformerObjectSupport
 	 * Faults
 	 */
 
-	/** Returns the qualified name of the fault subcode that indicates that a header is missing. */
+	/**
+	 * Returns the qualified name of the fault subcode that indicates that a header is
+	 * missing.
+	 */
 	protected abstract QName getMessageAddressingHeaderRequiredFaultSubcode();
 
 	/** Returns the reason of the fault that indicates that a header is missing. */
 	protected abstract String getMessageAddressingHeaderRequiredFaultReason();
 
-	/** Returns the qualified name of the fault subcode that indicates that a header is invalid. */
+	/**
+	 * Returns the qualified name of the fault subcode that indicates that a header is
+	 * invalid.
+	 */
 	protected abstract QName getInvalidAddressingHeaderFaultSubcode();
 
 	/** Returns the reason of the fault that indicates that a header is invalid. */
 	protected abstract String getInvalidAddressingHeaderFaultReason();
+
 }

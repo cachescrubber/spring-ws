@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -47,13 +48,14 @@ import org.springframework.xml.transform.TransformerHelper;
 import org.springframework.xml.transform.TraxUtils;
 
 /**
- * Implementation of {@link XPathOperations} that uses JAXP 1.3. JAXP 1.3 is part of Java SE since 1.5.
- *
- * <p>Namespaces can be set using the {@code namespaces} property.
+ * Implementation of {@link XPathOperations} that uses JAXP 1.3. JAXP 1.3 is part of Java
+ * SE since 1.5.
+ * <p>
+ * Namespaces can be set using the {@code namespaces} property.
  *
  * @author Arjen Poutsma
- * @see #setNamespaces(java.util.Map)
  * @since 1.0.0
+ * @see #setNamespaces(java.util.Map)
  */
 public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 
@@ -65,7 +67,7 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 
 	public Jaxp13XPathTemplate(String xpathFactoryUri) {
 		try {
-			xpathFactory = XPathFactory.newInstance(xpathFactoryUri);
+			this.xpathFactory = XPathFactory.newInstance(xpathFactoryUri);
 		}
 		catch (XPathFactoryConfigurationException ex) {
 			throw new XPathException("Could not create XPathFactory", ex);
@@ -86,7 +88,7 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 	@Override
 	public List<Node> evaluateAsNodeList(String expression, Source context) throws XPathException {
 		NodeList result = (NodeList) evaluate(expression, context, XPathConstants.NODESET);
-		List<Node> nodes = new ArrayList<Node>(result.getLength());
+		List<Node> nodes = new ArrayList<>(result.getLength());
 		for (int i = 0; i < result.getLength(); i++) {
 			nodes.add(result.item(i));
 		}
@@ -96,7 +98,7 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 	@Override
 	public double evaluateAsDouble(String expression, Source context) throws XPathException {
 		Double result = (Double) evaluate(expression, context, XPathConstants.NUMBER);
-		return result != null ? result : Double.NaN;
+		return (result != null) ? result : Double.NaN;
 	}
 
 	@Override
@@ -123,7 +125,7 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 	@Override
 	public <T> List<T> evaluate(String expression, Source context, NodeMapper<T> nodeMapper) throws XPathException {
 		NodeList nodes = (NodeList) evaluate(expression, context, XPathConstants.NODESET);
-		List<T> results = new ArrayList<T>(nodes.getLength());
+		List<T> results = new ArrayList<>(nodes.getLength());
 		for (int i = 0; i < nodes.getLength(); i++) {
 			try {
 				results.add(nodeMapper.mapNode(nodes.item(i), i));
@@ -159,10 +161,10 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 	}
 
 	private synchronized XPath createXPath() {
-		return xpathFactory.newXPath();
+		return this.xpathFactory.newXPath();
 	}
 
-	private static class EvaluationCallback implements TraxUtils.SourceCallback {
+	private static final class EvaluationCallback implements TraxUtils.SourceCallback {
 
 		private final XPath xpath;
 
@@ -182,7 +184,7 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 
 		@Override
 		public void domSource(Node node) throws XPathExpressionException {
-			result = xpath.evaluate(expression, node, returnType);
+			this.result = this.xpath.evaluate(this.expression, node, this.returnType);
 		}
 
 		@Override
@@ -219,18 +221,16 @@ public class Jaxp13XPathTemplate extends AbstractXPathTemplate {
 		}
 
 		private void inputSource(InputSource inputSource) throws XPathExpressionException {
-			result = xpath.evaluate(expression, inputSource, returnType);
+			this.result = this.xpath.evaluate(this.expression, inputSource, this.returnType);
 		}
 
 		private Element getRootElement(Source source) throws TransformerException {
 			DOMResult domResult = new DOMResult();
-			transformerHelper.transform(source, domResult);
+			this.transformerHelper.transform(source, domResult);
 			Document document = (Document) domResult.getNode();
 			return document.getDocumentElement();
 		}
 
 	}
-
-
 
 }

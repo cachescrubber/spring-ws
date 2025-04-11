@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,13 +19,14 @@ package org.springframework.ws.transport.jms;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
+
+import jakarta.jms.JMSException;
+import jakarta.jms.TextMessage;
 
 import org.springframework.util.Assert;
 
 /**
- * Writer that wraps a {@link javax.jms.TextMessage}.
+ * Writer that wraps a {@link TextMessage}.
  *
  * @author Arjen Poutsma
  * @since 1.5.3
@@ -48,12 +49,13 @@ class TextMessageOutputStream extends FilterOutputStream {
 	public void flush() throws IOException {
 		super.flush();
 		try {
-			ByteArrayOutputStream baos = (ByteArrayOutputStream) out;
-			String text = new String(baos.toByteArray(), encoding);
-			message.setText(text);
+			ByteArrayOutputStream baos = (ByteArrayOutputStream) this.out;
+			String text = baos.toString(this.encoding);
+			this.message.setText(text);
 		}
 		catch (JMSException ex) {
 			throw new JmsTransportException(ex);
 		}
 	}
+
 }

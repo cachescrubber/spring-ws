@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,52 +19,56 @@ package org.springframework.ws.soap.security.wss4j2;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 
-import org.junit.Test;
+import jakarta.xml.soap.MimeHeaders;
+import jakarta.xml.soap.SOAPHeader;
+import jakarta.xml.soap.SOAPHeaderElement;
+import jakarta.xml.soap.SOAPMessage;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.context.DefaultMessageContext;
 import org.springframework.ws.context.MessageContext;
-import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 import org.springframework.xml.transform.StringSource;
 import org.springframework.xml.transform.TransformerFactoryUtils;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class SaajWss4jMessageInterceptorSignTest extends Wss4jMessageInterceptorSignTestCase {
+public class SaajWss4jMessageInterceptorSignTest extends Wss4jMessageInterceptorSignTest {
 
-	private static final String PAYLOAD =
-			"<tru:StockSymbol xmlns:tru=\"http://fabrikam123.com/payloads\">QQQ</tru:StockSymbol>";
+	private static final String PAYLOAD = "<tru:StockSymbol xmlns:tru=\"http://fabrikam123.com/payloads\">QQQ</tru:StockSymbol>";
 
 	@Test
 	public void testSignAndValidate() throws Exception {
+
 		Transformer transformer = TransformerFactoryUtils.newInstance().newTransformer();
-		interceptor.setSecurementActions("Signature");
-		interceptor.setEnableSignatureConfirmation(false);
-		interceptor.setSecurementPassword("123456");
-		interceptor.setSecurementUsername("rsaKey");
-		SOAPMessage saajMessage = saajSoap11MessageFactory.createMessage();
+		this.interceptor.setSecurementActions("Signature");
+		this.interceptor.setEnableSignatureConfirmation(false);
+		this.interceptor.setSecurementPassword("123456");
+		this.interceptor.setSecurementUsername("rsaKey");
+		SOAPMessage saajMessage = this.saajSoap11MessageFactory.createMessage();
 		transformer.transform(new StringSource(PAYLOAD), new DOMResult(saajMessage.getSOAPBody()));
-		SoapMessage message = new SaajSoapMessage(saajMessage, saajSoap11MessageFactory);
-		MessageContext messageContext = new DefaultMessageContext(message, new SaajSoapMessageFactory(saajSoap11MessageFactory));
+		SaajSoapMessage message = new SaajSoapMessage(saajMessage, this.saajSoap11MessageFactory);
+		MessageContext messageContext = new DefaultMessageContext(message,
+				new SaajSoapMessageFactory(this.saajSoap11MessageFactory));
 
-		interceptor.secureMessage(message, messageContext);
+		this.interceptor.secureMessage(message, messageContext);
 
-		SOAPHeader header = ((SaajSoapMessage) message).getSaajMessage().getSOAPHeader();
+		SOAPHeader header = message.getSaajMessage().getSOAPHeader();
 		Iterator<?> iterator = header.getChildElements(new QName(
 				"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security"));
-		assertTrue("No security header", iterator.hasNext());
+
+		assertThat(iterator.hasNext()).isTrue();
+
 		SOAPHeaderElement securityHeader = (SOAPHeaderElement) iterator.next();
 		iterator = securityHeader.getChildElements(new QName("http://www.w3.org/2000/09/xmldsig#", "Signature"));
-		assertTrue("No signature header", iterator.hasNext());
+
+		assertThat(iterator.hasNext()).isTrue();
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		message.writeTo(bos);
@@ -73,11 +77,53 @@ public class SaajWss4jMessageInterceptorSignTest extends Wss4jMessageInterceptor
 		mimeHeaders.addHeader("Content-Type", "text/xml");
 		ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
 
-		SOAPMessage signed = saajSoap11MessageFactory.createMessage(mimeHeaders, bis);
-		message = new SaajSoapMessage(signed, saajSoap11MessageFactory);
-		messageContext = new DefaultMessageContext(message, new SaajSoapMessageFactory(saajSoap11MessageFactory));
+		SOAPMessage signed = this.saajSoap11MessageFactory.createMessage(mimeHeaders, bis);
+		message = new SaajSoapMessage(signed, this.saajSoap11MessageFactory);
+		messageContext = new DefaultMessageContext(message, new SaajSoapMessageFactory(this.saajSoap11MessageFactory));
 
-		interceptor.validateMessage(message, messageContext);
+		this.interceptor.validateMessage(message, messageContext);
+	}
+
+	@Test
+	public void testSignWithoutInclusivePrefixesAndValidate() throws Exception {
+
+		Transformer transformer = TransformerFactoryUtils.newInstance().newTransformer();
+		this.interceptor.setSecurementActions("Signature");
+		this.interceptor.setEnableSignatureConfirmation(false);
+		this.interceptor.setSecurementPassword("123456");
+		this.interceptor.setSecurementUsername("rsaKey");
+		this.interceptor.setAddInclusivePrefixes(false);
+		SOAPMessage saajMessage = this.saajSoap11MessageFactory.createMessage();
+		transformer.transform(new StringSource(PAYLOAD), new DOMResult(saajMessage.getSOAPBody()));
+		SaajSoapMessage message = new SaajSoapMessage(saajMessage, this.saajSoap11MessageFactory);
+		MessageContext messageContext = new DefaultMessageContext(message,
+				new SaajSoapMessageFactory(this.saajSoap11MessageFactory));
+
+		this.interceptor.secureMessage(message, messageContext);
+
+		SOAPHeader header = message.getSaajMessage().getSOAPHeader();
+		Iterator<?> iterator = header.getChildElements(new QName(
+				"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security"));
+
+		assertThat(iterator.hasNext()).isTrue();
+
+		SOAPHeaderElement securityHeader = (SOAPHeaderElement) iterator.next();
+		iterator = securityHeader.getChildElements(new QName("http://www.w3.org/2000/09/xmldsig#", "Signature"));
+
+		assertThat(iterator.hasNext()).isTrue();
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		message.writeTo(bos);
+
+		MimeHeaders mimeHeaders = new MimeHeaders();
+		mimeHeaders.addHeader("Content-Type", "text/xml");
+		ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+
+		SOAPMessage signed = this.saajSoap11MessageFactory.createMessage(mimeHeaders, bis);
+		message = new SaajSoapMessage(signed, this.saajSoap11MessageFactory);
+		messageContext = new DefaultMessageContext(message, new SaajSoapMessageFactory(this.saajSoap11MessageFactory));
+
+		this.interceptor.validateMessage(message, messageContext);
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,8 @@ import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.transport.WebServiceConnection;
 
 /**
- * Implementation of the {@link WebServiceConnection} interface that uses a {@link HttpURLConnection}.
+ * Implementation of the {@link WebServiceConnection} interface that uses a
+ * {@link HttpURLConnection}.
  *
  * @author Arjen Poutsma
  * @author Greg Turnquist
@@ -48,8 +49,8 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 	private final HttpURLConnection connection;
 
 	/**
-	 * Creates a new instance of the {@code HttpUrlConnection} with the given {@code HttpURLConnection}.
-	 *
+	 * Creates a new instance of the {@code HttpUrlConnection} with the given
+	 * {@code HttpURLConnection}.
 	 * @param connection the {@code HttpURLConnection}
 	 */
 	protected HttpUrlConnection(HttpURLConnection connection) {
@@ -58,12 +59,12 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 	}
 
 	public HttpURLConnection getConnection() {
-		return connection;
+		return this.connection;
 	}
 
 	@Override
 	public void onClose() {
-		connection.disconnect();
+		this.connection.disconnect();
 	}
 
 	/*
@@ -72,7 +73,7 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 
 	@Override
 	public URI getUri() throws URISyntaxException {
-		return new URI(StringUtils.replace(connection.getURL().toString(), " ", "%20"));
+		return new URI(StringUtils.replace(this.connection.getURL().toString(), " ", "%20"));
 	}
 
 	/*
@@ -81,17 +82,17 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 
 	@Override
 	public void addRequestHeader(String name, String value) throws IOException {
-		connection.addRequestProperty(name, value);
+		this.connection.addRequestProperty(name, value);
 	}
 
 	@Override
 	protected OutputStream getRequestOutputStream() throws IOException {
-		return connection.getOutputStream();
+		return this.connection.getOutputStream();
 	}
 
 	@Override
 	protected void onSendAfterWrite(WebServiceMessage message) throws IOException {
-		connection.connect();
+		this.connection.connect();
 	}
 
 	/*
@@ -100,16 +101,16 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 
 	@Override
 	protected long getResponseContentLength() throws IOException {
-		return connection.getContentLength();
+		return this.connection.getContentLength();
 	}
 
 	@Override
 	public Iterator<String> getResponseHeaderNames() throws IOException {
-		Set<String> headerNames = new HashSet<String>();
+		Set<String> headerNames = new HashSet<>();
 		// Header field 0 is the status line, so we start at 1
 		int i = 1;
 		while (true) {
-			String headerName = connection.getHeaderFieldKey(i);
+			String headerName = this.connection.getHeaderFieldKey(i);
 			if (!StringUtils.hasLength(headerName)) {
 				break;
 			}
@@ -123,38 +124,40 @@ public class HttpUrlConnection extends AbstractHttpSenderConnection {
 	public Iterator<String> getResponseHeaders(String name) throws IOException {
 		Map<String, List<String>> headersListMappedByLowerCaseName = new HashMap<>();
 
-		for (String key : connection.getHeaderFields().keySet()) {
+		for (String key : this.connection.getHeaderFields().keySet()) {
 			if (key != null) {
-				headersListMappedByLowerCaseName.put(key.toLowerCase(), connection.getHeaderFields().get(key));
+				headersListMappedByLowerCaseName.put(key.toLowerCase(), this.connection.getHeaderFields().get(key));
 			}
 		}
 
 		List<String> headerValues = headersListMappedByLowerCaseName.get(name.toLowerCase());
 
 		if (headerValues == null) {
-		    return Collections.<String>emptyList().iterator();
-		} else {
-		    return headerValues.iterator();
+			return Collections.emptyIterator();
+		}
+		else {
+			return headerValues.iterator();
 		}
 	}
 
 	@Override
 	protected int getResponseCode() throws IOException {
-		return connection.getResponseCode();
+		return this.connection.getResponseCode();
 	}
 
 	@Override
 	protected String getResponseMessage() throws IOException {
-		return connection.getResponseMessage();
+		return this.connection.getResponseMessage();
 	}
 
 	@Override
 	protected InputStream getRawResponseInputStream() throws IOException {
-		if (connection.getResponseCode() / 100 != 2) {
-			return connection.getErrorStream();
+		if (this.connection.getResponseCode() / 100 != 2) {
+			return this.connection.getErrorStream();
 		}
 		else {
-			return connection.getInputStream();
+			return this.connection.getInputStream();
 		}
 	}
+
 }

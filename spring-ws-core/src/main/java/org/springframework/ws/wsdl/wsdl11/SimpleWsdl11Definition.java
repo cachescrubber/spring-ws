@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +17,24 @@
 package org.springframework.ws.wsdl.wsdl11;
 
 import java.io.IOException;
+
 import javax.xml.transform.Source;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.ws.wsdl.WsdlDefinitionException;
+import org.springframework.xml.sax.SaxUtils;
 import org.springframework.xml.transform.ResourceSource;
 
 /**
  * The default {@link Wsdl11Definition} implementation.
- *
- * <p>Allows a WSDL to be set by the {@link #setWsdl wsdl} property, or directly in the {@link
- * #SimpleWsdl11Definition(Resource) constructor}.
+ * <p>
+ * Allows a WSDL to be set by the {@link #setWsdl wsdl} property, or directly in the
+ * {@link #SimpleWsdl11Definition(Resource) constructor}.
  *
  * @author Arjen Poutsma
  * @since 1.0.0
@@ -44,17 +45,18 @@ public class SimpleWsdl11Definition implements Wsdl11Definition, InitializingBea
 
 	/**
 	 * Create a new instance of the {@link SimpleWsdl11Definition} class.
-	 *
-	 * <p>A subsequent call to the {@link #setWsdl(Resource)} method is required.
+	 * <p>
+	 * A subsequent call to the {@link #setWsdl(Resource)} method is required.
 	 */
 	public SimpleWsdl11Definition() {
 	}
 
 	/**
-	 * Create a new instance of the	 {@link SimpleWsdl11Definition} class with the specified resource.
-	 *
+	 * Create a new instance of the {@link SimpleWsdl11Definition} class with the
+	 * specified resource.
 	 * @param wsdlResource the WSDL resource; must not be {@code null}
-	 * @throws IllegalArgumentException if the supplied {@code wsdlResource} is {@code null}
+	 * @throws IllegalArgumentException if the supplied {@code wsdlResource} is
+	 * {@code null}
 	 */
 	public SimpleWsdl11Definition(Resource wsdlResource) {
 		Assert.notNull(wsdlResource, "wsdlResource must not be null");
@@ -70,9 +72,9 @@ public class SimpleWsdl11Definition implements Wsdl11Definition, InitializingBea
 	@Override
 	public Source getSource() {
 		try {
-			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+			XMLReader xmlReader = SaxUtils.namespaceAwareXmlReader();
 			xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
-			return new ResourceSource(xmlReader, wsdlResource);
+			return new ResourceSource(xmlReader, this.wsdlResource);
 		}
 		catch (SAXException ex) {
 			throw new WsdlDefinitionException("Could not create XMLReader", ex);
@@ -83,8 +85,8 @@ public class SimpleWsdl11Definition implements Wsdl11Definition, InitializingBea
 	}
 
 	/**
-	 * Set the WSDL resource to be exposed by calls to this instances' {@link #getSource()} method.
-	 *
+	 * Set the WSDL resource to be exposed by calls to this instances'
+	 * {@link #getSource()} method.
 	 * @param wsdlResource the WSDL resource
 	 */
 	public void setWsdl(Resource wsdlResource) {
@@ -92,8 +94,7 @@ public class SimpleWsdl11Definition implements Wsdl11Definition, InitializingBea
 	}
 
 	public String toString() {
-		return "SimpleWsdl11Definition " + wsdlResource;
+		return "SimpleWsdl11Definition " + this.wsdlResource;
 	}
-
 
 }

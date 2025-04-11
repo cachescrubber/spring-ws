@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.wsdl.wsdl11.provider;
 
 import java.util.Properties;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
 import javax.wsdl.BindingInput;
@@ -39,9 +40,10 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Soap11ProviderTest {
 
@@ -49,102 +51,116 @@ public class Soap11ProviderTest {
 
 	private Definition definition;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		provider = new Soap11Provider();
+
+		this.provider = new Soap11Provider();
 		WSDLFactory factory = WSDLFactory.newInstance();
-		definition = factory.newDefinition();
+		this.definition = factory.newDefinition();
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testPopulateBinding() throws Exception {
-		String namespace = "http://springframework.org/spring-ws";
-		definition.addNamespace("tns", namespace);
-		definition.setTargetNamespace(namespace);
 
-		PortType portType = definition.createPortType();
+		String namespace = "http://springframework.org/spring-ws";
+		this.definition.addNamespace("tns", namespace);
+		this.definition.setTargetNamespace(namespace);
+
+		PortType portType = this.definition.createPortType();
 		portType.setQName(new QName(namespace, "PortType"));
 		portType.setUndefined(false);
-		definition.addPortType(portType);
-		Operation operation = definition.createOperation();
+		this.definition.addPortType(portType);
+		Operation operation = this.definition.createOperation();
 		operation.setName("Operation");
 		operation.setUndefined(false);
 		operation.setStyle(OperationType.REQUEST_RESPONSE);
 		portType.addOperation(operation);
-		Input input = definition.createInput();
+		Input input = this.definition.createInput();
 		input.setName("Input");
 		operation.setInput(input);
-		Output output = definition.createOutput();
+		Output output = this.definition.createOutput();
 		output.setName("Output");
 		operation.setOutput(output);
-		Fault fault = definition.createFault();
+		Fault fault = this.definition.createFault();
 		fault.setName("Fault");
 		operation.addFault(fault);
 
 		Properties soapActions = new Properties();
 		soapActions.setProperty("Operation", namespace + "/Action");
-		provider.setSoapActions(soapActions);
+		this.provider.setSoapActions(soapActions);
 
-		provider.setServiceName("Service");
+		this.provider.setServiceName("Service");
 
 		String locationUri = "http://localhost:8080/services";
-		provider.setLocationUri(locationUri);
+		this.provider.setLocationUri(locationUri);
 
-		provider.addBindings(definition);
-		provider.addServices(definition);
+		this.provider.addBindings(this.definition);
+		this.provider.addServices(this.definition);
 
-		Binding binding = definition.getBinding(new QName(namespace, "PortTypeSoap11"));
-		Assert.assertNotNull("No binding created", binding);
-		Assert.assertEquals("Invalid port type", portType, binding.getPortType());
-		Assert.assertEquals("Invalid amount of extensibility elements", 1, binding.getExtensibilityElements().size());
+		Binding binding = this.definition.getBinding(new QName(namespace, "PortTypeSoap11"));
+
+		assertThat(binding).isNotNull();
+		assertThat(binding.getPortType()).isEqualTo(portType);
+		assertThat(binding.getExtensibilityElements()).hasSize(1);
 
 		SOAPBinding soapBinding = (SOAPBinding) binding.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid style", "document", soapBinding.getStyle());
-		Assert.assertEquals("Invalid amount of binding operations", 1, binding.getBindingOperations().size());
+
+		assertThat(soapBinding.getStyle()).isEqualTo("document");
+		assertThat(binding.getBindingOperations()).hasSize(1);
 
 		BindingOperation bindingOperation = binding.getBindingOperation("Operation", "Input", "Output");
-		Assert.assertNotNull("No binding operation created", bindingOperation);
-		Assert.assertEquals("Invalid amount of extensibility elements", 1,
-				bindingOperation.getExtensibilityElements().size());
+
+		assertThat(bindingOperation).isNotNull();
+		assertThat(bindingOperation.getExtensibilityElements()).hasSize(1);
 
 		SOAPOperation soapOperation = (SOAPOperation) bindingOperation.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid SOAPAction", namespace + "/Action", soapOperation.getSoapActionURI());
+
+		assertThat(soapOperation.getSoapActionURI()).isEqualTo(namespace + "/Action");
 
 		BindingInput bindingInput = bindingOperation.getBindingInput();
-		Assert.assertNotNull("No binding input", bindingInput);
-		Assert.assertEquals("Invalid name", "Input", bindingInput.getName());
-		Assert.assertEquals("Invalid amount of extensibility elements", 1,
-				bindingInput.getExtensibilityElements().size());
+
+		assertThat(bindingInput).isNotNull();
+		assertThat(bindingInput.getName()).isEqualTo("Input");
+		assertThat(bindingInput.getExtensibilityElements()).hasSize(1);
+
 		SOAPBody soapBody = (SOAPBody) bindingInput.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid soap body use", "literal", soapBody.getUse());
+
+		assertThat(soapBody.getUse()).isEqualTo("literal");
 
 		BindingOutput bindingOutput = bindingOperation.getBindingOutput();
-		Assert.assertNotNull("No binding output", bindingOutput);
-		Assert.assertEquals("Invalid name", "Output", bindingOutput.getName());
-		Assert.assertEquals("Invalid amount of extensibility elements", 1,
-				bindingOutput.getExtensibilityElements().size());
+
+		assertThat(bindingOutput).isNotNull();
+		assertThat(bindingOutput.getName()).isEqualTo("Output");
+		assertThat(bindingOutput.getExtensibilityElements()).hasSize(1);
+
 		soapBody = (SOAPBody) bindingOutput.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid soap body use", "literal", soapBody.getUse());
+
+		assertThat(soapBody.getUse()).isEqualTo("literal");
 
 		BindingFault bindingFault = bindingOperation.getBindingFault("Fault");
-		Assert.assertNotNull("No binding fault", bindingFault);
-		Assert.assertEquals("Invalid amount of extensibility elements", 1,
-				bindingFault.getExtensibilityElements().size());
-		SOAPFault soapFault = (SOAPFault) bindingFault.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid soap fault use", "literal", soapFault.getUse());
 
-		Service service = definition.getService(new QName(namespace, "Service"));
-		Assert.assertNotNull("No Service created", service);
-		Assert.assertEquals("Invalid amount of ports", 1, service.getPorts().size());
+		assertThat(bindingFault).isNotNull();
+		assertThat(bindingFault.getExtensibilityElements()).hasSize(1);
+
+		SOAPFault soapFault = (SOAPFault) bindingFault.getExtensibilityElements().get(0);
+
+		assertThat(soapFault.getUse()).isEqualTo("literal");
+
+		Service service = this.definition.getService(new QName(namespace, "Service"));
+
+		assertThat(service).isNotNull();
+		assertThat(service.getPorts()).hasSize(1);
 
 		Port port = service.getPort("PortTypeSoap11");
-		Assert.assertNotNull("No port created", port);
-		Assert.assertEquals("Invalid binding", binding, port.getBinding());
-		Assert.assertEquals("Invalid amount of extensibility elements", 1, port.getExtensibilityElements().size());
+
+		assertThat(port).isNotNull();
+		assertThat(port.getBinding()).isEqualTo(binding);
+		assertThat(port.getExtensibilityElements()).hasSize(1);
 
 		SOAPAddress soapAddress = (SOAPAddress) port.getExtensibilityElements().get(0);
-		Assert.assertEquals("Invalid soap address", locationUri, soapAddress.getLocationURI());
-	}
 
+		assertThat(soapAddress.getLocationURI()).isEqualTo(locationUri);
+	}
 
 }

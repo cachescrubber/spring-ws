@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,9 @@ package org.springframework.ws.soap.server.endpoint;
 
 import java.util.Locale;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.ws.MockWebServiceMessage;
 import org.springframework.ws.WebServiceMessageFactory;
 import org.springframework.ws.context.DefaultMessageContext;
@@ -25,11 +28,11 @@ import org.springframework.ws.context.MessageContext;
 import org.springframework.ws.soap.SoapMessage;
 import org.springframework.ws.soap.soap11.Soap11Body;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SimpleSoapExceptionResolverTest {
 
@@ -43,27 +46,31 @@ public class SimpleSoapExceptionResolverTest {
 
 	private WebServiceMessageFactory factoryMock;
 
-	@Before
-	public void setUp() throws Exception {
-		exceptionResolver = new SimpleSoapExceptionResolver();
-		factoryMock = createMock(WebServiceMessageFactory.class);
-		messageContext = new DefaultMessageContext(new MockWebServiceMessage(), factoryMock);
-		messageMock = createMock(SoapMessage.class);
-		bodyMock = createMock(Soap11Body.class);
+	@BeforeEach
+	public void setUp() {
+
+		this.exceptionResolver = new SimpleSoapExceptionResolver();
+		this.factoryMock = createMock(WebServiceMessageFactory.class);
+		this.messageContext = new DefaultMessageContext(new MockWebServiceMessage(), this.factoryMock);
+		this.messageMock = createMock(SoapMessage.class);
+		this.bodyMock = createMock(Soap11Body.class);
 	}
 
 	@Test
-	public void testResolveExceptionInternal() throws Exception {
+	public void testResolveExceptionInternal() {
+
 		Exception exception = new Exception("message");
-		expect(factoryMock.createWebServiceMessage()).andReturn(messageMock);
-		expect(messageMock.getSoapBody()).andReturn(bodyMock);
-		expect(bodyMock.addServerOrReceiverFault(exception.getMessage(), Locale.ENGLISH)).andReturn(null);
+		expect(this.factoryMock.createWebServiceMessage()).andReturn(this.messageMock);
+		expect(this.messageMock.getSoapBody()).andReturn(this.bodyMock);
+		expect(this.bodyMock.addServerOrReceiverFault(exception.getMessage(), Locale.ENGLISH)).andReturn(null);
 
-		replay(factoryMock, messageMock, bodyMock);
+		replay(this.factoryMock, this.messageMock, this.bodyMock);
 
-		boolean result = exceptionResolver.resolveExceptionInternal(messageContext, null, exception);
-		Assert.assertTrue("Invalid result", result);
+		boolean result = this.exceptionResolver.resolveExceptionInternal(this.messageContext, null, exception);
 
-		verify(factoryMock, messageMock, bodyMock);
+		assertThat(result).isTrue();
+
+		verify(this.factoryMock, this.messageMock, this.bodyMock);
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,9 @@
 
 package org.springframework.ws.soap.server.endpoint.interceptor;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.ws.context.DefaultMessageContext;
 import org.springframework.ws.context.MessageContext;
 import org.springframework.ws.server.EndpointInterceptor;
@@ -23,11 +26,8 @@ import org.springframework.ws.server.endpoint.interceptor.EndpointInterceptorAda
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SoapActionSmartEndpointInterceptorTest {
 
@@ -37,40 +37,46 @@ public class SoapActionSmartEndpointInterceptorTest {
 
 	private MessageContext messageContext;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		delegate = new EndpointInterceptorAdapter();
 
-		soapAction = "http://springframework.org/spring-ws";
+		this.delegate = new EndpointInterceptorAdapter();
+
+		this.soapAction = "http://springframework.org/spring-ws";
 
 		SaajSoapMessageFactory messageFactory = new SaajSoapMessageFactory();
 		messageFactory.afterPropertiesSet();
 		SaajSoapMessage request = messageFactory.createWebServiceMessage();
-		request.setSoapAction(soapAction);
-		messageContext = new DefaultMessageContext(request, messageFactory);
+		request.setSoapAction(this.soapAction);
+		this.messageContext = new DefaultMessageContext(request, messageFactory);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void neitherNamespaceNorLocalPart() {
-		new SoapActionSmartEndpointInterceptor(delegate, null);
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new SoapActionSmartEndpointInterceptor(this.delegate, null));
 	}
 
 	@Test
-	public void shouldInterceptMatch() throws Exception {
-		SoapActionSmartEndpointInterceptor interceptor = new SoapActionSmartEndpointInterceptor(delegate, soapAction);
+	public void shouldInterceptMatch() {
 
-		boolean result = interceptor.shouldIntercept(messageContext, null);
-		assertTrue("Interceptor should apply", result);
+		SoapActionSmartEndpointInterceptor interceptor = new SoapActionSmartEndpointInterceptor(this.delegate,
+				this.soapAction);
+
+		boolean result = interceptor.shouldIntercept(this.messageContext, null);
+
+		assertThat(result).isTrue();
 	}
 
 	@Test
-	public void shouldInterceptNonMatch() throws Exception {
-		SoapActionSmartEndpointInterceptor interceptor =
-				new SoapActionSmartEndpointInterceptor(delegate, "http://springframework.org/other");
+	public void shouldInterceptNonMatch() {
 
-		boolean result = interceptor.shouldIntercept(messageContext, null);
-		assertFalse("Interceptor should apply", result);
+		SoapActionSmartEndpointInterceptor interceptor = new SoapActionSmartEndpointInterceptor(this.delegate,
+				"http://springframework.org/other");
+
+		boolean result = interceptor.shouldIntercept(this.messageContext, null);
+
+		assertThat(result).isFalse();
 	}
-
 
 }

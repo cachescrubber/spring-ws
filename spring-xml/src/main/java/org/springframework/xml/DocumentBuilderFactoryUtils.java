@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.xml;
 
 import javax.xml.XMLConstants;
@@ -23,16 +24,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * General utilities for {@link DocumentBuilderFactory}.
+ *
  * @author Greg Turnquist
  * @since 3.0.5
  */
-public class DocumentBuilderFactoryUtils {
+public abstract class DocumentBuilderFactoryUtils {
 
 	private static final Log log = LogFactory.getLog(DocumentBuilderFactoryUtils.class);
 
 	/**
-	 * Build a {@link DocumentBuilderFactory} then set properties to prevent external entity access.
-	 *
+	 * Build a {@link DocumentBuilderFactory} then set properties to prevent external
+	 * entity access.
 	 * @see DocumentBuilderFactory#newInstance()
 	 */
 	public static DocumentBuilderFactory newInstance() {
@@ -40,61 +43,77 @@ public class DocumentBuilderFactoryUtils {
 
 		try {
 			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn(XMLConstants.ACCESS_EXTERNAL_DTD + " property not supported by " + factory.getClass().getCanonicalName());
+				log.warn(XMLConstants.ACCESS_EXTERNAL_DTD + " property not supported by "
+						+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn(XMLConstants.ACCESS_EXTERNAL_SCHEMA + " property not supported by " + factory.getClass().getCanonicalName());
+				log.warn(XMLConstants.ACCESS_EXTERNAL_SCHEMA + " property not supported by "
+						+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-		} catch (ParserConfigurationException e) {
+		}
+		catch (ParserConfigurationException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn("FEATURE 'http://apache.org/xml/features/disallow-doctype-decl' is probably not supported by " + factory.getClass().getCanonicalName());
+				log.warn("FEATURE 'http://apache.org/xml/features/disallow-doctype-decl' is probably not supported by "
+						+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-		} catch (ParserConfigurationException e) {
+		}
+		catch (ParserConfigurationException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn("FEATURE 'http://xml.org/sax/features/external-general-entities' is probably not supported by " + factory.getClass().getCanonicalName());
+				log.warn("FEATURE 'http://xml.org/sax/features/external-general-entities' is probably not supported by "
+						+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-		} catch (ParserConfigurationException e) {
+		}
+		catch (ParserConfigurationException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn("FEATURE 'http://xml.org/sax/features/external-parameter-entities' is probably not supported by " + factory.getClass().getCanonicalName());
+				log.warn(
+						"FEATURE 'http://xml.org/sax/features/external-parameter-entities' is probably not supported by "
+								+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		} catch (ParserConfigurationException e) {
+		}
+		catch (ParserConfigurationException ex) {
 			if (log.isWarnEnabled()) {
-				log.warn("FEATURE 'http://apache.org/xml/features/nonvalidating/load-external-dtd' is probably not supported by " + factory.getClass().getCanonicalName());
+				log.warn(
+						"FEATURE 'http://apache.org/xml/features/nonvalidating/load-external-dtd' is probably not supported by "
+								+ factory.getClass().getCanonicalName());
 			}
 		}
 
 		try {
 			factory.setXIncludeAware(false);
 			factory.setExpandEntityReferences(false);
-		} catch (Exception e) {
+		}
+		catch (Exception ex) {
 			if (log.isWarnEnabled()) {
-				log.warn("Caught " + e.getMessage() + " attempting to configure your XML parser.");
+				log.warn("Caught " + ex.getMessage() + " attempting to configure your XML parser.");
 			}
 		}
 
 		return factory;
 	}
+
 }

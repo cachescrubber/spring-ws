@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,15 +26,16 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.xml.sax.SaxUtils;
 import org.springframework.xml.DocumentBuilderFactoryUtils;
+import org.springframework.xml.sax.SaxUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultMessagesProviderTest {
 
@@ -44,56 +45,66 @@ public class DefaultMessagesProviderTest {
 
 	private DocumentBuilder documentBuilder;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		provider = new DefaultMessagesProvider();
+
+		this.provider = new DefaultMessagesProvider();
 		WSDLFactory factory = WSDLFactory.newInstance();
-		definition = factory.newDefinition();
+		this.definition = factory.newDefinition();
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactoryUtils.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
-		documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testAddMessages() throws Exception {
+
 		String definitionNamespace = "http://springframework.org/spring-ws";
-		definition.addNamespace("tns", definitionNamespace);
-		definition.setTargetNamespace(definitionNamespace);
+		this.definition.addNamespace("tns", definitionNamespace);
+		this.definition.setTargetNamespace(definitionNamespace);
 		String schemaNamespace = "http://www.springframework.org/spring-ws/schema";
-		definition.addNamespace("schema", schemaNamespace);
+		this.definition.addNamespace("schema", schemaNamespace);
 
 		Resource resource = new ClassPathResource("schema.xsd", getClass());
-		Document schemaDocument = documentBuilder.parse(SaxUtils.createInputSource(resource));
-		Types types = definition.createTypes();
-		definition.setTypes(types);
-		Schema schema = (Schema) definition.getExtensionRegistry()
-				.createExtension(Types.class, new QName("http://www.w3.org/2001/XMLSchema", "schema"));
+		Document schemaDocument = this.documentBuilder.parse(SaxUtils.createInputSource(resource));
+		Types types = this.definition.createTypes();
+		this.definition.setTypes(types);
+		Schema schema = (Schema) this.definition.getExtensionRegistry()
+			.createExtension(Types.class, new QName("http://www.w3.org/2001/XMLSchema", "schema"));
 		types.addExtensibilityElement(schema);
 		schema.setElement(schemaDocument.getDocumentElement());
 
-		provider.addMessages(definition);
+		this.provider.addMessages(this.definition);
 
-		Assert.assertEquals("Invalid amount of messages created", 3, definition.getMessages().size());
+		assertThat(this.definition.getMessages()).hasSize(3);
 
-		Message message = definition.getMessage(new QName(definitionNamespace, "GetOrderRequest"));
-		Assert.assertNotNull("Message not created", message);
+		Message message = this.definition.getMessage(new QName(definitionNamespace, "GetOrderRequest"));
+
+		assertThat(message).isNotNull();
+
 		Part part = message.getPart("GetOrderRequest");
-		Assert.assertNotNull("Part not created", part);
-		Assert.assertEquals("Invalid element on part", new QName(schemaNamespace, "GetOrderRequest"),
-				part.getElementName());
 
-		message = definition.getMessage(new QName(definitionNamespace, "GetOrderResponse"));
-		Assert.assertNotNull("Message not created", message);
+		assertThat(part).isNotNull();
+		assertThat(part.getElementName()).isEqualTo(new QName(schemaNamespace, "GetOrderRequest"));
+
+		message = this.definition.getMessage(new QName(definitionNamespace, "GetOrderResponse"));
+
+		assertThat(message).isNotNull();
+
 		part = message.getPart("GetOrderResponse");
-		Assert.assertNotNull("Part not created", part);
-		Assert.assertEquals("Invalid element on part", new QName(schemaNamespace, "GetOrderResponse"),
-				part.getElementName());
 
-		message = definition.getMessage(new QName(definitionNamespace, "GetOrderFault"));
-		Assert.assertNotNull("Message not created", message);
+		assertThat(part).isNotNull();
+		assertThat(part.getElementName()).isEqualTo(new QName(schemaNamespace, "GetOrderResponse"));
+
+		message = this.definition.getMessage(new QName(definitionNamespace, "GetOrderFault"));
+
+		assertThat(message).isNotNull();
+
 		part = message.getPart("GetOrderFault");
-		Assert.assertNotNull("Part not created", part);
-		Assert.assertEquals("Invalid element on part", new QName(schemaNamespace, "GetOrderFault"),
-				part.getElementName());
+
+		assertThat(part).isNotNull();
+		assertThat(part.getElementName()).isEqualTo(new QName(schemaNamespace, "GetOrderFault"));
 	}
+
 }

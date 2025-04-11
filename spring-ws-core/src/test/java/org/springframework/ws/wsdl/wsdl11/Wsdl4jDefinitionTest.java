@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.wsdl.wsdl11;
 
 import java.io.InputStream;
+
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
@@ -26,17 +27,16 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 
-import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xmlunit.assertj.XmlAssert;
 
-import org.springframework.xml.transform.TransformerFactoryUtils;
 import org.springframework.xml.DocumentBuilderFactoryUtils;
+import org.springframework.xml.transform.TransformerFactoryUtils;
 
-import static org.custommonkey.xmlunit.XMLAssert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Wsdl4jDefinitionTest {
 
@@ -44,32 +44,35 @@ public class Wsdl4jDefinitionTest {
 
 	private Transformer transformer;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		XMLUnit.setIgnoreWhitespace(true);
+
 		WSDLFactory factory = WSDLFactory.newInstance();
 		WSDLReader reader = factory.newWSDLReader();
-		InputStream is = getClass().getResourceAsStream("complete.wsdl");
-		try {
+
+		try (InputStream is = getClass().getResourceAsStream("complete.wsdl")) {
 			Definition wsdl4jDefinition = reader.readWSDL(null, new InputSource(is));
-			definition = new Wsdl4jDefinition(wsdl4jDefinition);
+			this.definition = new Wsdl4jDefinition(wsdl4jDefinition);
 		}
-		finally {
-			is.close();
-		}
-		transformer = TransformerFactoryUtils.newInstance().newTransformer();
+
+		this.transformer = TransformerFactoryUtils.newInstance().newTransformer();
 	}
 
 	@Test
 	public void testGetSource() throws Exception {
-		Source source = definition.getSource();
-		Assert.assertNotNull("Source is null", source);
+
+		Source source = this.definition.getSource();
+
+		assertThat(source).isNotNull();
+
 		DOMResult result = new DOMResult();
-		transformer.transform(source, result);
+		this.transformer.transform(source, result);
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactoryUtils.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document expected = documentBuilder.parse(getClass().getResourceAsStream("complete.wsdl"));
-		assertXMLEqual(expected, (Document) result.getNode());
+
+		XmlAssert.assertThat(result.getNode()).and(expected).ignoreWhitespace().areIdentical();
 	}
+
 }

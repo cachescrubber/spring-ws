@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,16 +46,15 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		CompositeComponentDefinition compDefinition =
-				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
+		CompositeComponentDefinition compDefinition = new CompositeComponentDefinition(element.getTagName(),
+				parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compDefinition);
 
 		List<Element> childElements = DomUtils.getChildElements(element);
 		for (Element childElement : childElements) {
 			if ("bean".equals(childElement.getLocalName())) {
-				RootBeanDefinition smartInterceptorDef =
-						createSmartInterceptorDefinition(DelegatingSmartSoapEndpointInterceptor.class, childElement,
-								parserContext);
+				RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+						DelegatingSmartSoapEndpointInterceptor.class, childElement, parserContext);
 				BeanDefinitionHolder interceptorDef = createInterceptorDefinition(parserContext, childElement);
 
 				smartInterceptorDef.getConstructorArgumentValues().addIndexedArgumentValue(0, interceptorDef);
@@ -63,9 +62,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 				registerSmartInterceptor(parserContext, smartInterceptorDef);
 			}
 			else if ("ref".equals(childElement.getLocalName())) {
-				RootBeanDefinition smartInterceptorDef =
-						createSmartInterceptorDefinition(DelegatingSmartSoapEndpointInterceptor.class, childElement,
-								parserContext);
+				RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+						DelegatingSmartSoapEndpointInterceptor.class, childElement, parserContext);
 
 				BeanReference interceptorRef = createInterceptorReference(parserContext, childElement);
 
@@ -78,11 +76,10 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 				List<Element> payloadRootChildren = DomUtils.getChildElements(childElement);
 				for (Element payloadRootChild : payloadRootChildren) {
 					if ("bean".equals(payloadRootChild.getLocalName())) {
-						RootBeanDefinition smartInterceptorDef =
-								createSmartInterceptorDefinition(PayloadRootSmartSoapEndpointInterceptor.class,
-										childElement, parserContext);
-						BeanDefinitionHolder interceptorDef =
-								createInterceptorDefinition(parserContext, payloadRootChild);
+						RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+								PayloadRootSmartSoapEndpointInterceptor.class, childElement, parserContext);
+						BeanDefinitionHolder interceptorDef = createInterceptorDefinition(parserContext,
+								payloadRootChild);
 
 						String namespaceUri = childElement.getAttribute("namespaceUri");
 						String localPart = childElement.getAttribute("localPart");
@@ -94,9 +91,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 						registerSmartInterceptor(parserContext, smartInterceptorDef);
 					}
 					else if ("ref".equals(payloadRootChild.getLocalName())) {
-						RootBeanDefinition smartInterceptorDef =
-								createSmartInterceptorDefinition(PayloadRootSmartSoapEndpointInterceptor.class,
-										childElement, parserContext);
+						RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+								PayloadRootSmartSoapEndpointInterceptor.class, childElement, parserContext);
 						BeanReference interceptorRef = createInterceptorReference(parserContext, payloadRootChild);
 
 						String namespaceUri = childElement.getAttribute("namespaceUri");
@@ -114,11 +110,10 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 				List<Element> soapActionChildren = DomUtils.getChildElements(childElement);
 				for (Element soapActionChild : soapActionChildren) {
 					if ("bean".equals(soapActionChild.getLocalName())) {
-						RootBeanDefinition smartInterceptorDef =
-								createSmartInterceptorDefinition(SoapActionSmartEndpointInterceptor.class, childElement,
-										parserContext);
-						BeanDefinitionHolder interceptorDef =
-								createInterceptorDefinition(parserContext, soapActionChild);
+						RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+								SoapActionSmartEndpointInterceptor.class, childElement, parserContext);
+						BeanDefinitionHolder interceptorDef = createInterceptorDefinition(parserContext,
+								soapActionChild);
 
 						String soapAction = childElement.getAttribute("value");
 
@@ -128,9 +123,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 						registerSmartInterceptor(parserContext, smartInterceptorDef);
 					}
 					else if ("ref".equals(soapActionChild.getLocalName())) {
-						RootBeanDefinition smartInterceptorDef =
-								createSmartInterceptorDefinition(SoapActionSmartEndpointInterceptor.class, childElement,
-										parserContext);
+						RootBeanDefinition smartInterceptorDef = createSmartInterceptorDefinition(
+								SoapActionSmartEndpointInterceptor.class, childElement, parserContext);
 						BeanReference interceptorRef = createInterceptorReference(parserContext, soapActionChild);
 
 						String soapAction = childElement.getAttribute("value");
@@ -179,9 +173,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 		return ref;
 	}
 
-	private RootBeanDefinition createSmartInterceptorDefinition(Class<? extends SmartEndpointInterceptor> interceptorClass,
-																Element element,
-																ParserContext parserContext) {
+	private RootBeanDefinition createSmartInterceptorDefinition(
+			Class<? extends SmartEndpointInterceptor> interceptorClass, Element element, ParserContext parserContext) {
 		RootBeanDefinition smartInterceptorDef = new RootBeanDefinition(interceptorClass);
 		smartInterceptorDef.setSource(parserContext.extractSource(element));
 		smartInterceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -191,4 +184,5 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 	private void error(ParserContext parserContext, String message, Object source) {
 		parserContext.getDelegate().getReaderContext().error(message, source);
 	}
+
 }

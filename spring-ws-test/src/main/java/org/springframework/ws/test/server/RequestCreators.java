@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.test.server;
 
 import java.io.IOException;
+
 import javax.xml.transform.Source;
 
 import org.springframework.core.io.Resource;
@@ -29,8 +30,8 @@ import org.springframework.ws.test.support.creator.WebServiceMessageCreator;
 import org.springframework.xml.transform.ResourceSource;
 
 /**
- * Factory methods for {@link RequestCreator} classes. Typically used to provide input for {@link
- * MockWebServiceClient#sendRequest(RequestCreator)}.
+ * Factory methods for {@link RequestCreator} classes. Typically used to provide input for
+ * {@link MockWebServiceClient#sendRequest(RequestCreator)}.
  *
  * @author Arjen Poutsma
  * @since 2.0
@@ -44,7 +45,6 @@ public abstract class RequestCreators {
 
 	/**
 	 * Create a request with the given {@link Source} XML as payload.
-	 *
 	 * @param payload the request payload
 	 * @return the request creator
 	 */
@@ -55,7 +55,6 @@ public abstract class RequestCreators {
 
 	/**
 	 * Create a request with the given {@link Resource} XML as payload.
-	 *
 	 * @param payload the request payload
 	 * @return the request creator
 	 */
@@ -65,10 +64,9 @@ public abstract class RequestCreators {
 	}
 
 	// SOAP
-	
+
 	/**
 	 * Create a request with the given {@link Source} XML as SOAP envelope.
-	 *
 	 * @param soapEnvelope the request SOAP envelope
 	 * @return the request creator
 	 * @since 2.1.1
@@ -80,7 +78,6 @@ public abstract class RequestCreators {
 
 	/**
 	 * Create a request with the given {@link Resource} XML as SOAP envelope.
-	 *
 	 * @param soapEnvelope the request SOAP envelope
 	 * @return the request creator
 	 * @since 2.1.1
@@ -93,7 +90,7 @@ public abstract class RequestCreators {
 	/**
 	 * Adapts a {@link WebServiceMessageCreator} to the {@link RequestCreator} contract.
 	 */
-	private static class WebServiceMessageCreatorAdapter implements RequestCreator {
+	private static final class WebServiceMessageCreatorAdapter implements RequestCreator {
 
 		private final WebServiceMessageCreator adaptee;
 
@@ -103,9 +100,9 @@ public abstract class RequestCreators {
 
 		@Override
 		public WebServiceMessage createRequest(WebServiceMessageFactory messageFactory) throws IOException {
-			return adaptee.createMessage(messageFactory);
+			return this.adaptee.createMessage(messageFactory);
 		}
-	}
 
+	}
 
 }

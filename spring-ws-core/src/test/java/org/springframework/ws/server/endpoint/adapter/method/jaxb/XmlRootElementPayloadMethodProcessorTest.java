@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,27 +17,28 @@
 package org.springframework.ws.server.endpoint.adapter.method.jaxb;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
+
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
+import org.xmlunit.assertj.XmlAssert;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.ws.MockWebServiceMessage;
@@ -52,10 +53,7 @@ import org.springframework.ws.soap.axiom.AxiomSoapMessageFactory;
 import org.springframework.xml.sax.AbstractXmlReader;
 import org.springframework.xml.transform.StringResult;
 import org.springframework.xml.transform.TransformerFactoryUtils;
-import static org.custommonkey.xmlunit.XMLAssert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlRootElementPayloadMethodProcessorTest {
 
@@ -69,66 +67,79 @@ public class XmlRootElementPayloadMethodProcessorTest {
 
 	private MethodParameter xmlTypeReturnType;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		processor = new XmlRootElementPayloadMethodProcessor();
-		rootElementParameter = new MethodParameter(getClass().getMethod("rootElement", MyRootElement.class), 0);
-		typeParameter = new MethodParameter(getClass().getMethod("type", MyType.class), 0);
-		rootElementReturnType = new MethodParameter(getClass().getMethod("rootElement", MyRootElement.class), -1);
+
+		this.processor = new XmlRootElementPayloadMethodProcessor();
+		this.rootElementParameter = new MethodParameter(getClass().getMethod("rootElement", MyRootElement.class), 0);
+		this.typeParameter = new MethodParameter(getClass().getMethod("type", MyType.class), 0);
+		this.rootElementReturnType = new MethodParameter(getClass().getMethod("rootElement", MyRootElement.class), -1);
 		xmlTypeReturnType = new MethodParameter(getClass().getMethod("xmlType", MyType.class), -1);
 	}
 
 	@Test
 	public void supportsParameter() {
-		assertTrue("processor does not support @XmlRootElement parameter",
-				processor.supportsParameter(rootElementParameter));
-		assertTrue("processor does not support @XmlType parameter", processor.supportsParameter(
-				typeParameter));
+
+		assertThat(this.processor.supportsParameter(this.rootElementParameter)).isTrue();
+		assertThat(this.processor.supportsParameter(this.typeParameter)).isTrue();
 	}
 
 	@Test
 	public void supportsReturnType() {
-		assertTrue("processor does not support @XmlRootElement return type",
-				processor.supportsReturnType(rootElementReturnType));
+
+		assertThat(this.processor.supportsReturnType(this.rootElementReturnType)).isTrue();
 	}
 
 	@Test
 	public void resolveArgumentRootElement() throws JAXBException {
-		WebServiceMessage request = new MockWebServiceMessage("<root xmlns='http://springframework.org'><string>Foo</string></root>");
+
+		WebServiceMessage request = new MockWebServiceMessage(
+				"<root xmlns='http://springframework.org'><string>Foo</string></root>");
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
 
-		Object result = processor.resolveArgument(messageContext, rootElementParameter);
-		assertTrue("result not a MyRootElement", result instanceof MyRootElement);
+		Object result = this.processor.resolveArgument(messageContext, this.rootElementParameter);
+
+		assertThat(result).isInstanceOf(MyRootElement.class);
+
 		MyRootElement rootElement = (MyRootElement) result;
-		assertEquals("invalid result", "Foo", rootElement.getString());
+
+		assertThat(rootElement.getString()).isEqualTo("Foo");
 	}
 
 	@Test
 	public void resolveArgumentType() throws JAXBException {
-		WebServiceMessage request = new MockWebServiceMessage("<type xmlns='http://springframework.org'><string>Foo</string></type>");
+
+		WebServiceMessage request = new MockWebServiceMessage(
+				"<type xmlns='http://springframework.org'><string>Foo</string></type>");
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
 
-		Object result = processor.resolveArgument(messageContext, typeParameter);
-		assertTrue("result not a MyType", result instanceof MyType);
+		Object result = this.processor.resolveArgument(messageContext, this.typeParameter);
+
+		assertThat(result).isInstanceOf(MyType.class);
+
 		MyType type = (MyType) result;
-		assertEquals("invalid result", "Foo", type.getString());
+
+		assertThat(type.getString()).isEqualTo("Foo");
 	}
 
 	@Test
 	public void resolveArgumentFromCustomSAXSource() throws JAXBException {
+
 		// Create a custom SAXSource that generates an appropriate sequence of events.
 		XMLReader xmlReader = new AbstractXmlReader() {
+
 			@Override
-			public void parse(String systemId) throws IOException, SAXException {
+			public void parse(String systemId) throws SAXException {
 				parse();
 			}
 
 			@Override
-			public void parse(InputSource input) throws IOException, SAXException {
+			public void parse(InputSource input) throws SAXException {
 				parse();
 			}
 
 			private void parse() throws SAXException {
+
 				ContentHandler handler = getContentHandler();
 				// <root xmlns='http://springframework.org'><string>Foo</string></root>
 				handler.startDocument();
@@ -142,12 +153,14 @@ public class XmlRootElementPayloadMethodProcessorTest {
 				handler.endDocument();
 			}
 		};
+
 		final SAXSource source = new SAXSource(xmlReader, new InputSource());
 
 		// Create a mock WebServiceMessage that returns the SAXSource as payload source.
 		WebServiceMessage request = new WebServiceMessage() {
+
 			@Override
-			public void writeTo(OutputStream outputStream) throws IOException {
+			public void writeTo(OutputStream outputStream) {
 				throw new UnsupportedOperationException();
 			}
 
@@ -161,68 +174,91 @@ public class XmlRootElementPayloadMethodProcessorTest {
 				throw new UnsupportedOperationException();
 			}
 		};
-		// Create a message context with that request. Note that the message factory doesn't matter here:
+
+		// Create a message context with that request. Note that the message factory
+		// doesn't matter here:
 		// it is required but not used.
 		MessageContext messageContext = new DefaultMessageContext(request, new MockWebServiceMessageFactory());
 
-		Object result = processor.resolveArgument(messageContext, rootElementParameter);
-		assertTrue("result not a MyRootElement", result instanceof MyRootElement);
+		Object result = this.processor.resolveArgument(messageContext, this.rootElementParameter);
+
+		assertThat(result).isInstanceOf(MyRootElement.class);
+
 		MyRootElement rootElement = (MyRootElement) result;
-		assertEquals("invalid result", "Foo", rootElement.getString());
+
+		assertThat(rootElement.getString()).isEqualTo("Foo");
 	}
 
 	@Test
 	public void handleReturnValue() throws Exception {
+
 		MessageContext messageContext = new DefaultMessageContext(new MockWebServiceMessageFactory());
 
 		MyRootElement rootElement = new MyRootElement();
 		rootElement.setString("Foo");
-		processor.handleReturnValue(messageContext, rootElementReturnType, rootElement);
-		assertTrue("context has no response", messageContext.hasResponse());
+		this.processor.handleReturnValue(messageContext, this.rootElementReturnType, rootElement);
+
+		assertThat(messageContext.hasResponse()).isTrue();
+
 		MockWebServiceMessage response = (MockWebServiceMessage) messageContext.getResponse();
-		assertXMLEqual("<root xmlns='http://springframework.org'><string>Foo</string></root>", response.getPayloadAsString());
+
+		XmlAssert.assertThat(response.getPayloadAsString())
+			.and("<root xmlns='http://springframework.org'><string>Foo</string></root>")
+			.ignoreWhitespace()
+			.areIdentical();
 	}
 
 	@Test
 	public void handleNullReturnValue() throws Exception {
+
 		MessageContext messageContext = new DefaultMessageContext(new MockWebServiceMessageFactory());
 
 		MyRootElement rootElement = null;
-		processor.handleReturnValue(messageContext, rootElementReturnType, rootElement);
-		assertFalse("context has response", messageContext.hasResponse());
+		this.processor.handleReturnValue(messageContext, this.rootElementReturnType, rootElement);
+
+		assertThat(messageContext.hasResponse()).isFalse();
 	}
 
 	@Test
 	public void handleReturnValueAxiom() throws Exception {
+
 		AxiomSoapMessageFactory messageFactory = new AxiomSoapMessageFactory();
 		MessageContext messageContext = new DefaultMessageContext(messageFactory);
 
 		MyRootElement rootElement = new MyRootElement();
 		rootElement.setString("Foo");
 
-		processor.handleReturnValue(messageContext, rootElementReturnType, rootElement);
-		assertTrue("context has no response", messageContext.hasResponse());
+		this.processor.handleReturnValue(messageContext, this.rootElementReturnType, rootElement);
+
+		assertThat(messageContext.hasResponse()).isTrue();
+
 		AxiomSoapMessage response = (AxiomSoapMessage) messageContext.getResponse();
 
 		Transformer transformer = TransformerFactoryUtils.newInstance().newTransformer();
 		StringResult payloadResult = new StringResult();
 		transformer.transform(response.getPayloadSource(), payloadResult);
 
-		assertXMLEqual("<root xmlns='http://springframework.org'><string>Foo</string></root>",
-				payloadResult.toString());
+		XmlAssert.assertThat(payloadResult.toString())
+			.and("<root xmlns='http://springframework.org'><string>Foo</string></root>")
+			.ignoreWhitespace()
+			.areIdentical();
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		response.writeTo(bos);
 		String messageResult = bos.toString("UTF-8");
 
-		assertXMLEqual("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'><soapenv:Header/><soapenv:Body>" +
-				"<root xmlns='http://springframework.org'><string>Foo</string></root>" +
-				"</soapenv:Body></soapenv:Envelope>", messageResult);
+		XmlAssert.assertThat(messageResult)
+			.and("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'><soapenv:Header/><soapenv:Body>"
+					+ "<root xmlns='http://springframework.org'><string>Foo</string></root>"
+					+ "</soapenv:Body></soapenv:Envelope>")
+			.ignoreWhitespace()
+			.areIdentical();
 
 	}
 
 	@Test
 	public void handleReturnValueAxiomNoPayloadCaching() throws Exception {
+
 		AxiomSoapMessageFactory messageFactory = new AxiomSoapMessageFactory();
 		messageFactory.setPayloadCaching(false);
 		MessageContext messageContext = new DefaultMessageContext(messageFactory);
@@ -230,18 +266,22 @@ public class XmlRootElementPayloadMethodProcessorTest {
 		MyRootElement rootElement = new MyRootElement();
 		rootElement.setString("Foo");
 
-		processor.handleReturnValue(messageContext, rootElementReturnType, rootElement);
-		assertTrue("context has no response", messageContext.hasResponse());
+		this.processor.handleReturnValue(messageContext, this.rootElementReturnType, rootElement);
+
+		assertThat(messageContext.hasResponse()).isTrue();
+
 		AxiomSoapMessage response = (AxiomSoapMessage) messageContext.getResponse();
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		response.writeTo(bos);
 		String messageResult = bos.toString("UTF-8");
 
-		assertXMLEqual("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'><soapenv:Header/><soapenv:Body>" +
-				"<root xmlns='http://springframework.org'><string>Foo</string></root>" +
-				"</soapenv:Body></soapenv:Envelope>", messageResult);
-
+		XmlAssert.assertThat(messageResult)
+			.and("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'><soapenv:Header/><soapenv:Body>"
+					+ "<root xmlns='http://springframework.org'><string>Foo</string></root>"
+					+ "</soapenv:Body></soapenv:Envelope>")
+			.ignoreWhitespace()
+			.areIdentical();
 	}
 
 	@Test
@@ -275,12 +315,13 @@ public class XmlRootElementPayloadMethodProcessorTest {
 
 		@XmlElement(name = "string", namespace = "http://springframework.org")
 		public String getString() {
-			return string;
+			return this.string;
 		}
 
 		public void setString(String string) {
 			this.string = string;
 		}
+
 	}
 
 	@XmlType(name = "root", namespace = "http://springframework.org")
@@ -290,13 +331,13 @@ public class XmlRootElementPayloadMethodProcessorTest {
 
 		@XmlElement(name = "string", namespace = "http://springframework.org")
 		public String getString() {
-			return string;
+			return this.string;
 		}
 
 		public void setString(String string) {
 			this.string = string;
 		}
-	}
 
+	}
 
 }

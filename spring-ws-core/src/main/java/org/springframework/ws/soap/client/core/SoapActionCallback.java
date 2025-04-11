@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,17 +25,15 @@ import org.springframework.ws.client.core.WebServiceMessageCallback;
 import org.springframework.ws.soap.SoapMessage;
 
 /**
- * {@link WebServiceMessageCallback} implementation that sets the SOAP Action header on the message.
- *
- * <p>A usage example with {@link org.springframework.ws.client.core.WebServiceTemplate}:
- * <pre>
+ * {@link WebServiceMessageCallback} implementation that sets the SOAP Action header on
+ * the message.
+ * <p>
+ * A usage example with {@link org.springframework.ws.client.core.WebServiceTemplate}:
+ * <pre><code class='java'>
  * WebServiceTemplate template = new WebServiceTemplate(messageFactory);
  * Result result = new DOMResult();
- * template.sendSourceAndReceiveToResult(
- *	   new StringSource("&lt;content xmlns=\"http://tempuri.org\"/&gt;"),
- *	   new SoapActionCallback("http://tempuri.org/SOAPAction"),
- *	   result);
- * </pre>
+ * template.sendSourceAndReceiveToResult(new StringSource("&lt;content xmlns=\"http://tempuri.org\"/&gt;"),
+ * 		new SoapActionCallback("http://tempuri.org/SOAPAction"), result);</code></pre>
  *
  * @author Arjen Poutsma
  * @since 1.0.0
@@ -56,7 +54,7 @@ public class SoapActionCallback implements WebServiceMessageCallback {
 	public void doWithMessage(WebServiceMessage message) throws IOException {
 		Assert.isInstanceOf(SoapMessage.class, message);
 		SoapMessage soapMessage = (SoapMessage) message;
-		soapMessage.setSoapAction(soapAction);
+		soapMessage.setSoapAction(this.soapAction);
 	}
 
 }

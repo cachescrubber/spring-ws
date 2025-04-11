@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,25 +19,33 @@ package org.springframework.ws.transport.http;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
-import javax.servlet.http.HttpServletResponse;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+import org.xmlunit.assertj.XmlAssert;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.ws.wsdl.WsdlDefinition;
 import org.springframework.ws.wsdl.wsdl11.SimpleWsdl11Definition;
-import org.springframework.xml.transform.StringSource;
 import org.springframework.xml.DocumentBuilderFactoryUtils;
+import org.springframework.xml.transform.StringSource;
 
-import static org.custommonkey.xmlunit.XMLAssert.*;
-import static org.easymock.EasyMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class WsdlDefinitionHandlerAdapterTest {
 
@@ -49,143 +57,185 @@ public class WsdlDefinitionHandlerAdapterTest {
 
 	private MockHttpServletResponse response;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		adapter = new WsdlDefinitionHandlerAdapter();
-		definitionMock = createMock(WsdlDefinition.class);
-		adapter.afterPropertiesSet();
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+
+		this.adapter = new WsdlDefinitionHandlerAdapter();
+		this.definitionMock = createMock(WsdlDefinition.class);
+		this.adapter.afterPropertiesSet();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@Test
 	public void handleGet() throws Exception {
-		request.setMethod(HttpTransportConstants.METHOD_GET);
+
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
 		String definition = "<definition xmlns='http://schemas.xmlsoap.org/wsdl/'/>";
-		expect(definitionMock.getSource()).andReturn(new StringSource(definition));
+		expect(this.definitionMock.getSource()).andReturn(new StringSource(definition));
 
-		replay(definitionMock);
+		replay(this.definitionMock);
 
-		adapter.handle(request, response, definitionMock);
-		assertXMLEqual(definition, response.getContentAsString());
+		this.adapter.handle(this.request, this.response, this.definitionMock);
 
-		verify(definitionMock);
+		XmlAssert.assertThat(this.response.getContentAsString()).and(definition).ignoreWhitespace().areIdentical();
+
+		verify(this.definitionMock);
+	}
+
+	@Test
+	public void handleGetUpToDate() throws Exception {
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
+		Resource single = new ClassPathResource("echo-input.wsdl", getClass());
+		long lastModified = single.getFile().lastModified();
+		SimpleWsdl11Definition definition = new SimpleWsdl11Definition(single);
+		definition.afterPropertiesSet();
+		this.request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, lastModified);
+		this.adapter.handle(this.request, this.response, definition);
+		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
+		assertThat(this.response.getContentLength()).isEqualTo(0);
+	}
+
+	@Test
+	public void handleGetNotUpToDate() throws Exception {
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
+		Resource single = new ClassPathResource("echo-input.wsdl", getClass());
+		long lastModified = single.getFile().lastModified();
+		SimpleWsdl11Definition definition = new SimpleWsdl11Definition(single);
+		definition.afterPropertiesSet();
+		this.request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, lastModified - 10000);
+		this.adapter.handle(this.request, this.response, definition);
+		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		String expected = new String(FileCopyUtils.copyToByteArray(single.getFile()));
+		XmlAssert.assertThat(this.response.getContentAsString()).and(expected).ignoreWhitespace().areIdentical();
 	}
 
 	@Test
 	public void handleNonGet() throws Exception {
-		request.setMethod(HttpTransportConstants.METHOD_POST);
 
-		replay(definitionMock);
+		this.request.setMethod(HttpTransportConstants.METHOD_POST);
 
-		adapter.handle(request, response, definitionMock);
-		Assert.assertEquals("METHOD_NOT_ALLOWED expected", HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-				response.getStatus());
+		replay(this.definitionMock);
 
-		verify(definitionMock);
+		this.adapter.handle(this.request, this.response, this.definitionMock);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+
+		verify(this.definitionMock);
 	}
 
 	@Test
 	public void transformLocations() throws Exception {
-		adapter.setTransformLocations(true);
-		request.setMethod(HttpTransportConstants.METHOD_GET);
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("/context");
-		request.setServletPath("/service.wsdl");
-		request.setPathInfo(null);
-		request.setRequestURI("/context/service.wsdl");
 
-		replay(definitionMock);
+		this.adapter.setTransformLocations(true);
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("/context");
+		this.request.setServletPath("/service.wsdl");
+		this.request.setPathInfo(null);
+		this.request.setRequestURI("/context/service.wsdl");
+
+		replay(this.definitionMock);
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactoryUtils.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document result = documentBuilder.parse(getClass().getResourceAsStream("wsdl11-input.wsdl"));
-		adapter.transformLocations(result, request);
+		this.adapter.transformLocations(result, this.request);
 		Document expectedDocument = documentBuilder.parse(getClass().getResourceAsStream("wsdl11-expected.wsdl"));
-		assertXMLEqual("Invalid result", expectedDocument, result);
 
-		verify(definitionMock);
+		XmlAssert.assertThat(result).and(expectedDocument).ignoreWhitespace().areIdentical();
+
+		verify(this.definitionMock);
 	}
 
 	@Test
 	public void transformLocationFullUrl() throws Exception {
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("/context");
-		request.setPathInfo("/service.wsdl");
-		request.setRequestURI("/context/service.wsdl");
+
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("/context");
+		this.request.setPathInfo("/service.wsdl");
+		this.request.setRequestURI("/context/service.wsdl");
 		String oldLocation = "http://localhost:8080/context/service";
 
-		String result = adapter.transformLocation(oldLocation, request);
-		Assert.assertNotNull("No result", result);
-		Assert.assertEquals("Invalid result", new URI("http://example.com:8080/context/service"), new URI(result));
+		String result = this.adapter.transformLocation(oldLocation, this.request);
+
+		assertThat(result).isNotNull();
+		assertThat(new URI(result)).isEqualTo(new URI("http://example.com:8080/context/service"));
 	}
 
 	@Test
 	public void transformLocationEmptyContextFullUrl() throws Exception {
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("");
-		request.setRequestURI("/service.wsdl");
+
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("");
+		this.request.setRequestURI("/service.wsdl");
 		String oldLocation = "http://localhost:8080/service";
 
-		String result = adapter.transformLocation(oldLocation, request);
-		Assert.assertNotNull("No result", result);
-		Assert.assertEquals("Invalid result", new URI("http://example.com:8080/service"), new URI(result));
+		String result = this.adapter.transformLocation(oldLocation, this.request);
+
+		assertThat(result).isNotNull();
+		assertThat(new URI(result)).isEqualTo(new URI("http://example.com:8080/service"));
 	}
 
 	@Test
 	public void transformLocationRelativeUrl() throws Exception {
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("/context");
-		request.setPathInfo("/service.wsdl");
-		request.setRequestURI("/context/service.wsdl");
+
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("/context");
+		this.request.setPathInfo("/service.wsdl");
+		this.request.setRequestURI("/context/service.wsdl");
 		String oldLocation = "/service";
 
-		String result = adapter.transformLocation(oldLocation, request);
-		Assert.assertNotNull("No result", result);
-		Assert.assertEquals("Invalid result", new URI("http://example.com:8080/context/service"), new URI(result));
+		String result = this.adapter.transformLocation(oldLocation, this.request);
+
+		assertThat(result).isNotNull();
+		assertThat(new URI(result)).isEqualTo(new URI("http://example.com:8080/context/service"));
 	}
 
 	@Test
 	public void transformLocationEmptyContextRelativeUrl() throws Exception {
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("");
-		request.setRequestURI("/service.wsdl");
+
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("");
+		this.request.setRequestURI("/service.wsdl");
 		String oldLocation = "/service";
 
-		String result = adapter.transformLocation(oldLocation, request);
-		Assert.assertNotNull("No result", result);
-		Assert.assertEquals("Invalid result", new URI("http://example.com:8080/service"), new URI(result));
+		String result = this.adapter.transformLocation(oldLocation, this.request);
+
+		assertThat(result).isNotNull();
+		assertThat(new URI(result)).isEqualTo(new URI("http://example.com:8080/service"));
 	}
 
 	@Test
 	public void handleSimpleWsdl11DefinitionWithoutTransformLocations() throws Exception {
-		adapter.setTransformLocations(false);
-		request.setMethod(HttpTransportConstants.METHOD_GET);
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(8080);
-		request.setContextPath("/context");
-		request.setServletPath("/service.wsdl");
-		request.setPathInfo(null);
-		request.setRequestURI("/context/service.wsdl");
 
-		SimpleWsdl11Definition definition =
-				new SimpleWsdl11Definition(new ClassPathResource("echo-input.wsdl", getClass()));
+		this.adapter.setTransformLocations(false);
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(8080);
+		this.request.setContextPath("/context");
+		this.request.setServletPath("/service.wsdl");
+		this.request.setPathInfo(null);
+		this.request.setRequestURI("/context/service.wsdl");
 
-		adapter.handle(request, response, definition);
+		SimpleWsdl11Definition definition = new SimpleWsdl11Definition(
+				new ClassPathResource("echo-input.wsdl", getClass()));
 
-		InputStream inputStream = new ByteArrayInputStream(response.getContentAsByteArray());
+		this.adapter.handle(this.request, this.response, definition);
+
+		InputStream inputStream = new ByteArrayInputStream(this.response.getContentAsByteArray());
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactoryUtils.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -193,29 +243,31 @@ public class WsdlDefinitionHandlerAdapterTest {
 
 		documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document expectedDocument = documentBuilder.parse(getClass().getResourceAsStream("echo-input.wsdl"));
-		assertXMLEqual("Invalid WSDL returned", expectedDocument, resultingDocument);
+
+		XmlAssert.assertThat(resultingDocument).and(expectedDocument).ignoreWhitespace().areIdentical();
 	}
 
 	@Test
 	public void handleSimpleWsdl11DefinitionWithTransformLocation() throws Exception {
-		adapter.setTransformLocations(true);
-		adapter.setTransformSchemaLocations(true);
 
-		request.setMethod(HttpTransportConstants.METHOD_GET);
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(80);
-		request.setContextPath("/context");
-		request.setServletPath("/service.wsdl");
-		request.setPathInfo(null);
-		request.setRequestURI("/context/service.wsdl");
+		this.adapter.setTransformLocations(true);
+		this.adapter.setTransformSchemaLocations(true);
 
-		SimpleWsdl11Definition definition =
-				new SimpleWsdl11Definition(new ClassPathResource("echo-input.wsdl", getClass()));
+		this.request.setMethod(HttpTransportConstants.METHOD_GET);
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(80);
+		this.request.setContextPath("/context");
+		this.request.setServletPath("/service.wsdl");
+		this.request.setPathInfo(null);
+		this.request.setRequestURI("/context/service.wsdl");
 
-		adapter.handle(request, response, definition);
+		SimpleWsdl11Definition definition = new SimpleWsdl11Definition(
+				new ClassPathResource("echo-input.wsdl", getClass()));
 
-		InputStream inputStream = new ByteArrayInputStream(response.getContentAsByteArray());
+		this.adapter.handle(this.request, this.response, definition);
+
+		InputStream inputStream = new ByteArrayInputStream(this.response.getContentAsByteArray());
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactoryUtils.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -223,7 +275,46 @@ public class WsdlDefinitionHandlerAdapterTest {
 
 		documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document expectedDocument = documentBuilder.parse(getClass().getResourceAsStream("echo-expected.wsdl"));
-		assertXMLEqual("Invalid WSDL returned", expectedDocument, resultingDocument);
+
+		XmlAssert.assertThat(resultingDocument).and(expectedDocument).ignoreWhitespace().areIdentical();
+	}
+
+	@Test
+	public void handlesForwardedHeadersInRequest() {
+
+		// given
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(80);
+		this.request.setContextPath("/context");
+		this.request.setPathInfo("/service.wsdl");
+
+		this.request.addHeader("X-Forwarded-Proto", "https");
+		this.request.addHeader("X-Forwarded-Host", "loadbalancer.com");
+		this.request.addHeader("X-Forwarded-Port", "8080");
+
+		// when
+		String result = this.adapter.transformLocation("/service", this.request);
+
+		// then
+		assertThat(URI.create("https://loadbalancer.com:8080/context/service")).isEqualTo(URI.create(result));
+	}
+
+	@Test
+	public void handlesNoForwardedHeadersInRequest() {
+
+		// given
+		this.request.setScheme("http");
+		this.request.setServerName("example.com");
+		this.request.setServerPort(80);
+		this.request.setContextPath("/context");
+		this.request.setPathInfo("/service.wsdl");
+
+		// when
+		String result = this.adapter.transformLocation("/service", this.request);
+
+		// then
+		assertThat(URI.create("http://example.com:80/context/service")).isEqualTo(URI.create(result));
 	}
 
 }

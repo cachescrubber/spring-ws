@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2011 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,26 +17,28 @@
 package org.springframework.ws.transport.http;
 
 import java.io.File;
+
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
+
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPConnection;
+import jakarta.xml.soap.SOAPConnectionFactory;
+import jakarta.xml.soap.SOAPElement;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ws.transport.support.EchoPayloadEndpoint;
 import org.springframework.ws.transport.support.FreePortScanner;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 /**
  * @author Arjen Poutsma
@@ -51,29 +53,42 @@ public class MessageDispatcherServletIntegrationTest {
 
 	private SOAPConnectionFactory connectionFactory;
 
-	@BeforeClass
-	public static void startJetty() throws Exception {
+	@BeforeEach
+	public void startJetty() throws Exception {
+
 		int port = FreePortScanner.getFreePort();
 		url = "http://localhost:" + port;
+
 		jettyServer = new Server(port);
-		Context jettyContext = new Context(jettyServer, "/");
-		String resourceBase =
-				new File(MessageDispatcherServletIntegrationTest.class.getResource("WEB-INF").toURI()).getParent();
-		jettyContext.setResourceBase(resourceBase);
-		ServletHolder servletHolder = new ServletHolder(new MessageDispatcherServlet());
+		Connector connector = new ServerConnector(jettyServer);
+		jettyServer.addConnector(connector);
+
+		ServletContextHandler jettyContext = new ServletContextHandler();
+		jettyContext.setContextPath("/");
+
+		String resourceBase = new File(MessageDispatcherServletIntegrationTest.class.getResource("WEB-INF").toURI())
+			.getParent();
+
+		jettyContext.setBaseResourceAsString(resourceBase);
+
+		ServletHolder servletHolder = new ServletHolder(MessageDispatcherServlet.class);
 		servletHolder.setName("sws");
 		jettyContext.addServlet(servletHolder, "/");
+
+		jettyServer.setHandler(jettyContext);
 		jettyServer.start();
 	}
 
-	@Before
+	@BeforeEach
 	public void setUpSaaj() throws SOAPException {
-		messageFactory = MessageFactory.newInstance();
-		connectionFactory = SOAPConnectionFactory.newInstance();
+
+		this.messageFactory = MessageFactory.newInstance();
+		this.connectionFactory = SOAPConnectionFactory.newInstance();
 	}
 
-	@AfterClass
-	public static void stopJetty() throws Exception {
+	@AfterEach
+	public void stopJetty() throws Exception {
+
 		if (jettyServer.isRunning()) {
 			jettyServer.stop();
 		}
@@ -81,16 +96,17 @@ public class MessageDispatcherServletIntegrationTest {
 
 	@Test
 	public void echo() throws SOAPException {
-		SOAPMessage request = messageFactory.createMessage();
-		SOAPElement element = request.getSOAPBody().addChildElement(new QName(EchoPayloadEndpoint.NAMESPACE, EchoPayloadEndpoint.LOCAL_PART));
+
+		SOAPMessage request = this.messageFactory.createMessage();
+		SOAPElement element = request.getSOAPBody()
+			.addChildElement(new QName(EchoPayloadEndpoint.NAMESPACE, EchoPayloadEndpoint.LOCAL_PART));
 		element.setTextContent("Hello World");
 
-		SOAPConnection connection = connectionFactory.createConnection();
+		SOAPConnection connection = this.connectionFactory.createConnection();
 
 		SOAPMessage response = connection.call(request, url);
 
-		assertXMLEqual(request.getSOAPPart(), response.getSOAPPart());
+		assertThat(response.getSOAPPart()).and(request.getSOAPPart()).ignoreWhitespace().areIdentical();
 	}
-
 
 }

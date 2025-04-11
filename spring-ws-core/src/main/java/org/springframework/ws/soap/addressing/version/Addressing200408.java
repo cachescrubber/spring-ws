@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.ws.soap.addressing.version;
 
 import java.net.URI;
+
 import javax.xml.namespace.QName;
 
 import org.springframework.util.Assert;
@@ -25,13 +26,15 @@ import org.springframework.ws.soap.addressing.core.EndpointReference;
 import org.springframework.ws.soap.addressing.core.MessageAddressingProperties;
 
 /**
- * Implements the August 2004 edition of the WS-Addressing specification. This version of the specification is used by
- * Microsoft's Web Services Enhancements (WSE) 3.0, and supported by Axis 1 and 2, and XFire.
+ * Implements the August 2004 edition of the WS-Addressing specification. This version of
+ * the specification is used by Microsoft's Web Services Enhancements (WSE) 3.0, and
+ * supported by Axis 1 and 2, and XFire.
  *
  * @author Arjen Poutsma
- * @see <a href="http://www.w3.org/Submission/2004/SUBM-ws-addressing-20040810/">Web Services Addressing, August
- *		2004</a>
+ * @author Leandro Quiroga
  * @since 1.5.0
+ * @see <a href="http://www.w3.org/Submission/2004/SUBM-ws-addressing-20040810/">Web
+ * Services Addressing, August 2004</a>
  */
 public class Addressing200408 extends AbstractAddressingVersion {
 
@@ -59,6 +62,11 @@ public class Addressing200408 extends AbstractAddressingVersion {
 	}
 
 	@Override
+	public boolean isToHeaderRequired() {
+		return true;
+	}
+
+	@Override
 	protected final URI getAnonymous() {
 		return URI.create(NAMESPACE_URI + "/role/anonymous");
 	}
@@ -70,8 +78,7 @@ public class Addressing200408 extends AbstractAddressingVersion {
 
 	@Override
 	protected final QName getInvalidAddressingHeaderFaultSubcode() {
-		return new QName(NAMESPACE_URI, "InvalidMessageInformationHeader",
-				getNamespacePrefix());
+		return new QName(NAMESPACE_URI, "InvalidMessageInformationHeader", getNamespacePrefix());
 	}
 
 	@Override
@@ -81,8 +88,7 @@ public class Addressing200408 extends AbstractAddressingVersion {
 
 	@Override
 	protected final QName getMessageAddressingHeaderRequiredFaultSubcode() {
-		return new QName(NAMESPACE_URI, "MessageInformationHeaderRequired",
-				getNamespacePrefix());
+		return new QName(NAMESPACE_URI, "MessageInformationHeaderRequired", getNamespacePrefix());
 	}
 
 	@Override
@@ -108,4 +114,5 @@ public class Addressing200408 extends AbstractAddressingVersion {
 	public String toString() {
 		return "WS-Addressing August 2004";
 	}
+
 }

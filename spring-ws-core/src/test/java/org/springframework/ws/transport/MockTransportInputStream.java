@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package org.springframework.ws.transport;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ public class MockTransportInputStream extends TransportInputStream {
 	private InputStream inputStream;
 
 	public MockTransportInputStream(InputStream inputStream, Map<String, String> headers) {
+
 		Assert.notNull(inputStream, "inputStream must not be null");
 		Assert.notNull(headers, "headers must not be null");
 		this.inputStream = inputStream;
@@ -40,24 +40,27 @@ public class MockTransportInputStream extends TransportInputStream {
 	}
 
 	public MockTransportInputStream(InputStream inputStream) {
+
 		Assert.notNull(inputStream, "inputStream must not be null");
 		this.inputStream = inputStream;
-		headers = new HashMap<String, String>();
+		this.headers = new HashMap<>();
 	}
 
 	@Override
-	protected InputStream createInputStream() throws IOException {
-		return inputStream;
+	protected InputStream createInputStream() {
+		return this.inputStream;
 	}
 
 	@Override
-	public Iterator<String> getHeaderNames() throws IOException {
-		return headers.keySet().iterator();
+	public Iterator<String> getHeaderNames() {
+		return this.headers.keySet().iterator();
 	}
 
 	@Override
-	public Iterator<String> getHeaders(String name) throws IOException {
-		String[] values = StringUtils.delimitedListToStringArray(headers.get(name), ", ");
+	public Iterator<String> getHeaders(String name) {
+
+		String[] values = StringUtils.delimitedListToStringArray(this.headers.get(name), ", ");
 		return Arrays.asList(values).iterator();
 	}
+
 }

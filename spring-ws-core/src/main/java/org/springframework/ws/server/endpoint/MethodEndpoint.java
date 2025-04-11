@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2012 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,9 +37,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.method.HandlerMethod;
 
 /**
- * Represents a bean method that will be invoked as part of an incoming Web service message.
- *
- * <p>Consists of a {@link Method}, and a bean {@link Object}.
+ * Represents a bean method that will be invoked as part of an incoming Web service
+ * message.
+ * <p>
+ * Consists of a {@link Method}, and a bean {@link Object}.
  *
  * @author Arjen Poutsma
  * @since 1.0.0
@@ -61,8 +62,7 @@ public final class MethodEndpoint {
 
 	/**
 	 * Constructs a new method endpoint with the given bean and method.
-	 *
-	 * @param bean	 the object bean
+	 * @param bean the object bean
 	 * @param method the method
 	 */
 	public MethodEndpoint(Object bean, Method method) {
@@ -76,9 +76,8 @@ public final class MethodEndpoint {
 
 	/**
 	 * Constructs a new method endpoint with the given bean, method name and parameters.
-	 *
-	 * @param bean			 the object bean
-	 * @param methodName	 the method name
+	 * @param bean the object bean
+	 * @param methodName the method name
 	 * @param parameterTypes the method parameter types
 	 * @throws NoSuchMethodException when the method cannot be found
 	 */
@@ -92,12 +91,11 @@ public final class MethodEndpoint {
 	}
 
 	/**
-	 * Constructs a new method endpoint with the given bean name and method. The bean name will be lazily initialized when
-	 * {@link #invoke(Object...)} is called.
-	 *
-	 * @param beanName	  the bean name
+	 * Constructs a new method endpoint with the given bean name and method. The bean name
+	 * will be lazily initialized when {@link #invoke(Object...)} is called.
+	 * @param beanName the bean name
 	 * @param beanFactory the bean factory to use for bean initialization
-	 * @param method	  the method
+	 * @param method the method
 	 */
 	public MethodEndpoint(String beanName, BeanFactory beanFactory, Method method) {
 		Assert.hasText(beanName, "'beanName' must not be null");
@@ -113,12 +111,11 @@ public final class MethodEndpoint {
 
 	/** Returns the object bean for this method endpoint. */
 	public Object getBean() {
-		if (beanFactory != null && bean instanceof String) {
-			String beanName = (String) bean;
-			return beanFactory.getBean(beanName);
+		if (this.beanFactory != null && this.bean instanceof String beanName) {
+			return this.beanFactory.getBean(beanName);
 		}
 		else {
-			return bean;
+			return this.bean;
 		}
 	}
 
@@ -281,22 +278,20 @@ public final class MethodEndpoint {
 
 	/**
 	 * Invokes this method endpoint with the given arguments.
-	 *
 	 * @param args the arguments
 	 * @return the invocation result
 	 * @throws Exception when the method invocation results in an exception
 	 */
 	public Object invoke(Object... args) throws Exception {
 		Object endpoint = getBean();
-		ReflectionUtils.makeAccessible(method);
+		ReflectionUtils.makeAccessible(this.method);
 		try {
-			return method.invoke(endpoint, args);
+			return this.method.invoke(endpoint, args);
 		}
 		catch (InvocationTargetException ex) {
 			handleInvocationTargetException(ex);
-			throw new IllegalStateException(
-					"Unexpected exception thrown by method - " + ex.getTargetException().getClass().getName() + ": " +
-							ex.getTargetException().getMessage());
+			throw new IllegalStateException("Unexpected exception thrown by method - "
+					+ ex.getTargetException().getClass().getName() + ": " + ex.getTargetException().getMessage());
 		}
 	}
 
@@ -318,8 +313,7 @@ public final class MethodEndpoint {
 		if (this == o) {
 			return true;
 		}
-		if (o != null && o instanceof MethodEndpoint) {
-			MethodEndpoint other = (MethodEndpoint) o;
+		if (o instanceof MethodEndpoint other) {
 			return this.bean.equals(other.bean) && this.method.equals(other.method);
 		}
 		return false;
@@ -330,7 +324,7 @@ public final class MethodEndpoint {
 	}
 
 	public String toString() {
-		return method.toGenericString();
+		return this.method.toGenericString();
 	}
 
 }

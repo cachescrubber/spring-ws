@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2014 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,9 +21,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.ws.server.endpoint.MethodEndpoint;
@@ -33,10 +31,12 @@ import org.springframework.ws.soap.addressing.server.annotation.Action;
 import org.springframework.ws.soap.addressing.server.annotation.Address;
 
 /**
- * Implementation of the {@link org.springframework.ws.server.EndpointMapping} interface that uses the
- * {@link Action @Action} annotation to map methods to a WS-Addressing {@code Action} header.
+ * Implementation of the {@link org.springframework.ws.server.EndpointMapping} interface
+ * that uses the {@link Action @Action} annotation to map methods to a WS-Addressing
+ * {@code Action} header.
+ * <p>
+ * Endpoints typically have the following form:
  *
- * <p>Endpoints typically have the following form:
  * <pre>
  * &#64;Endpoint
  * &#64;Address("mailto:joe@fabrikam123.example")
@@ -47,17 +47,20 @@ import org.springframework.ws.soap.addressing.server.annotation.Address;
  *	  }
  * }
  * </pre>
- *
- * <p>If set, the {@link Address @Address} annotation on the endpoint class should be equal to the {@link
- * org.springframework.ws.soap.addressing.core.MessageAddressingProperties#getTo() destination} property of the
- * incoming message.
+ * <p>
+ * If set, the {@link Address @Address} annotation on the endpoint class should be equal
+ * to the
+ * {@link org.springframework.ws.soap.addressing.core.MessageAddressingProperties#getTo()
+ * destination} property of the incoming message.
  *
  * @author Arjen Poutsma
+ * @author Corneil du Plessis (with thanks to Chris Bono)
+ * @since 1.5.0
  * @see Action
  * @see Address
- * @since 1.5.0
  */
-public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpointMapping implements BeanPostProcessor {
+public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpointMapping
+		implements SmartInitializingSingleton {
 
 	/** Returns the 'endpoint' annotation type. Default is {@link Endpoint}. */
 	protected Class<? extends Annotation> getEndpointAnnotationType() {
@@ -65,8 +68,8 @@ public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpoin
 	}
 
 	/**
-	 * Returns the action value for the specified method. Default implementation looks for the {@link Action} annotation
-	 * value.
+	 * Returns the action value for the specified method. Default implementation looks for
+	 * the {@link Action} annotation value.
 	 */
 	@Override
 	protected URI getActionForMethod(Method method) {
@@ -75,7 +78,7 @@ public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpoin
 			try {
 				return new URI(action.value());
 			}
-			catch (URISyntaxException e) {
+			catch (URISyntaxException ex) {
 				throw new IllegalArgumentException(
 						"Invalid Action annotation [" + action.value() + "] on [" + method + "]");
 			}
@@ -84,11 +87,11 @@ public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpoin
 	}
 
 	/**
-	 * Returns the address property of the given {@link MethodEndpoint}, by looking for the {@link Address} annotation.
-	 * The value of this property should match the {@link org.springframework.ws.soap.addressing.core.MessageAddressingProperties#getTo()
-	 * destination} of incoming messages. Returns {@code null} if the anotation is not present, thus ignoring the
-	 * destination property.
-	 *
+	 * Returns the address property of the given {@link MethodEndpoint}, by looking for
+	 * the {@link Address} annotation. The value of this property should match the
+	 * {@link org.springframework.ws.soap.addressing.core.MessageAddressingProperties#getTo()
+	 * destination} of incoming messages. Returns {@code null} if the anotation is not
+	 * present, thus ignoring the destination property.
 	 * @param endpoint the method endpoint to return the address for
 	 * @return the endpoint address; or {@code null} to ignore the destination property
 	 */
@@ -133,22 +136,17 @@ public class AnnotationActionEndpointMapping extends AbstractActionMethodEndpoin
 		try {
 			return new URI(action);
 		}
-		catch (URISyntaxException e) {
+		catch (URISyntaxException ex) {
 			throw new IllegalArgumentException(
 					"Invalid Action annotation [" + action + "] on [" + methodEndpoint + "]");
 		}
 	}
 
-	@Override
-	public final Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		return bean;
+	public void afterSingletonsInstantiated() {
+		this.getApplicationContext()
+			.getBeansWithAnnotation(this.getEndpointAnnotationType())
+			.values()
+			.forEach(this::registerMethods);
 	}
 
-	@Override
-	public final Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		if (AopUtils.getTargetClass(bean).getAnnotation(getEndpointAnnotationType()) != null) {
-			registerMethods(bean);
-		}
-		return bean;
-	}
 }

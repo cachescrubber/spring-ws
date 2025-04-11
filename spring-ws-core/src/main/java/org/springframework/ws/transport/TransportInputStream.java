@@ -1,11 +1,11 @@
 /*
- * Copyright 2005-2010 the original author or authors.
+ * Copyright 2005-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,14 @@ import java.util.Iterator;
 import org.springframework.util.Assert;
 
 /**
- * A {@code TransportInputStream} is an input stream with MIME input headers. It is used to construct {@link
- * org.springframework.ws.WebServiceMessage WebServiceMessages} from a transport.
+ * A {@code TransportInputStream} is an input stream with MIME input headers. It is used
+ * to construct {@link org.springframework.ws.WebServiceMessage WebServiceMessages} from a
+ * transport.
  *
  * @author Arjen Poutsma
+ * @since 1.0.0
  * @see #getHeaderNames()
  * @see #getHeaders(String)
- * @since 1.0.0
  */
 public abstract class TransportInputStream extends InputStream {
 
@@ -39,16 +40,18 @@ public abstract class TransportInputStream extends InputStream {
 	}
 
 	private InputStream getInputStream() throws IOException {
-		if (inputStream == null) {
-			inputStream = createInputStream();
-			Assert.notNull(inputStream, "inputStream must not be null");
+		if (this.inputStream == null) {
+			this.inputStream = createInputStream();
+			Assert.notNull(this.inputStream, "inputStream must not be null");
 		}
-		return inputStream;
+		return this.inputStream;
 	}
 
 	@Override
 	public void close() throws IOException {
-		getInputStream().close();
+		if (this.inputStream != null) {
+			getInputStream().close();
+		}
 	}
 
 	@Override
@@ -61,7 +64,7 @@ public abstract class TransportInputStream extends InputStream {
 		try {
 			getInputStream().mark(readlimit);
 		}
-		catch (IOException e) {
+		catch (IOException ex) {
 			// ignored
 		}
 	}
@@ -71,18 +74,18 @@ public abstract class TransportInputStream extends InputStream {
 		try {
 			return getInputStream().markSupported();
 		}
-		catch (IOException e) {
+		catch (IOException ex) {
 			return false;
 		}
 	}
 
 	@Override
-	public int read(byte b[]) throws IOException {
+	public int read(byte[] b) throws IOException {
 		return getInputStream().read(b);
 	}
 
 	@Override
-	public int read(byte b[], int off, int len) throws IOException {
+	public int read(byte[] b, int off, int len) throws IOException {
 		return getInputStream().read(b, off, len);
 	}
 
@@ -105,14 +108,15 @@ public abstract class TransportInputStream extends InputStream {
 	protected abstract InputStream createInputStream() throws IOException;
 
 	/**
-	 * Returns an iteration over all the header names this stream contains. Returns an empty {@code Iterator} if
-	 * there are no headers.
+	 * Returns an iteration over all the header names this stream contains. Returns an
+	 * empty {@code Iterator} if there are no headers.
 	 */
 	public abstract Iterator<String> getHeaderNames() throws IOException;
 
 	/**
-	 * Returns an iteration over all the string values of the specified header. Returns an empty {@code Iterator}
-	 * if there are no headers of the specified name.
+	 * Returns an iteration over all the string values of the specified header. Returns an
+	 * empty {@code Iterator} if there are no headers of the specified name.
 	 */
 	public abstract Iterator<String> getHeaders(String name) throws IOException;
+
 }
